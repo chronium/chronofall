@@ -116,6 +116,24 @@ Run `pm doctor` or equivalent PM validation for every mutated PM project. Inspec
 
 Select build/test/native validation by owning repository and risk. Documentation-only work does not require a full game test run. Rendering and animation require deterministic transform/sampling tests, supported GPU/native execution, captured evidence, and explicit owner visual confirmation. Server outputs must remain free of client graphics dependencies and assets.
 
+## Visual Checkpoints And Project History
+
+Actively look for a project-history candidate whenever work produces meaningful visual output. Good candidates include a first working capability, milestone closure, a major before/after, an explanatory architecture or debug view, or an image that clearly captures a project transition. Routine regression screenshots, near-duplicates, noisy debug output, and raw capture dumps are not candidates.
+
+Before completing or handing off visually meaningful work, show the strongest candidate to the owner and explicitly ask whether to:
+
+1. preserve it as-is;
+2. revise framing, camera, crop, overlays, labels, timestamps, or contact-sheet composition first; or
+3. skip preservation.
+
+Do not assume visual acceptance also authorizes permanent retention, and do not commit screenshots automatically. Keep raw captures and intermediate conversions ignored. Once the owner approves a coordinator artifact, preserve only the curated derivative under `docs/project-history/<YYYY-MM-DD>-<slug>/` with a dated index entry, canonical PM ownership, provenance and licence evidence, generation notes, and a content hash.
+
+Preserve a child-owned milestone in the child repository that produced it. When Royale or Starfall work yields a candidate, notify the owner but route any permanent child policy, PM, documentation, and commit through a child-owned task. Do not silently copy a child artifact into the coordinator or advance a gitlink. A family-level coordinator artifact requires an explicit owner choice and must link back to its child-owned evidence.
+
+The repository-relative history layout is intended to feed a future PM wiki image/timeline feature. Do not implement or assume that capability until its own approved task exists.
+
+The durable workflow is documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/visual-checkpoints`.
+
 ## Skill Routing
 
 Load the smallest relevant set:

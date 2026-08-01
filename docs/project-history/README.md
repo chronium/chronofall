@@ -15,6 +15,22 @@ Raw captures, intermediate conversions, test output, and bulk generated evidence
 
 The dated, repository-relative layout is intended to remain stable so a future PM wiki image/timeline feature can reference these artifacts directly.
 
+Durable workflow: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/visual-checkpoints`.
+
+## Candidate And Approval Workflow
+
+Agents should proactively offer a candidate when visual work captures a first capability, milestone closure, meaningful before/after, explanatory debug or architecture view, or another project transition worth remembering. Routine regression screenshots, duplicates, temporary noise, and raw capture collections stay out of this timeline.
+
+The owner chooses whether to:
+
+1. preserve the candidate as-is;
+2. revise its camera, framing, crop, overlays, labels, timestamps, selected frames, or composition; or
+3. skip it.
+
+Nothing is preserved automatically. After approval, retain the smallest useful curated derivative together with a dated README containing canonical task/wiki ownership, source and licence provenance, generation details, meaning, and a content hash.
+
+Artifacts belong to the repository that produced the milestone. Child output should be preserved through that child's own PM and commit workflow. A coordinator-level family artifact must be explicitly selected by the owner and link back to the child-owned evidence.
+
 ## Timeline
 
 - [2026-08-01 — First deterministic skinned-character capture suite](2026-08-01-skinned-character-proof/README.md)
