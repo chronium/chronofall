@@ -1,7 +1,7 @@
 ---
 title: Quaternius Asset Provenance and Intake
 createdAt: 2026-08-01T05:44:07.0108550Z
-modifiedAt: 2026-08-01T05:44:07.0108550Z
+modifiedAt: 2026-08-01T07:17:24.3227160Z
 ---
 
 ## Provenance
@@ -26,3 +26,5 @@ The inspected male and female base-character glTFs each contain one skin with 65
 The first proof selects the smallest useful subset: one humanoid, one skeleton, one idle, one locomotion clip, and one compatible attack if demonstrated. Do not process the entire collection. If skeletons differ, report evidence and plan the smallest resolving experiment; do not invent retargeting.
 
 Client cooks may contain rendering/skeletal/animation data. Headless/server output contains only authoritative or collision data and never rendering dependencies.
+
+`ASSET-0001` completed the detailed, reproducible inventory at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/character-animation-inventory`. It records the exact files and hashes, 65-joint hierarchy, four-influence weights, inverse binds, 30 Hz LINEAR animation channels, root-motion variants, scale evidence, compatibility limits, and three unresolved supplied texture URIs. Exact joint identity is demonstrated, but deformation compatibility still requires the narrow follow-up probe; no retargeting or source-asset rewrite is authorized.
