@@ -7,3 +7,4 @@ children:
 - projectId: prj_pkIpzx0fzFD4URjvqBuYrGZF
   alias: starfall
   repositoryUrl: https://github.com/chronium/starfall.git
+  pathHint: starfall
