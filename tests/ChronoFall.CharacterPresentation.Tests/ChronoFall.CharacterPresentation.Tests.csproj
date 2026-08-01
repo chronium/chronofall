@@ -12,6 +12,6 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/ChronoFall.CharacterExperiment/ChronoFall.CharacterExperiment.csproj" />
+    <ProjectReference Include="../../src/ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
   </ItemGroup>
 </Project>

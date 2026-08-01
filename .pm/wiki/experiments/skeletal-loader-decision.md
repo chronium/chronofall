@@ -1,7 +1,7 @@
 ---
 title: Experimental Skeletal Loader Decision
 createdAt: 2026-08-01T09:09:44.4811970Z
-modifiedAt: 2026-08-01T10:21:06.8681800Z
+modifiedAt: 2026-08-01T17:06:44.3494420Z
 ---
 
 ## Decision
@@ -65,13 +65,15 @@ For the next implementation task, ChronoFall will acquire SimpleMesh only. SDL3-
 
 ## Implemented acquisition and adapter
 
-`EXPERIMENT-0012` implements the decision without promoting the dependency. ChronoFall pins `https://github.com/CallumDev/SimpleMesh` at `9f46341e35fa5876fbea7b96bd021bc3abd7842d` in `thirdparty/versions.env`, fetches it into ignored `thirdparty/repos/SimpleMesh`, preserves the Apache-2.0 license, and applies one ordered patch. `thirdparty/verify-simplemesh.sh` verifies the revision, origin, license text, patch diagnostics, and reverse applicability. A clean fetch and patch application is reproducible.
+`EXPERIMENT-0012` implements the M1 loader decision without promoting the dependency. ChronoFall pins `https://github.com/CallumDev/SimpleMesh` at `9f46341e35fa5876fbea7b96bd021bc3abd7842d` in `thirdparty/versions.env`, fetches it into ignored `thirdparty/repos/SimpleMesh`, preserves the Apache-2.0 license, and applies one ordered patch. `thirdparty/verify-simplemesh.sh` verifies the revision, origin, license text, patch diagnostics, and reverse applicability.
 
-The patch adds only public interpolation metadata and scale keyframes/channels. It does not add experiment sampling, change other formats, or add a permanent loader API. Patched files carry ChronoFall modification notices.
+The patch adds only public interpolation metadata and scale keyframes/channels. It does not add sampling, change other formats, or establish a permanent loader API. Patched files carry ChronoFall modification notices.
 
-`ChronoFall.CharacterExperiment.SimpleMesh` is the only project that references the patched dependency. `ChronoFall.CharacterExperiment` remains BCL-only. `SimpleMeshSkeletalAssetLoader.LoadFromFile` maps one skinned triangle mesh, one parent-first skin, inverse binds, four-lane influences, and complete LINEAR TRS clips into the provisional experiment types. It preserves glTF right-handed, Y-up, metre-based model space and verifies the selected mesh and skeleton share the documented identity `Armature` space.
+`ChronoFall.CharacterExperiment.SimpleMesh` is the only project that references the patched dependency. `ChronoFall.CharacterPresentation` remains BCL-only. `SimpleMeshSkeletalAssetLoader.LoadFromFile` maps one skinned triangle mesh, one parent-first skin, inverse binds, four-lane influences, and complete LINEAR TRS clips into the promoted presentation contract. It preserves glTF right-handed, Y-up, metre-based model space and verifies that the selected mesh and skeleton share identity `Armature` space.
 
-`SkeletalAssetLoadException` reports source path, clip, target node, channel path, reason, and inner error where available. The adapter rejects unsupported interpolation, unresolved or duplicate targets, missing or duplicate TRS channels, empty or malformed channels, non-finite data, non-increasing times, invalid hierarchy or skin data, and invalid triangle geometry. UV0 is retained; UV1 and material properties are outside M1, while section material names remain available for diagnostics.
+`SkeletalAssetLoadException` reports source path, clip, target node, channel path, reason and inner error where available. The adapter rejects unsupported interpolation, unresolved or duplicate targets, missing or duplicate TRS channels, empty or malformed channels, non-finite data, non-increasing times, invalid hierarchy or skin data, and invalid triangle geometry. UV0 is retained; UV1 and material properties remain outside this loader decision, while section material names remain available for diagnostics.
+
+`SHARED-0001` promoted the target data contract but deliberately did not promote SimpleMesh. Loader permanence and skeletal cooking remain future owner-reviewed decisions.
 
 ## Explicit non-goals
 

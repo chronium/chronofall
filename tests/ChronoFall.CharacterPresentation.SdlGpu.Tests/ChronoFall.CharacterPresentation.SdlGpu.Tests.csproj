@@ -13,8 +13,6 @@
     <Using Include="ChronoFall.CharacterPresentation" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
-    <ProjectReference Include="../../thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj"
-                      SetConfiguration="Configuration=$(Configuration)" />
+    <ProjectReference Include="../../src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
   </ItemGroup>
 </Project>

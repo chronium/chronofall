@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace ChronoFall.CharacterExperiment;
+namespace ChronoFall.CharacterPresentation;
 
 public sealed class SkeletonGlobalPose
 {

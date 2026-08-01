@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace ChronoFall.CharacterExperiment.Tests;
+namespace ChronoFall.CharacterPresentation.Tests;
 
 public sealed class AnimationDataTests
 {

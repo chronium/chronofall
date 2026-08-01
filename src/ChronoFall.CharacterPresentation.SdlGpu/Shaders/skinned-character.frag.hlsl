@@ -4,7 +4,7 @@ struct FragmentInput
     float3 Normal : TEXCOORD0;
 };
 
-cbuffer MaterialConstants : register(b0, space3)
+cbuffer SurfaceConstants : register(b0, space3)
 {
     float4 BaseColor;
     float4 LightDirection;

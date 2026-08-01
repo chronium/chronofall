@@ -1,16 +1,18 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T16:29:30.7911680Z
+modifiedAt: 2026-08-01T17:09:17.3934670Z
 ---
 
 ## Status and ownership
 
-This page records the coordinator-owned, provisional SDL GPU bind-pose experiment implemented by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0005`.
+This page records the coordinator-owned SDL GPU proof begun by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0005` and retained as the native regression harness after `SHARED-0001`.
 
-`ChronoFall.CharacterExperiment.SdlGpu` owns experiment-only vertex packing, GPU palette transport, shader layout, bounds-based framing, SDL GPU resources, offscreen readback, and native validation. It consumes the BCL-only `ChronoFall.CharacterExperiment` data contract. The standalone `ChronoFall.CharacterExperiment.GpuHarness` is the composition root that loads the selected GLB through `ChronoFall.CharacterExperiment.SimpleMesh`.
+`ChronoFall.CharacterPresentation.SdlGpu` now owns the hidden 48-byte vertex ABI, palette transport, skinned shaders, graphics pipeline, mesh resources, per-instance palette resources and draw recording. It consumes the BCL-only `ChronoFall.CharacterPresentation` contract.
 
-This is not a promoted shared-engine module. Neither child references it, and no SDL, GPU, shader, SimpleMesh, asset, or presentation dependency enters the headless core.
+`ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host and owns bounds framing, its window and SDL device, skeleton overlay, offscreen targets, readback, captures, interactive controls and error context. `ChronoFall.CharacterExperiment.GpuHarness` composes that host with the provisional `ChronoFall.CharacterExperiment.SimpleMesh` adapter.
+
+Neither child references these projects yet. No SDL, GPU, shader, SimpleMesh, asset or presentation dependency enters headless code. The promoted ownership boundary is documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-character-presentation`.
 
 ## Authoritative input
 
@@ -41,7 +43,7 @@ sh thirdparty/verify-sdl3-cs.sh
 
 ## GPU data contract
 
-The experiment packs each vertex as 48 bytes:
+`ChronoFall.CharacterPresentation.SdlGpu` owns this internal vertex ABI:
 
 | Location | Field | Format | Offset |
 | --- | --- | --- | --- |
@@ -50,9 +52,11 @@ The experiment packs each vertex as 48 bytes:
 | 2 | Joint indices | `ushort4` | 24 |
 | 3 | Weights | `float4` | 32 |
 
-The source UV is deliberately omitted because this task uses deterministic diagnostic colors rather than a material or texture framework. Indices remain 32-bit. Section order and index ranges are preserved.
+The source UV remains deliberately omitted because the validated path uses deterministic diagnostic colors rather than a material or texture framework. Indices remain 32-bit. Section order and index ranges are preserved.
 
-The selected 65-matrix palette occupies 4,160 bytes. It is uploaded to an SDL GPU buffer with `SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ` and bound to vertex storage slot 0. The vertex shader declares one storage buffer; a small camera matrix occupies vertex uniform slot 0. This avoids treating the full palette as pushed uniform data and establishes a transport usable by the next animation experiment without promoting it as a permanent API.
+The selected 65-matrix palette occupies 4,160 bytes. The shared renderer uploads it to an SDL GPU buffer with `SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ`, binds it to vertex storage slot 0 and owns the single CPU-to-shader transpose. The vertex shader declares one storage buffer; the draw transform occupies vertex uniform slot 0.
+
+The renderer records uploads and draws into caller-owned command buffers and render passes. It does not own SDL initialization, the GPU device, windows, targets, camera policy, submission, captures or host lifecycle. Those responsibilities remain in the diagnostic host until another demonstrated consumer justifies a narrower shared contract.
 
 ## Matrix and shader boundary
 

@@ -8,6 +8,10 @@
   <ItemGroup>
     <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
     <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
+    <ProjectReference Include="../../src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="ChronoFall.CharacterPresentation" />
   </ItemGroup>
   <ItemGroup Condition="'$(ChronoFallEffectiveRuntimeIdentifier)' == 'osx-arm64'">
     <None Include="../../thirdparty/repos/SDL3-CS/native/osx-arm64/libSDL3.dylib"
@@ -17,9 +21,13 @@
   <Target Name="CopyChronoFallCharacterExperimentShaders" AfterTargets="Build">
     <ItemGroup>
       <CharacterExperimentShaderAsset Include="../../src/ChronoFall.CharacterExperiment.SdlGpu/bin/$(Configuration)/$(TargetFramework)/shaders/**/*" />
+      <CharacterPresentationShaderAsset Include="../../src/ChronoFall.CharacterPresentation.SdlGpu/bin/$(Configuration)/$(TargetFramework)/shaders/**/*" />
     </ItemGroup>
     <Copy SourceFiles="@(CharacterExperimentShaderAsset)"
           DestinationFiles="@(CharacterExperimentShaderAsset->'$(OutputPath)shaders/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(CharacterPresentationShaderAsset)"
+          DestinationFiles="@(CharacterPresentationShaderAsset->'$(OutputPath)shaders/%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
 </Project>

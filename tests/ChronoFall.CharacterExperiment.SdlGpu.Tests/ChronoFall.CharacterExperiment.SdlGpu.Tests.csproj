@@ -10,9 +10,12 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="ChronoFall.CharacterPresentation" />
+    <Using Include="ChronoFall.CharacterPresentation.SdlGpu" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
+    <ProjectReference Include="../../src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
     <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
     <ProjectReference Include="../ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj"
                       ReferenceOutputAssembly="false" />

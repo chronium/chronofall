@@ -54,7 +54,7 @@ internal readonly record struct SkeletonOverlayAnalysis(
 internal readonly record struct CharacterAnimationFrame(
     float SampleTime,
     SkeletonGlobalPose GlobalPose,
-    Matrix4x4[] PackedPalette);
+    SkinningPalette Palette);
 
 internal static class SdlGpuCharacterHarness
 {
@@ -75,45 +75,43 @@ internal static class SdlGpuCharacterHarness
         if (!ReferenceEquals(animation.Skeleton, asset.Mesh.Skin.Skeleton))
             throw new ArgumentException($"Animation '{animation.Name}' does not use the selected mesh skeleton.", nameof(animation));
 
-        GpuSkinnedMeshData mesh = GpuSkinnedMeshData.Create(asset.Mesh);
+        MeshBounds bounds = MeshBounds.Create(asset.Mesh.Vertices.Select(static vertex => vertex.Position).ToArray());
         SkeletonPose bindPose = asset.Mesh.Skin.Skeleton.CreateBindPose();
         SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(bindPose);
         SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(asset.Mesh.Skin, globalPose);
-        BindPoseCamera camera = BindPoseCamera.Create(mesh.Bounds, options.Width, options.Height);
-        float skeletonAxisLength = mesh.Bounds.Radius * 0.04f;
+        BindPoseCamera camera = BindPoseCamera.Create(bounds, options.Width, options.Height);
+        float skeletonAxisLength = bounds.Radius * 0.04f;
         SkeletonDebugGeometry skeletonDebug = SkeletonDebugGeometry.Create(globalPose, skeletonAxisLength);
 
-        using var gpu = new CharacterGpuSession(mesh, skeletonDebug, options.Width, options.Height, options.Visible);
+        using var gpu = new CharacterGpuSession(asset.Mesh, skeletonDebug, options.Width, options.Height, options.Visible);
 
-        gpu.UploadPalette(GpuMatrixPacking.PackTransposed(palette));
-        byte[] bindPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        gpu.UploadPalette(palette);
+        byte[] bindPixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis bindAnalysis = Analyze(bindPixels, options.Width, options.Height, "bind-pose");
 
-        float probeDistance = mesh.Bounds.Radius * 0.08f;
-        gpu.UploadPalette(GpuMatrixPacking.PackTransposed(
-            palette,
-            Matrix4x4.CreateTranslation(probeDistance, 0.0f, 0.0f)));
-        byte[] probePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        float probeDistance = bounds.Radius * 0.08f;
+        gpu.UploadPalette(CreateTranslatedPalette(palette, probeDistance));
+        byte[] probePixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis probeAnalysis = Analyze(probePixels, options.Width, options.Height, "translated-palette");
 
-        gpu.UploadPalette(GpuMatrixPacking.PackTransposed(palette));
-        byte[] skeletonPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: true);
+        gpu.UploadPalette(palette);
+        byte[] skeletonPixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: true);
         FrameAnalysis skeletonAnalysis = Analyze(skeletonPixels, options.Width, options.Height, "skeleton-debug");
         SkeletonOverlayAnalysis skeletonOverlay = AnalyzeSkeletonOverlay(bindPixels, skeletonPixels, options.Width, options.Height);
 
         CharacterAnimationFrame animationStart = CreateAnimationFrame(asset.Mesh.Skin, animation, 0.0f);
-        gpu.UploadPalette(animationStart.PackedPalette);
-        byte[] animationStartPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        gpu.UploadPalette(animationStart.Palette);
+        byte[] animationStartPixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis animationStartAnalysis = Analyze(animationStartPixels, options.Width, options.Height, "animation-start");
 
         CharacterAnimationFrame animationSample = CreateAnimationFrame(asset.Mesh.Skin, animation, DeterministicAnimationSampleTime);
-        gpu.UploadPalette(animationSample.PackedPalette);
-        byte[] animationSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        gpu.UploadPalette(animationSample.Palette);
+        byte[] animationSamplePixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis animationSampleAnalysis = Analyze(animationSamplePixels, options.Width, options.Height, "animation-sample");
 
         CharacterAnimationFrame animationLaterSample = CreateAnimationFrame(asset.Mesh.Skin, animation, DeterministicAnimationLaterSampleTime);
-        gpu.UploadPalette(animationLaterSample.PackedPalette);
-        byte[] animationLaterSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        gpu.UploadPalette(animationLaterSample.Palette);
+        byte[] animationLaterSamplePixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis animationLaterSampleAnalysis = Analyze(
             animationLaterSamplePixels,
             options.Width,
@@ -121,8 +119,8 @@ internal static class SdlGpuCharacterHarness
             "animation-later-sample");
 
         CharacterAnimationFrame animationLoopBoundary = CreateAnimationFrame(asset.Mesh.Skin, animation, animation.Duration);
-        gpu.UploadPalette(animationLoopBoundary.PackedPalette);
-        byte[] animationLoopBoundaryPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        gpu.UploadPalette(animationLoopBoundary.Palette);
+        byte[] animationLoopBoundaryPixels = gpu.RenderOffscreen(camera.ViewProjection, includeSkeleton: false);
         FrameAnalysis animationLoopBoundaryAnalysis = Analyze(animationLoopBoundaryPixels, options.Width, options.Height, "animation-loop-boundary");
 
         ulong bindFingerprint = Fingerprint(bindPixels);
@@ -188,7 +186,7 @@ internal static class SdlGpuCharacterHarness
         {
             Console.WriteLine($"GPU_HARNESS_VISIBLE Playing {animation.Name} at normal speed with root motion disabled. Close the window or press Escape after inspection.");
             gpu.RunVisible(
-                camera.TransposedViewProjection,
+                camera.ViewProjection,
                 asset.Animations,
                 animation,
                 asset.Mesh.Skin,
@@ -229,7 +227,15 @@ internal static class SdlGpuCharacterHarness
         SkeletonPose pose = AnimationSampler.Sample(animation, sampleTime, AnimationPlaybackMode.Clamp);
         SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(pose);
         SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(skin, globalPose);
-        return new CharacterAnimationFrame(sampleTime, globalPose, GpuMatrixPacking.PackTransposed(palette));
+        return new CharacterAnimationFrame(sampleTime, globalPose, palette);
+    }
+
+    private static SkinningPalette CreateTranslatedPalette(SkinningPalette palette, float distance)
+    {
+        Matrix4x4 translation = Matrix4x4.CreateTranslation(distance, 0.0f, 0.0f);
+        return new SkinningPalette(
+            palette.Skin,
+            palette.JointMatrices.Select(matrix => matrix * translation));
     }
 
     private static SkeletonOverlayAnalysis AnalyzeSkeletonOverlay(
@@ -286,28 +292,30 @@ internal static class SdlGpuCharacterHarness
         long yTotal = 0;
 
         for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
         {
-            int offset = (y * width + x) * 4;
-            byte red = rgba[offset];
-            byte green = rgba[offset + 1];
-            byte blue = rgba[offset + 2];
-            Require(rgba[offset + 3] == byte.MaxValue, $"{passName}: pixel {x},{y} was not opaque.");
-            bool differs = Math.Abs(red - clearRed) > 3 || Math.Abs(green - clearGreen) > 3 || Math.Abs(blue - clearBlue) > 3;
-            if (!differs)
-                continue;
+            for (int x = 0; x < width; x++)
+            {
+                int offset = (y * width + x) * 4;
+                byte red = rgba[offset];
+                byte green = rgba[offset + 1];
+                byte blue = rgba[offset + 2];
+                Require(rgba[offset + 3] == byte.MaxValue, $"{passName}: pixel {x},{y} was not opaque.");
+                bool differs = Math.Abs(red - clearRed) > 3 || Math.Abs(green - clearGreen) > 3 || Math.Abs(blue - clearBlue) > 3;
+                if (!differs)
+                    continue;
 
-            rendered++;
-            xTotal += x;
-            yTotal += y;
-            minimumX = Math.Min(minimumX, x);
-            minimumY = Math.Min(minimumY, y);
-            maximumX = Math.Max(maximumX, x);
-            maximumY = Math.Max(maximumY, y);
-            if (red > blue + 18 && red > green)
-                firstSection++;
-            if (blue > red + 18 && blue > green)
-                secondSection++;
+                rendered++;
+                xTotal += x;
+                yTotal += y;
+                minimumX = Math.Min(minimumX, x);
+                minimumY = Math.Min(minimumY, y);
+                maximumX = Math.Max(maximumX, x);
+                maximumY = Math.Max(maximumY, y);
+                if (red > blue + 18 && red > green)
+                    firstSection++;
+                if (blue > red + 18 && blue > green)
+                    secondSection++;
+            }
         }
 
         Require(rendered > width * height / 80, $"{passName}: only {rendered} pixels differed from the clear color.");
@@ -419,9 +427,6 @@ internal static class SdlGpuCharacterHarness
         }
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly record struct MaterialConstants(Vector4 BaseColor, Vector4 LightDirection);
-
     private sealed unsafe class CharacterGpuSession : IDisposable
     {
         private const SDL_GPUTextureFormat DepthFormat = SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
@@ -429,16 +434,12 @@ internal static class SdlGpuCharacterHarness
         private readonly int height;
         private SDL_Window* window;
         private SDL_GPUDevice* device;
-        private SDL_GPUShader* vertexShader;
-        private SDL_GPUShader* fragmentShader;
-        private SDL_GPUGraphicsPipeline* pipeline;
+        private SdlGpuSkinnedCharacterRenderer? characterRenderer;
+        private SdlGpuSkinnedMesh? characterMesh;
+        private SdlGpuSkinningPalette? characterPalette;
         private SDL_GPUShader* skeletonVertexShader;
         private SDL_GPUShader* skeletonFragmentShader;
         private SDL_GPUGraphicsPipeline* skeletonPipeline;
-        private SDL_GPUBuffer* vertexBuffer;
-        private SDL_GPUBuffer* indexBuffer;
-        private SDL_GPUBuffer* paletteBuffer;
-        private SDL_GPUTransferBuffer* paletteTransferBuffer;
         private SDL_GPUBuffer* skeletonVertexBuffer;
         private SDL_GPUTransferBuffer* skeletonTransferBuffer;
         private SDL_GPUTexture* offscreenColor;
@@ -447,22 +448,21 @@ internal static class SdlGpuCharacterHarness
         private uint visibleDepthWidth;
         private uint visibleDepthHeight;
         private bool windowClaimed;
-        private readonly GpuMeshSection[] sections;
         private readonly int jointCount;
         private readonly uint skeletonVertexCount;
 
         internal CharacterGpuSession(
-            GpuSkinnedMeshData mesh,
+            SkinnedMeshDefinition mesh,
             SkeletonDebugGeometry skeletonDebug,
             int width,
             int height,
             bool visible)
         {
+            ArgumentNullException.ThrowIfNull(mesh);
             ArgumentNullException.ThrowIfNull(skeletonDebug);
             this.width = width;
             this.height = height;
-            sections = mesh.Sections;
-            jointCount = mesh.JointCount;
+            jointCount = mesh.Skin.Skeleton.JointCount;
             skeletonVertexCount = checked((uint)skeletonDebug.Vertices.Length);
 
             if (!SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO))
@@ -487,28 +487,26 @@ internal static class SdlGpuCharacterHarness
 
                 ShaderFormat = ShaderAssetSelector.SelectPreferred(SDL_GetGPUShaderFormats(device));
                 SDL_GPUTextureFormat colorFormat = SDL_GetGPUSwapchainTextureFormat(device, window);
-                vertexShader = LoadShader("bind-pose.vert", SDL_GPUShaderStage.SDL_GPU_SHADERSTAGE_VERTEX, storageBuffers: 1, uniformBuffers: 1);
-                fragmentShader = LoadShader("bind-pose.frag", SDL_GPUShaderStage.SDL_GPU_SHADERSTAGE_FRAGMENT, storageBuffers: 0, uniformBuffers: 1);
-                pipeline = CreatePipeline(colorFormat);
+                characterRenderer = new SdlGpuSkinnedCharacterRenderer(
+                    device,
+                    colorFormat,
+                    DepthFormat,
+                    LoadCharacterShaders());
+                SDL_GPUCommandBuffer* geometryCommand = AcquireCommand();
+                characterMesh = characterRenderer.UploadMesh(geometryCommand, mesh);
+                characterPalette = characterRenderer.CreatePalette(jointCount);
+                if (!SDL_SubmitGPUCommandBuffer(geometryCommand))
+                    throw new InvalidOperationException($"SDL GPU character geometry submission failed: {SDL_GetError()}");
                 skeletonVertexShader = LoadShader("skeleton-debug.vert", SDL_GPUShaderStage.SDL_GPU_SHADERSTAGE_VERTEX, storageBuffers: 0, uniformBuffers: 1);
                 skeletonFragmentShader = LoadShader("skeleton-debug.frag", SDL_GPUShaderStage.SDL_GPU_SHADERSTAGE_FRAGMENT, storageBuffers: 0, uniformBuffers: 0);
                 skeletonPipeline = CreateSkeletonPipeline(colorFormat);
 
-                vertexBuffer = CreateBuffer(SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_VERTEX, checked((uint)(mesh.Vertices.Length * GpuSkinnedVertex.Stride)));
-                indexBuffer = CreateBuffer(SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_INDEX, checked((uint)(mesh.Indices.Length * sizeof(uint))));
-                paletteBuffer = CreateBuffer(
-                    SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
-                    checked((uint)(jointCount * sizeof(Matrix4x4))));
-                paletteTransferBuffer = CreateTransfer(
-                    SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-                    checked((uint)(jointCount * sizeof(Matrix4x4))));
                 skeletonVertexBuffer = CreateBuffer(
                     SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_VERTEX,
                     checked(skeletonVertexCount * GpuDebugLineVertex.Stride));
                 skeletonTransferBuffer = CreateTransfer(
                     SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
                     checked(skeletonVertexCount * GpuDebugLineVertex.Stride));
-                UploadGeometry(mesh.Vertices, mesh.Indices);
                 UploadBuffer(skeletonVertexBuffer, skeletonDebug.Vertices);
 
                 offscreenColor = CreateTexture(colorFormat, SDL_GPUTextureUsageFlags.SDL_GPU_TEXTUREUSAGE_COLOR_TARGET, (uint)width, (uint)height);
@@ -523,12 +521,13 @@ internal static class SdlGpuCharacterHarness
 
         internal SDL_GPUShaderFormat ShaderFormat { get; }
 
-        internal void UploadPalette(Matrix4x4[] matrices)
+        internal void UploadPalette(SkinningPalette palette)
         {
-            ArgumentNullException.ThrowIfNull(matrices);
-            if (matrices.Length != jointCount)
-                throw new ArgumentException($"Expected {jointCount} palette matrices, received {matrices.Length}.", nameof(matrices));
-            UploadCycled(paletteTransferBuffer, paletteBuffer, matrices, "palette");
+            ArgumentNullException.ThrowIfNull(palette);
+            SDL_GPUCommandBuffer* command = AcquireCommand();
+            characterRenderer!.UploadPalette(command, characterPalette!, palette);
+            if (!SDL_SubmitGPUCommandBuffer(command))
+                throw new InvalidOperationException($"SDL GPU palette upload submission failed: {SDL_GetError()}");
         }
 
         internal void UploadSkeleton(GpuDebugLineVertex[] vertices)
@@ -543,7 +542,7 @@ internal static class SdlGpuCharacterHarness
             UploadCycled(skeletonTransferBuffer, skeletonVertexBuffer, vertices, "skeleton");
         }
 
-        internal byte[] RenderOffscreen(Matrix4x4 transposedViewProjection, bool includeSkeleton)
+        internal byte[] RenderOffscreen(Matrix4x4 viewProjection, bool includeSkeleton)
         {
             uint byteCount = checked((uint)(width * height * 4));
             SDL_GPUTransferBuffer* transfer = CreateTransfer(SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD, byteCount);
@@ -551,7 +550,7 @@ internal static class SdlGpuCharacterHarness
             try
             {
                 SDL_GPUCommandBuffer* command = AcquireCommand();
-                Render(command, offscreenColor, offscreenDepth, (uint)width, (uint)height, transposedViewProjection, includeSkeleton);
+                Render(command, offscreenColor, offscreenDepth, (uint)width, (uint)height, viewProjection, includeSkeleton);
                 SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(command);
                 if (copy is null)
                     throw new InvalidOperationException($"SDL GPU readback copy pass failed: {SDL_GetError()}");
@@ -601,7 +600,7 @@ internal static class SdlGpuCharacterHarness
         }
 
         internal void RunVisible(
-            Matrix4x4 transposedViewProjection,
+            Matrix4x4 viewProjection,
             IReadOnlyList<AnimationClip> animations,
             AnimationClip initialAnimation,
             SkinDefinition skin,
@@ -658,7 +657,7 @@ internal static class SdlGpuCharacterHarness
                 ExecuteInteractiveFrame(frameClip, frameSampleTime, jointCount, () =>
                 {
                     CharacterAnimationFrame frame = CreateAnimationFrame(skin, frameClip, frameSampleTime);
-                    UploadPalette(frame.PackedPalette);
+                    UploadPalette(frame.Palette);
                     if (playback.IsSkeletonVisible)
                     {
                         SkeletonDebugGeometry skeleton = SkeletonDebugGeometry.Create(frame.GlobalPose, skeletonAxisLength);
@@ -667,7 +666,7 @@ internal static class SdlGpuCharacterHarness
 
                     if (titleDirty || currentCounter - lastTitleCounter >= frequency / 10)
                     {
-                        SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.PackedPalette.Length));
+                        SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.Palette.JointMatrices.Count));
                         lastTitleCounter = currentCounter;
                         titleDirty = false;
                     }
@@ -687,7 +686,7 @@ internal static class SdlGpuCharacterHarness
                             visibleDepth,
                             swapchainWidth,
                             swapchainHeight,
-                            transposedViewProjection,
+                            viewProjection,
                             includeSkeleton: playback.IsSkeletonVisible);
                     }
                     if (!SDL_SubmitGPUCommandBuffer(command))
@@ -707,31 +706,22 @@ internal static class SdlGpuCharacterHarness
             if (skeletonTransferBuffer is not null && device is not null)
                 SDL_ReleaseGPUTransferBuffer(device, skeletonTransferBuffer);
             skeletonTransferBuffer = null;
-            if (paletteTransferBuffer is not null && device is not null)
-                SDL_ReleaseGPUTransferBuffer(device, paletteTransferBuffer);
-            paletteTransferBuffer = null;
             ReleaseBuffer(ref skeletonVertexBuffer);
-            ReleaseBuffer(ref paletteBuffer);
-            ReleaseBuffer(ref indexBuffer);
-            ReleaseBuffer(ref vertexBuffer);
+            characterPalette?.Dispose();
+            characterPalette = null;
+            characterMesh?.Dispose();
+            characterMesh = null;
+            characterRenderer?.Dispose();
+            characterRenderer = null;
             if (skeletonPipeline is not null && device is not null)
                 SDL_ReleaseGPUGraphicsPipeline(device, skeletonPipeline);
             skeletonPipeline = null;
-            if (pipeline is not null && device is not null)
-                SDL_ReleaseGPUGraphicsPipeline(device, pipeline);
-            pipeline = null;
             if (skeletonFragmentShader is not null && device is not null)
                 SDL_ReleaseGPUShader(device, skeletonFragmentShader);
             skeletonFragmentShader = null;
             if (skeletonVertexShader is not null && device is not null)
                 SDL_ReleaseGPUShader(device, skeletonVertexShader);
             skeletonVertexShader = null;
-            if (fragmentShader is not null && device is not null)
-                SDL_ReleaseGPUShader(device, fragmentShader);
-            fragmentShader = null;
-            if (vertexShader is not null && device is not null)
-                SDL_ReleaseGPUShader(device, vertexShader);
-            vertexShader = null;
             if (device is not null)
             {
                 if (windowClaimed && window is not null)
@@ -797,7 +787,7 @@ internal static class SdlGpuCharacterHarness
             SDL_GPUTexture* depth,
             uint renderWidth,
             uint renderHeight,
-            Matrix4x4 transposedViewProjection,
+            Matrix4x4 viewProjection,
             bool includeSkeleton)
         {
             var colorTarget = new SDL_GPUColorTargetInfo
@@ -820,24 +810,22 @@ internal static class SdlGpuCharacterHarness
             if (pass is null)
                 throw new InvalidOperationException($"SDL GPU render pass failed: {SDL_GetError()}");
 
-            SDL_BindGPUGraphicsPipeline(pass, pipeline);
-            var vertexBinding = new SDL_GPUBufferBinding { buffer = vertexBuffer };
-            var indexBinding = new SDL_GPUBufferBinding { buffer = indexBuffer };
-            SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
-            SDL_BindGPUIndexBuffer(pass, &indexBinding, SDL_GPUIndexElementSize.SDL_GPU_INDEXELEMENTSIZE_32BIT);
-            SDL_GPUBuffer* palette = paletteBuffer;
-            SDL_BindGPUVertexStorageBuffers(pass, 0, &palette, 1);
-            SDL_PushGPUVertexUniformData(command, 0, (IntPtr)(&transposedViewProjection), (uint)sizeof(Matrix4x4));
-
-            for (int sectionIndex = 0; sectionIndex < sections.Length; sectionIndex++)
+            for (int sectionIndex = 0; sectionIndex < characterMesh!.SectionCount; sectionIndex++)
             {
                 Vector4 colorValue = sectionIndex % 2 == 0
                     ? new Vector4(0.95f, 0.28f, 0.18f, 1.0f)
                     : new Vector4(0.16f, 0.62f, 0.98f, 1.0f);
-                var material = new MaterialConstants(colorValue, new Vector4(-0.35f, -0.70f, -0.62f, 0.0f));
-                SDL_PushGPUFragmentUniformData(command, 0, (IntPtr)(&material), (uint)sizeof(MaterialConstants));
-                GpuMeshSection section = sections[sectionIndex];
-                SDL_DrawGPUIndexedPrimitives(pass, section.IndexCount, 1, section.FirstIndex, 0, 0);
+                characterRenderer!.DrawSection(
+                    command,
+                    pass,
+                    characterMesh,
+                    characterPalette!,
+                    sectionIndex,
+                    new SkinnedCharacterDraw(
+                        Matrix4x4.Identity,
+                        viewProjection,
+                        colorValue,
+                        new Vector3(-0.35f, -0.70f, -0.62f)));
             }
 
             if (includeSkeleton)
@@ -845,6 +833,7 @@ internal static class SdlGpuCharacterHarness
                 SDL_BindGPUGraphicsPipeline(pass, skeletonPipeline);
                 var skeletonBinding = new SDL_GPUBufferBinding { buffer = skeletonVertexBuffer };
                 SDL_BindGPUVertexBuffers(pass, 0, &skeletonBinding, 1);
+                Matrix4x4 transposedViewProjection = Matrix4x4.Transpose(viewProjection);
                 SDL_PushGPUVertexUniformData(command, 0, (IntPtr)(&transposedViewProjection), (uint)sizeof(Matrix4x4));
                 SDL_DrawGPUPrimitives(pass, skeletonVertexCount, 1, 0, 0);
             }
@@ -879,57 +868,25 @@ internal static class SdlGpuCharacterHarness
             }
         }
 
-        private SDL_GPUGraphicsPipeline* CreatePipeline(SDL_GPUTextureFormat colorFormat)
+        private SdlGpuSkinnedShaderSet LoadCharacterShaders()
         {
-            var vertexBufferDescription = new SDL_GPUVertexBufferDescription
-            {
-                slot = 0,
-                pitch = GpuSkinnedVertex.Stride,
-                input_rate = SDL_GPUVertexInputRate.SDL_GPU_VERTEXINPUTRATE_VERTEX,
-            };
-            SDL_GPUVertexAttribute* attributes = stackalloc SDL_GPUVertexAttribute[4];
-            attributes[0] = new SDL_GPUVertexAttribute { location = 0, buffer_slot = 0, format = SDL_GPUVertexElementFormat.SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offset = GpuSkinnedVertex.PositionOffset };
-            attributes[1] = new SDL_GPUVertexAttribute { location = 1, buffer_slot = 0, format = SDL_GPUVertexElementFormat.SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offset = GpuSkinnedVertex.NormalOffset };
-            attributes[2] = new SDL_GPUVertexAttribute { location = 2, buffer_slot = 0, format = SDL_GPUVertexElementFormat.SDL_GPU_VERTEXELEMENTFORMAT_USHORT4, offset = GpuSkinnedVertex.JointIndicesOffset };
-            attributes[3] = new SDL_GPUVertexAttribute { location = 3, buffer_slot = 0, format = SDL_GPUVertexElementFormat.SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4, offset = GpuSkinnedVertex.WeightsOffset };
-            var colorDescription = new SDL_GPUColorTargetDescription { format = colorFormat };
-            var info = new SDL_GPUGraphicsPipelineCreateInfo
-            {
-                vertex_shader = vertexShader,
-                fragment_shader = fragmentShader,
-                vertex_input_state = new SDL_GPUVertexInputState
-                {
-                    vertex_buffer_descriptions = &vertexBufferDescription,
-                    num_vertex_buffers = 1,
-                    vertex_attributes = attributes,
-                    num_vertex_attributes = 4,
-                },
-                primitive_type = SDL_GPUPrimitiveType.SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
-                rasterizer_state = new SDL_GPURasterizerState
-                {
-                    fill_mode = SDL_GPUFillMode.SDL_GPU_FILLMODE_FILL,
-                    cull_mode = SDL_GPUCullMode.SDL_GPU_CULLMODE_BACK,
-                    front_face = SDL_GPUFrontFace.SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE,
-                },
-                multisample_state = new SDL_GPUMultisampleState { sample_count = SDL_GPUSampleCount.SDL_GPU_SAMPLECOUNT_1 },
-                depth_stencil_state = new SDL_GPUDepthStencilState
-                {
-                    compare_op = SDL_GPUCompareOp.SDL_GPU_COMPAREOP_LESS,
-                    enable_depth_test = true,
-                    enable_depth_write = true,
-                },
-                target_info = new SDL_GPUGraphicsPipelineTargetInfo
-                {
-                    color_target_descriptions = &colorDescription,
-                    num_color_targets = 1,
-                    depth_stencil_format = DepthFormat,
-                    has_depth_stencil_target = true,
-                },
-            };
-            SDL_GPUGraphicsPipeline* created = SDL_CreateGPUGraphicsPipeline(device, &info);
-            if (created is null)
-                throw new InvalidOperationException($"SDL GPU pipeline creation failed: {SDL_GetError()}");
-            return created;
+            string vertexPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "shaders",
+                ShaderAssetSelector.GetFileName("skinned-character.vert", ShaderFormat));
+            string fragmentPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "shaders",
+                ShaderAssetSelector.GetFileName("skinned-character.frag", ShaderFormat));
+            if (!File.Exists(vertexPath))
+                throw new FileNotFoundException($"SDL GPU shader asset was not found: {vertexPath}", vertexPath);
+            if (!File.Exists(fragmentPath))
+                throw new FileNotFoundException($"SDL GPU shader asset was not found: {fragmentPath}", fragmentPath);
+            return new SdlGpuSkinnedShaderSet(
+                ShaderFormat,
+                File.ReadAllBytes(vertexPath),
+                File.ReadAllBytes(fragmentPath),
+                ShaderAssetSelector.GetEntrypoint(ShaderFormat));
         }
 
         private SDL_GPUGraphicsPipeline* CreateSkeletonPipeline(SDL_GPUTextureFormat colorFormat)
@@ -993,12 +950,6 @@ internal static class SdlGpuCharacterHarness
             if (created is null)
                 throw new InvalidOperationException($"SDL GPU skeleton pipeline creation failed: {SDL_GetError()}");
             return created;
-        }
-
-        private void UploadGeometry(GpuSkinnedVertex[] vertices, uint[] indices)
-        {
-            UploadBuffer(vertexBuffer, vertices);
-            UploadBuffer(indexBuffer, indices);
         }
 
         private void UploadCycled<T>(

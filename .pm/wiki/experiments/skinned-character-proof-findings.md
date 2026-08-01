@@ -1,14 +1,14 @@
 ---
 title: Skinned-Character Proof Findings and Promotion Criteria
 createdAt: 2026-08-01T16:36:40.6943920Z
-modifiedAt: 2026-08-01T16:36:40.6943920Z
+modifiedAt: 2026-08-01T17:05:46.5708150Z
 ---
 
 ## Decision
 
-M1 proves that the supplied Quaternius humanoid and compatible same-file animation data can be loaded, sampled deterministically, inspected, and rendered correctly through native SDL GPU skinning. The proof is sufficient to begin a focused shared-module design in `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001`.
+M1 proves that the supplied Quaternius humanoid and compatible same-file animation data can be loaded, sampled deterministically, inspected, and rendered correctly through native SDL GPU skinning. That proof authorized the focused promotion in `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001`.
 
-This decision promotes demonstrated semantics and boundaries, not the experiment assemblies or every implementation choice. `ChronoFall.CharacterExperiment`, `ChronoFall.CharacterExperiment.SimpleMesh`, `ChronoFall.CharacterExperiment.SdlGpu`, and the GPU harness remain provisional until a separately approved shared task defines final modules and APIs.
+The promotion preserves the demonstrated semantics and boundaries in `ChronoFall.CharacterPresentation` and `ChronoFall.CharacterPresentation.SdlGpu`. `ChronoFall.CharacterExperiment.SimpleMesh`, `ChronoFall.CharacterExperiment.SdlGpu`, and the GPU harness remain provisional validation consumers rather than shared loader, window, camera, capture or scene APIs.
 
 ## M1 acceptance evidence
 
@@ -80,3 +80,9 @@ The promotion task must:
 8. leave cooking, child integration, and gitlink advancement to their existing separately owned tasks.
 
 Completing this M1 decision makes `SHARED-0001` dependency-ready. It does not activate that task or authorize extraction.
+
+### Promotion result
+
+The approved promotion is implemented by `ChronoFall.CharacterPresentation` and `ChronoFall.CharacterPresentation.SdlGpu`; the durable contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-character-presentation`.
+
+The experiment loader and diagnostic host remain provisional consumers. Native Metal validation retains the M1 fingerprints, proving that the promoted path—not duplicate harness rendering code—still consumes four joint lanes, weights, palettes and deterministic poses. Child integration and distribution remain separately owned.

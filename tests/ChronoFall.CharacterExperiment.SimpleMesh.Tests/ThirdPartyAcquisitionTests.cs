@@ -13,8 +13,8 @@ public sealed class ThirdPartyAcquisitionTests
         string coreProject = File.ReadAllText(Path.Combine(
             RepositoryPaths.Root,
             "src",
-            "ChronoFall.CharacterExperiment",
-            "ChronoFall.CharacterExperiment.csproj"));
+            "ChronoFall.CharacterPresentation",
+            "ChronoFall.CharacterPresentation.csproj"));
         Assert.DoesNotContain("SimpleMesh", coreProject, StringComparison.Ordinal);
     }
 

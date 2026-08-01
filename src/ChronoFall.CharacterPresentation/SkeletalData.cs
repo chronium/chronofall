@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Numerics;
 
-namespace ChronoFall.CharacterExperiment;
+namespace ChronoFall.CharacterPresentation;
 
 public sealed class SkeletonJoint
 {

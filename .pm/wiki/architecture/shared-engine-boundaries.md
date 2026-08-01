@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-01T16:36:57.1990230Z
+modifiedAt: 2026-08-01T17:05:28.4058140Z
 ---
 
 ## Focus
@@ -26,11 +26,11 @@ Servers own attacks, shots, casts, hits, movement transitions, equipment changes
 
 ## Promotion gate
 
-The M1 skinned-character proof satisfied its gate: deterministic transform and sampling tests, correct GPU skinning, skeleton debug visualization, deterministic multi-timestamp captures, native macOS ARM64 Metal execution, explicit owner visual confirmation, and concrete integration demand from both children.
+The M1 skinned-character proof satisfied its evidence gate, and `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001` now owns the first deliberate promotion.
 
-The promotion decision and evidence matrix are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skinned-character-proof-findings`. Shared design may preserve the proven skeletal, animation, pose, palette, debug-pose, and GPU-skinning semantics. It must not mechanically freeze the experiment assemblies, SimpleMesh adapter, exact vertex/shader ABI, harness, camera, or capture tooling.
+The resulting module and public-resource boundaries are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-character-presentation`. `ChronoFall.CharacterPresentation` preserves the proven BCL-only skeletal and deterministic animation semantics. `ChronoFall.CharacterPresentation.SdlGpu` owns the reviewed hidden GPU ABI and records mesh uploads, palette updates and draws into a caller-owned SDL GPU lifecycle.
 
-`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001` owns final shared-module and public-API design. Loader permanence, cooked formats, materials, animated bounds, cross-rig animation, retargeting, root motion, blending, equipment, IK, animation graphs, and generalized scene/component frameworks require their separately approved contracts.
+The promotion does not make SimpleMesh permanent, freeze a cooked format, establish child package distribution, or approve materials, animated bounds, cross-rig animation, retargeting, root motion, blending, equipment, IK, animation graphs, render graphs, scenes or generalized components. Those remain separately approved contracts.
 
 ## Later authoring exploration
 

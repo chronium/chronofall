@@ -4,24 +4,18 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
-    <ProjectReference Include="../ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
     <ProjectReference Include="../../thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj"
                       AdditionalProperties="CI_DONT_TARGET_ANDROID=1"
                       SetTargetFramework="TargetFramework=net8.0" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="ChronoFall.CharacterPresentation" />
-    <Using Include="ChronoFall.CharacterPresentation.SdlGpu" />
+    <InternalsVisibleTo Include="ChronoFall.CharacterPresentation.SdlGpu.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="ChronoFall.CharacterExperiment.SdlGpu.Tests" />
-    <InternalsVisibleTo Include="ChronoFall.CharacterExperiment.GpuHarness" />
+    <ChronoFallShaderSource Include="Shaders/**/*.vert.hlsl"><ShaderStage>vertex</ShaderStage></ChronoFallShaderSource>
+    <ChronoFallShaderSource Include="Shaders/**/*.frag.hlsl"><ShaderStage>fragment</ShaderStage></ChronoFallShaderSource>
   </ItemGroup>
-  <ItemGroup>
-    <ChronoFallShaderSource Include="Shaders/skeleton-debug.vert.hlsl"><ShaderStage>vertex</ShaderStage></ChronoFallShaderSource>
-    <ChronoFallShaderSource Include="Shaders/skeleton-debug.frag.hlsl"><ShaderStage>fragment</ShaderStage></ChronoFallShaderSource>
-  </ItemGroup>
-  <Target Name="CompileChronoFallCharacterExperimentShaders" AfterTargets="Build"
+  <Target Name="CompileChronoFallCharacterPresentationShaders" AfterTargets="Build"
           Inputs="@(ChronoFallShaderSource)"
           Outputs="@(ChronoFallShaderSource->'$(OutputPath)shaders/%(RecursiveDir)%(Filename).spv');@(ChronoFallShaderSource->'$(OutputPath)shaders/%(RecursiveDir)%(Filename).msl');@(ChronoFallShaderSource->'$(OutputPath)shaders/%(RecursiveDir)%(Filename)%(Extension)')">
     <MakeDir Directories="@(ChronoFallShaderSource->'$(OutputPath)shaders/%(RecursiveDir)')" />
