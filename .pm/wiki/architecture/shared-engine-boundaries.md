@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-01T05:44:07.0060700Z
+modifiedAt: 2026-08-01T09:09:56.7209760Z
 ---
 
 ## Focus
@@ -11,6 +11,14 @@ ChronoFall may grow a focused shared engine for Royale and Starfall. It is not a
 Likely shared domains include native loading, SDL desktop lifecycle, SDL GPU device/targets, static and skinned rendering, skeleton/animation processing, modular equipment presentation, sockets/attachments, IK/aim presentation, text/debug rendering, Box3D wrappers, asset cooking, client/server asset separation, low-level transport, and proven editor infrastructure.
 
 Gameplay simulation, protocol/replication, lifecycle, combat, AI, progression/economy, content schemas, product editor documents, and deployment topology remain child-owned.
+
+## Third-party dependency ownership
+
+ChronoFall acquires a third-party dependency only when a parent-owned experiment or shared module consumes it. The coordinator then owns its pin, fetch workflow, license evidence, and focused patches. Parent source must never reference dependency paths inside Royale or Starfall.
+
+Each child retains the dependency acquisition needed for an independently useful checkout. Repeating an upstream pin across repositories is acceptable until a validated shared module and an explicit distribution contract justify consolidation. Do not bulk-copy child dependency sets or treat a relocated pin as shared-engine promotion.
+
+The M1 loader decision is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-loader-decision`.
 
 ## Authority
 
