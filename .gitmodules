@@ -1,0 +1,6 @@
+[submodule "royale"]
+	path = royale
+	url = https://github.com/chronium/royale.git
+[submodule "starfall"]
+	path = starfall
+	url = https://github.com/chronium/starfall.git

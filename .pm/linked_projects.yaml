@@ -1,0 +1,9 @@
+version: 1
+children:
+- projectId: prj__-jXLQgm6GuD2gCKZ_bTa1m-
+  alias: royale
+  repositoryUrl: https://github.com/chronium/royale.git
+  pathHint: royale
+- projectId: prj_pkIpzx0fzFD4URjvqBuYrGZF
+  alias: starfall
+  repositoryUrl: https://github.com/chronium/starfall.git

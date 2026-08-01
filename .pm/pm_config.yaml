@@ -1,0 +1,13 @@
+name: ChronoFall
+idWidth: 4
+idPrefix: CF
+accent: teal
+nextIdServiceUrl: https://pm-next-id.chronium.workers.dev
+taskStates:
+  todo: To Do
+  in-progress: In Progress
+  done: Done
+tracks:
+  CF: CF
+milestones: {}
+milestonePriorities: {}
