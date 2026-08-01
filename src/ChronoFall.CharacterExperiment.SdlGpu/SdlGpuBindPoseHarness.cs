@@ -13,7 +13,8 @@ internal sealed record CharacterHarnessOptions(
     bool Visible = false,
     string? CapturePath = null,
     string? SkeletonCapturePath = null,
-    string? AnimationCapturePath = null);
+    string? AnimationCapturePath = null,
+    string? CaptureSuiteDirectory = null);
 
 internal sealed record CharacterHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
@@ -22,6 +23,7 @@ internal sealed record CharacterHarnessResult(
     FrameAnalysis SkeletonDebug,
     FrameAnalysis AnimationStart,
     FrameAnalysis AnimationSample,
+    FrameAnalysis AnimationLaterSample,
     FrameAnalysis AnimationLoopBoundary,
     SkeletonOverlayAnalysis SkeletonOverlay,
     ulong BindPoseFingerprint,
@@ -29,6 +31,7 @@ internal sealed record CharacterHarnessResult(
     ulong SkeletonDebugFingerprint,
     ulong AnimationStartFingerprint,
     ulong AnimationSampleFingerprint,
+    ulong AnimationLaterSampleFingerprint,
     ulong AnimationLoopBoundaryFingerprint,
     int SkeletonLineCount);
 
@@ -57,6 +60,7 @@ internal static class SdlGpuCharacterHarness
 {
     private static readonly SDL_FColor ClearColor = new() { r = 0.035f, g = 0.045f, b = 0.070f, a = 1.0f };
     private const float DeterministicAnimationSampleTime = 0.5f;
+    private const float DeterministicAnimationLaterSampleTime = 1.0f;
 
     internal static CharacterHarnessResult Run(
         SkeletalCharacterAsset asset,
@@ -107,6 +111,15 @@ internal static class SdlGpuCharacterHarness
         byte[] animationSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
         FrameAnalysis animationSampleAnalysis = Analyze(animationSamplePixels, options.Width, options.Height, "animation-sample");
 
+        CharacterAnimationFrame animationLaterSample = CreateAnimationFrame(asset.Mesh.Skin, animation, DeterministicAnimationLaterSampleTime);
+        gpu.UploadPalette(animationLaterSample.PackedPalette);
+        byte[] animationLaterSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        FrameAnalysis animationLaterSampleAnalysis = Analyze(
+            animationLaterSamplePixels,
+            options.Width,
+            options.Height,
+            "animation-later-sample");
+
         CharacterAnimationFrame animationLoopBoundary = CreateAnimationFrame(asset.Mesh.Skin, animation, animation.Duration);
         gpu.UploadPalette(animationLoopBoundary.PackedPalette);
         byte[] animationLoopBoundaryPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
@@ -117,6 +130,7 @@ internal static class SdlGpuCharacterHarness
         ulong skeletonFingerprint = Fingerprint(skeletonPixels);
         ulong animationStartFingerprint = Fingerprint(animationStartPixels);
         ulong animationSampleFingerprint = Fingerprint(animationSamplePixels);
+        ulong animationLaterSampleFingerprint = Fingerprint(animationLaterSamplePixels);
         ulong animationLoopBoundaryFingerprint = Fingerprint(animationLoopBoundaryPixels);
         Require(bindFingerprint != probeFingerprint, "Translated palette probe produced the bind-pose fingerprint.");
         Require(bindFingerprint != skeletonFingerprint, "Skeleton debug overlay produced the bind-pose fingerprint.");
@@ -125,6 +139,9 @@ internal static class SdlGpuCharacterHarness
             $"Animation loop boundary {animationLoopBoundaryFingerprint:x16} did not reproduce start {animationStartFingerprint:x16}.");
         Require(animationSampleFingerprint != animationStartFingerprint, "Animation sample produced the loop-start fingerprint.");
         Require(animationSampleFingerprint != bindFingerprint, "Animation sample produced the bind-pose fingerprint.");
+        Require(animationLaterSampleFingerprint != animationStartFingerprint, "Later animation sample produced the loop-start fingerprint.");
+        Require(animationLaterSampleFingerprint != bindFingerprint, "Later animation sample produced the bind-pose fingerprint.");
+        Require(animationLaterSampleFingerprint != animationSampleFingerprint, "Animation samples at 0.5 and 1.0 seconds produced the same fingerprint.");
         Require(
             MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX) >= options.Width * 0.025f,
             $"Translated palette probe shifted the rendered centroid by only {MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX):F2} pixels.");
@@ -135,6 +152,18 @@ internal static class SdlGpuCharacterHarness
             WritePpm(options.SkeletonCapturePath, options.Width, options.Height, skeletonPixels);
         if (!string.IsNullOrWhiteSpace(options.AnimationCapturePath))
             WritePpm(options.AnimationCapturePath, options.Width, options.Height, animationSamplePixels);
+        if (!string.IsNullOrWhiteSpace(options.CaptureSuiteDirectory))
+        {
+            WriteCaptureSuite(
+                options.CaptureSuiteDirectory,
+                options.Width,
+                options.Height,
+                bindPixels,
+                animationStartPixels,
+                animationSamplePixels,
+                animationLaterSamplePixels,
+                animationLoopBoundaryPixels);
+        }
 
         Console.WriteLine(
             $"GPU_HARNESS_PASS bind-pose shader={gpu.ShaderFormat} pixels={bindAnalysis.RenderedPixels} " +
@@ -151,7 +180,9 @@ internal static class SdlGpuCharacterHarness
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"GPU_HARNESS_PASS animation clip={animation.Name} sample={DeterministicAnimationSampleTime:F3} " +
             $"duration={animation.Duration:F6} start={animationStartFingerprint:x16} " +
-            $"sample-fingerprint={animationSampleFingerprint:x16} loop={animationLoopBoundaryFingerprint:x16}"));
+            $"sample-fingerprint={animationSampleFingerprint:x16} " +
+            $"later-sample={DeterministicAnimationLaterSampleTime:F3} " +
+            $"later-fingerprint={animationLaterSampleFingerprint:x16} loop={animationLoopBoundaryFingerprint:x16}"));
 
         if (options.Visible)
         {
@@ -171,6 +202,7 @@ internal static class SdlGpuCharacterHarness
             skeletonAnalysis,
             animationStartAnalysis,
             animationSampleAnalysis,
+            animationLaterSampleAnalysis,
             animationLoopBoundaryAnalysis,
             skeletonOverlay,
             bindFingerprint,
@@ -178,6 +210,7 @@ internal static class SdlGpuCharacterHarness
             skeletonFingerprint,
             animationStartFingerprint,
             animationSampleFingerprint,
+            animationLaterSampleFingerprint,
             animationLoopBoundaryFingerprint,
             skeletonDebug.LineCount);
     }
@@ -330,6 +363,25 @@ internal static class SdlGpuCharacterHarness
         }
         File.WriteAllBytes(fullPath, output);
         Console.WriteLine($"GPU_HARNESS_CAPTURE {fullPath}");
+    }
+
+    private static void WriteCaptureSuite(
+        string directory,
+        int width,
+        int height,
+        byte[] bindPose,
+        byte[] animationStart,
+        byte[] animationSample,
+        byte[] animationLaterSample,
+        byte[] animationLoopBoundary)
+    {
+        string fullDirectory = Path.GetFullPath(directory);
+        WritePpm(Path.Combine(fullDirectory, "bind-pose.ppm"), width, height, bindPose);
+        WritePpm(Path.Combine(fullDirectory, "animation-0000ms.ppm"), width, height, animationStart);
+        WritePpm(Path.Combine(fullDirectory, "animation-0500ms.ppm"), width, height, animationSample);
+        WritePpm(Path.Combine(fullDirectory, "animation-1000ms.ppm"), width, height, animationLaterSample);
+        WritePpm(Path.Combine(fullDirectory, "animation-loop-boundary.ppm"), width, height, animationLoopBoundary);
+        Console.WriteLine($"GPU_HARNESS_CAPTURE_SUITE {fullDirectory}");
     }
 
     private static byte ToByte(float value) => (byte)MathF.Round(Math.Clamp(value, 0.0f, 1.0f) * byte.MaxValue);

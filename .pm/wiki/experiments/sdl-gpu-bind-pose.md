@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T15:47:51.9190640Z
+modifiedAt: 2026-08-01T16:01:08.9142120Z
 ---
 
 ## Status and ownership
@@ -174,6 +174,29 @@ On 2026-08-01, the owner exercised the native controls. The console evidence inc
 At the start of each visible frame, the browser captures the exact clip and sample timestamp used for evaluation. One diagnostic boundary now covers pose evaluation, palette and optional skeleton uploads, title refresh, command-buffer and swapchain acquisition, visible-depth preparation, render-pass recording, and command submission. Failures add invariant clip, sample, and joint-count context while retaining the original operation-specific exception as the inner failure.
 
 Focused policy tests cover visible and hidden window flags, successful diagnostic execution, and preservation of a simulated late GPU submission failure. The coordinator build passes with zero warnings; 57 tests pass across the core, SimpleMesh adapter, and SDL GPU projects; and the focused native macOS ARM64 Metal integration passes. The native run retained bind-pose `408d3a4c16278bbc`, palette-probe `4fd2e63aea97f7a3`, skeleton `c6ad39a45245afed`, and animation `a2b427aea339d460` fingerprints. On 2026-08-01, the owner confirmed that the window did not resize and that the controls and animations still looked correct.
+
+
+## Deterministic multi-timestamp capture suite
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0009` adds `--capture-suite <directory>` to the hidden native harness without changing the earlier individual capture flags. The suite writes exactly five 512 by 512 P6 PPM files through the established SDL GPU offscreen/readback path:
+
+| File | Evidence | GPU fingerprint | SHA-256 |
+| --- | --- | --- | --- |
+| `bind-pose.ppm` | selected bind pose | `408d3a4c16278bbc` | `68cc300230a74917925d7785a233091f0b08eb7580224e0aebb8068571a0f18a` |
+| `animation-0000ms.ppm` | `Walk_Loop` at 0.000 seconds | `68ba446d672887a0` | `1268476a5f5ff930e521e1e5401ba4cc043743e2e9c2bac768d558a3034138bc` |
+| `animation-0500ms.ppm` | `Walk_Loop` at 0.500 seconds | `a2b427aea339d460` | `3cc9b0e6278c51a4616922fcc0ffa9ed6eb35fb8fdea807cc3a3808502a49e37` |
+| `animation-1000ms.ppm` | `Walk_Loop` at 1.000 seconds | `85c5d42b4eac399d` | `9dc755418dc3372ab562afb845440865ff26b7c400d3c5a0fcfb510ed37c2f16` |
+| `animation-loop-boundary.ppm` | exact 1.333333-second loop boundary | `68ba446d672887a0` | `1268476a5f5ff930e521e1e5401ba4cc043743e2e9c2bac768d558a3034138bc` |
+
+Each PPM is 786,447 bytes: a deterministic 15-byte header followed by 512 by 512 RGB pixels. Two independent native macOS ARM64 Metal runs under `artifacts/EXPERIMENT-0009/run-a/` and `run-b/` compared byte-for-byte with no differences. Review-only PNG conversions live under the ignored `artifacts/EXPERIMENT-0009/review/` directory. None of these generated files are committed.
+
+Agent visual inspection found the character fully framed with correct orientation and no visible deformation discontinuity. The three unique animation phases differ as expected, while the exact loop boundary reproduces the start image. Explicit owner review of deformation, scale, orientation, and animation appearance remains owned by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0010`.
+
+Run the suite with:
+
+```sh
+dotnet tests/ChronoFall.CharacterExperiment.GpuHarness/bin/Debug/net10.0/ChronoFall.CharacterExperiment.GpuHarness.dll --capture-suite artifacts/EXPERIMENT-0009/run-a
+```
 
 ## Explicit exclusions
 

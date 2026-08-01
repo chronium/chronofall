@@ -30,7 +30,8 @@ public static class Program
                     options.Visible,
                     options.CapturePath,
                     options.SkeletonCapturePath,
-                    options.AnimationCapturePath));
+                    options.AnimationCapturePath,
+                    options.CaptureSuiteDirectory));
             Console.WriteLine(
                 $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
                 $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16} " +
@@ -95,7 +96,8 @@ public static class Program
         string? AssetPath,
         string? CapturePath,
         string? SkeletonCapturePath,
-        string? AnimationCapturePath)
+        string? AnimationCapturePath,
+        string? CaptureSuiteDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
@@ -104,6 +106,7 @@ public static class Program
             string? capture = null;
             string? skeletonCapture = null;
             string? animationCapture = null;
+            string? captureSuite = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -123,11 +126,14 @@ public static class Program
                     case "--animation-capture" when index + 1 < args.Length:
                         animationCapture = Path.GetFullPath(args[++index]);
                         break;
+                    case "--capture-suite" when index + 1 < args.Length:
+                        captureSuite = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
-            return new HarnessArguments(visible, asset, capture, skeletonCapture, animationCapture);
+            return new HarnessArguments(visible, asset, capture, skeletonCapture, animationCapture, captureSuite);
         }
     }
 }
