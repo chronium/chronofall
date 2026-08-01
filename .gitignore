@@ -22,3 +22,7 @@ imgui.ini
 
 artifacts/
 publish/
+
+thirdparty/repos/
+thirdparty/build/
+thirdparty/artifacts/

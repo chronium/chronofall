@@ -1,7 +1,7 @@
 ---
 title: Skeletal Experiment Data Contract
 createdAt: 2026-08-01T09:27:13.9177630Z
-modifiedAt: 2026-08-01T09:27:13.9177630Z
+modifiedAt: 2026-08-01T10:21:33.5161130Z
 ---
 
 ## Status and ownership
@@ -30,6 +30,17 @@ The selected skin contains one parent-first 65-joint hierarchy with `root` at in
 | Palette | `SkinningPalette` | Exactly one finite CPU matrix per skin joint. It is not a GPU buffer layout or shader ABI. |
 
 Aggregate constructors defensively copy caller collections and expose read-only views. Invalid caller-created contract data fails through `ArgumentException` or `ArgumentOutOfRangeException` with the offending property, count, joint, track, or lane where available. Asset-path, clip-name, node-name, and channel-path context remains the loader adapter's responsibility.
+
+### Loader-owned mesh additions
+
+| Area | Types | Contract |
+| --- | --- | --- |
+| Vertex | `SkinnedVertex` | Finite position and UV0, non-zero finite normal, and four validated skin influences. UV1 is intentionally outside M1. |
+| Sections | `SkinnedMeshSection` | Non-empty material name plus a contiguous complete-triangle range. Material properties are not part of the experiment contract. |
+| Mesh | `SkinnedMeshDefinition` | One immutable vertex buffer, one global index buffer, complete ordered section coverage, and one `SkinDefinition`. |
+| Loaded asset | `SkeletalCharacterAsset` | One skinned mesh plus uniquely named animation clips that share the exact mesh skeleton. |
+
+`ChronoFall.CharacterExperiment.SimpleMesh` is a separate provisional adapter assembly. It owns the SimpleMesh dependency and exposes `SimpleMeshSkeletalAssetLoader.LoadFromFile` plus structured `SkeletalAssetLoadException` context. This separation keeps the core data assembly BCL-only.
 
 ## Matrix convention
 
@@ -61,14 +72,18 @@ CPU matrices remain untransposed. The later SDL GPU task owns vertex packing, pa
 
 ## Explicit exclusions
 
-- No GLB parsing, SimpleMesh pin, fetch script, patch, adapter, or asset-backed load test.
+- The BCL-only core contract does not reference SimpleMesh; the separate experiment adapter owns loading and the pinned dependency.
 - No animation sampling, loop calculation, hierarchy evaluator, or palette calculator.
-- No GPU vertex structure, buffer layout, shader, SDL dependency, renderer, native execution, or visual output.
-- No retargeting, root motion, blending, modular armour, IK, animation graph, permanent cooked format, or shared-engine promotion.
-- No child source, PM data, build, commit, or gitlink change.
+- No GPU vertex packing, buffer layout, shader, SDL dependency, renderer, native execution, or visual output.
+- No asset conversion, cooking, source modification, retargeting, root motion, blending, modular armour, IK, animation graph, permanent cooked format, or shared-engine promotion.
+- No child source, PM data, build, commit, dependency, or gitlink change.
 
 ## Validation
 
-The coordinator solution targets .NET SDK 10.0.301. Its test project uses xUnit only as a test dependency. Focused tests cover TRS order, quaternion normalization, hierarchy structure, defensive copies, joint/count and finite-value validation, influence tolerance/range, complete ordered clip tracks, derived duration, channel ordering, and explicit playback modes.
+The coordinator solution targets .NET SDK 10.0.301. Core tests cover TRS order, hierarchy, immutable collections, finite values, influences, mesh indices/sections, shared skeleton identity, complete clips, and playback modes.
 
-`EXPERIMENT-0012` may now implement the approved loader adapter against these types. `EXPERIMENT-0004` may now add deterministic evaluation and sampling. Both remain separate owner-planned tasks.
+Adapter tests verify the pin, license, reversible patch application, and absence of a SimpleMesh reference from the core project. Malformed-model tests cover unsupported interpolation, unresolved targets, empty and missing channels, non-finite values, and non-increasing key times with structured context.
+
+The unchanged selected UAL1 GLB loads as 8,546 vertices, 41,232 indices, sections `M_Main` and `M_Joints`, one 65-joint skin, and 43 animations. `Idle_Loop`, `Walk_Loop`, and `Sword_Attack` each map to 65 complete LINEAR TRS tracks with their documented durations and sample counts.
+
+`EXPERIMENT-0004` remains the separate owner of deterministic evaluation and sampling. No renderer or native visual validation is part of this contract task.

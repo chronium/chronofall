@@ -1,7 +1,7 @@
 ---
 title: Experimental Skeletal Loader Decision
 createdAt: 2026-08-01T09:09:44.4811970Z
-modifiedAt: 2026-08-01T09:27:26.1890670Z
+modifiedAt: 2026-08-01T10:21:06.8681800Z
 ---
 
 ## Decision
@@ -63,6 +63,16 @@ ChronoFall will acquire dependencies per demonstrated parent consumer:
 
 For the next implementation task, ChronoFall will acquire SimpleMesh only. SDL3-CS remains deferred to the first coordinator GPU task that consumes it. Box3D, ImGui.Net, BlurgText, LiteNetLib, WattleScript, and other Royale dependencies are not copied speculatively.
 
+## Implemented acquisition and adapter
+
+`EXPERIMENT-0012` implements the decision without promoting the dependency. ChronoFall pins `https://github.com/CallumDev/SimpleMesh` at `9f46341e35fa5876fbea7b96bd021bc3abd7842d` in `thirdparty/versions.env`, fetches it into ignored `thirdparty/repos/SimpleMesh`, preserves the Apache-2.0 license, and applies one ordered patch. `thirdparty/verify-simplemesh.sh` verifies the revision, origin, license text, patch diagnostics, and reverse applicability. A clean fetch and patch application is reproducible.
+
+The patch adds only public interpolation metadata and scale keyframes/channels. It does not add experiment sampling, change other formats, or add a permanent loader API. Patched files carry ChronoFall modification notices.
+
+`ChronoFall.CharacterExperiment.SimpleMesh` is the only project that references the patched dependency. `ChronoFall.CharacterExperiment` remains BCL-only. `SimpleMeshSkeletalAssetLoader.LoadFromFile` maps one skinned triangle mesh, one parent-first skin, inverse binds, four-lane influences, and complete LINEAR TRS clips into the provisional experiment types. It preserves glTF right-handed, Y-up, metre-based model space and verifies the selected mesh and skeleton share the documented identity `Armature` space.
+
+`SkeletalAssetLoadException` reports source path, clip, target node, channel path, reason, and inner error where available. The adapter rejects unsupported interpolation, unresolved or duplicate targets, missing or duplicate TRS channels, empty or malformed channels, non-finite data, non-increasing times, invalid hierarchy or skin data, and invalid triangle geometry. UV0 is retained; UV1 and material properties are outside M1, while section material names remain available for diagnostics.
+
 ## Explicit non-goals
 
 - No source, importer, patch, build, or third-party acquisition is implemented by this decision task.
@@ -73,6 +83,6 @@ For the next implementation task, ChronoFall will acquire SimpleMesh only. SDL3-
 
 ## Handoff
 
-The executable experiment contract is now defined at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-data-contract`.
+The executable experiment contract is defined at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-data-contract`. `EXPERIMENT-0012` now supplies the coordinator-local patched loader adapter and selected-asset evidence.
 
-`EXPERIMENT-0012` owns coordinator-local SimpleMesh acquisition, the focused patch, adapter mapping, and asset-backed loader tests against those types. Bind-pose rendering must wait for both deterministic transform/sampling work and the loader adapter. Each follow-up remains inactive until selected and planned by the owner.
+`EXPERIMENT-0004` independently owns deterministic time mapping, sampling, hierarchy evaluation, and palette calculation. Bind-pose rendering remains blocked until both loader and sampling prerequisites are complete. No follow-up task is activated by this handoff.

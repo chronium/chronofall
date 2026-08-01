@@ -1,0 +1,235 @@
+diff --git a/SimpleMesh/Animation.cs b/SimpleMesh/Animation.cs
+index cc92e77..6cfe42a 100644
+--- a/SimpleMesh/Animation.cs
++++ b/SimpleMesh/Animation.cs
+@@ -1,3 +1,5 @@
++// Modified by ChronoFall: retain imported scale channels and interpolation metadata.
++
+ using System.Linq;
+ 
+ namespace SimpleMesh;
+@@ -7,6 +9,7 @@ public class Animation
+     public string Name = "";
+     public RotationChannel[] Rotations = [];
+     public TranslationChannel[] Translations = [];
++    public ScaleChannel[] Scales = [];
+ 
+     public Animation Clone()
+     {
+@@ -14,8 +17,9 @@ public class Animation
+         {
+             Name = Name,
+             Rotations = Rotations.Select(x => x.Clone()).ToArray(),
+-            Translations = Translations.Select(x => x.Clone()).ToArray()
++            Translations = Translations.Select(x => x.Clone()).ToArray(),
++            Scales = Scales.Select(x => x.Clone()).ToArray()
+         };
+         return anm;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/SimpleMesh/AnimationInterpolation.cs b/SimpleMesh/AnimationInterpolation.cs
+new file mode 100644
+index 0000000..df4c274
+--- /dev/null
++++ b/SimpleMesh/AnimationInterpolation.cs
+@@ -0,0 +1,10 @@
++// Added by ChronoFall: retain source interpolation so consumers can validate it.
++
++namespace SimpleMesh;
++
++public enum AnimationInterpolation
++{
++    Linear,
++    CubicSpline,
++    Step,
++}
+diff --git a/SimpleMesh/Formats/GLTF/GLTFAnimation.cs b/SimpleMesh/Formats/GLTF/GLTFAnimation.cs
+index 8bebad2..b50de5f 100644
+--- a/SimpleMesh/Formats/GLTF/GLTFAnimation.cs
++++ b/SimpleMesh/Formats/GLTF/GLTFAnimation.cs
+@@ -1,3 +1,5 @@
++// Modified by ChronoFall: import scale channels and retain source interpolation metadata.
++
+ using System;
+ using System.Collections.Generic;
+ using System.Numerics;
+@@ -8,14 +10,7 @@ namespace SimpleMesh.Formats.GLTF;
+ 
+ static class GLTFAnimation
+ {
+-    enum Interp
+-    {
+-        LINEAR,
+-        CUBICSPLINE,
+-        STEP
+-    }
+-
+-    record struct Sampler(GLTFBufferAccessor Time, GLTFBufferAccessor Value, Interp Interpolation);
++    record struct Sampler(GLTFBufferAccessor Time, GLTFBufferAccessor Value, AnimationInterpolation Interpolation);
+     public static Animation FromGLTF(JsonElement element, GLTFBufferAccessor[] accessors, string[] names, int index)
+     {
+         var a = new Animation();
+@@ -30,9 +25,9 @@ static class GLTFAnimation
+             {
+                 var input = s.GetProperty("input").GetInt32();
+                 var output = s.GetProperty("output").GetInt32();
+-                Interp interp = Interp.LINEAR;
++                AnimationInterpolation interp = AnimationInterpolation.Linear;
+                 if (s.TryGetStringProperty("interpolation", out var iProp))
+-                    interp = Enum.Parse<Interp>(iProp);
++                    interp = Enum.Parse<AnimationInterpolation>(iProp, true);
+                 smp.Add(new Sampler(accessors[input], accessors[output], interp));
+             }
+         }
+@@ -40,6 +35,7 @@ static class GLTFAnimation
+         {
+             a.Rotations = Array.Empty<RotationChannel>();
+             a.Translations = Array.Empty<TranslationChannel>();
++            a.Scales = Array.Empty<ScaleChannel>();
+             return a;
+         }
+ 
+@@ -47,6 +43,7 @@ static class GLTFAnimation
+         {
+             var translations = new List<TranslationChannel>();
+             var rotations = new List<RotationChannel>();
++            var scales = new List<ScaleChannel>();
+             foreach (var ch in channels.EnumerateArray())
+             {
+                 if (!ch.TryGetProperty("target", out var tgt))
+@@ -62,6 +59,7 @@ static class GLTFAnimation
+                     var tr = new TranslationChannel();
+                     tr.Target = names[tgtNode.GetInt32()];
+                     var s = smp[sampler.GetInt32()];
++                    tr.Interpolation = s.Interpolation;
+                     tr.Keyframes = new TranslationKeyframe[s.Time.Count];
+                     for (int i = 0; i < s.Time.Count; i++)
+                         tr.Keyframes[i] = new TranslationKeyframe(
+@@ -75,6 +73,7 @@ static class GLTFAnimation
+                     var rc = new RotationChannel();
+                     rc.Target = names[tgtNode.GetInt32()];
+                     var s = smp[sampler.GetInt32()];
++                    rc.Interpolation = s.Interpolation;
+                     rc.Keyframes = new RotationKeyframe[s.Time.Count];
+                     for (int i = 0; i < s.Time.Count; i++)
+                     {
+@@ -86,8 +85,25 @@ static class GLTFAnimation
+                     }
+                     rotations.Add(rc);
+                 }
++                if ("scale".Equals(tgtPath.GetString(), StringComparison.OrdinalIgnoreCase))
++                {
++                    var sc = new ScaleChannel();
++                    sc.Target = names[tgtNode.GetInt32()];
++                    var s = smp[sampler.GetInt32()];
++                    sc.Interpolation = s.Interpolation;
++                    sc.Keyframes = new ScaleKeyframe[s.Time.Count];
++                    for (int i = 0; i < s.Time.Count; i++)
++                    {
++                        sc.Keyframes[i] = new ScaleKeyframe(
++                            s.Time.GetFloat(i),
++                            s.Value.GetVector3(i)
++                        );
++                    }
++                    scales.Add(sc);
++                }
+                 a.Translations = translations.ToArray();
+                 a.Rotations = rotations.ToArray();
++                a.Scales = scales.ToArray();
+             }
+         }
+         return a;
+diff --git a/SimpleMesh/RotationChannel.cs b/SimpleMesh/RotationChannel.cs
+index 4da7193..c79059e 100644
+--- a/SimpleMesh/RotationChannel.cs
++++ b/SimpleMesh/RotationChannel.cs
+@@ -1,3 +1,5 @@
++// Modified by ChronoFall: retain source interpolation metadata.
++
+ using System.Linq;
+ using System.Numerics;
+ 
+@@ -9,12 +11,14 @@ public class RotationChannel
+ {
+     public RotationKeyframe[] Keyframes = [];
+     public string Target = "";
++    public AnimationInterpolation Interpolation = AnimationInterpolation.Linear;
+ 
+     public RotationChannel Clone()
+     {
+         var ch = new RotationChannel();
+         ch.Target = Target;
+         ch.Keyframes = Keyframes.ToArray();
++        ch.Interpolation = Interpolation;
+         return ch;
+     }
+     
+@@ -34,4 +38,4 @@ public class RotationChannel
+         }
+         return Keyframes[0].Rotation;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/SimpleMesh/ScaleChannel.cs b/SimpleMesh/ScaleChannel.cs
+new file mode 100644
+index 0000000..4eaf982
+--- /dev/null
++++ b/SimpleMesh/ScaleChannel.cs
+@@ -0,0 +1,22 @@
++// Added by ChronoFall: expose scale animation without defining experiment sampling.
++
++using System.Linq;
++using System.Numerics;
++
++namespace SimpleMesh;
++
++public record struct ScaleKeyframe(float Time, Vector3 Scale);
++
++public class ScaleChannel
++{
++    public ScaleKeyframe[] Keyframes = [];
++    public string Target = "";
++    public AnimationInterpolation Interpolation = AnimationInterpolation.Linear;
++
++    public ScaleChannel Clone() => new()
++    {
++        Target = Target,
++        Keyframes = Keyframes.ToArray(),
++        Interpolation = Interpolation,
++    };
++}
+diff --git a/SimpleMesh/TranslationChannel.cs b/SimpleMesh/TranslationChannel.cs
+index 295e0d7..02e5a9e 100644
+--- a/SimpleMesh/TranslationChannel.cs
++++ b/SimpleMesh/TranslationChannel.cs
+@@ -1,3 +1,5 @@
++// Modified by ChronoFall: retain source interpolation metadata.
++
+ using System.Linq;
+ using System.Numerics;
+ 
+@@ -9,12 +11,14 @@ public class TranslationChannel
+ {
+     public TranslationKeyframe[] Keyframes = [];
+     public string Target = "";
++    public AnimationInterpolation Interpolation = AnimationInterpolation.Linear;
+ 
+     public TranslationChannel Clone()
+     {
+         var ch = new TranslationChannel();
+         ch.Target = Target;
+         ch.Keyframes = Keyframes.ToArray();
++        ch.Interpolation = Interpolation;
+         return ch;
+     }
+ 
+@@ -34,4 +38,4 @@ public class TranslationChannel
+         }
+         return Keyframes[0].Translation;
+     }
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../ChronoFall.CharacterExperiment/ChronoFall.CharacterExperiment.csproj" />
+    <ProjectReference Include="../../thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj"
+                      SetConfiguration="Configuration=$(Configuration)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ChronoFall.CharacterExperiment.SimpleMesh.Tests" />
+  </ItemGroup>
+</Project>

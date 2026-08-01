@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <CI_DONT_TARGET_ANDROID>1</CI_DONT_TARGET_ANDROID>
+    <NoWarn>$(NoWarn);CS0219</NoWarn>
+  </PropertyGroup>
+</Project>

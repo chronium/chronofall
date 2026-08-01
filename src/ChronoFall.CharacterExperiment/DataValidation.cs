@@ -4,6 +4,10 @@ namespace ChronoFall.CharacterExperiment;
 
 internal static class DataValidation
 {
+    public static bool IsFinite(Vector2 value) =>
+        float.IsFinite(value.X) &&
+        float.IsFinite(value.Y);
+
     public static bool IsFinite(Vector3 value) =>
         float.IsFinite(value.X) &&
         float.IsFinite(value.Y) &&
