@@ -31,11 +31,14 @@ public static class Program
                     options.CapturePath,
                     options.SkeletonCapturePath,
                     options.AnimationCapturePath,
-                    options.CaptureSuiteDirectory));
+                    options.CaptureSuiteDirectory,
+                    options.BlendCaptureSuiteDirectory));
             Console.WriteLine(
                 $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
                 $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16} " +
-                $"animation={result.AnimationSampleFingerprint:x16}");
+                $"animation={result.AnimationSampleFingerprint:x16} " +
+                $"blend={result.Blend.LocomotionMidpointFingerprint:x16}/" +
+                $"{result.Blend.ActionBodyFingerprint:x16}");
             return 0;
         }
         catch (Exception exception)
@@ -97,7 +100,8 @@ public static class Program
         string? CapturePath,
         string? SkeletonCapturePath,
         string? AnimationCapturePath,
-        string? CaptureSuiteDirectory)
+        string? CaptureSuiteDirectory,
+        string? BlendCaptureSuiteDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
@@ -107,6 +111,7 @@ public static class Program
             string? skeletonCapture = null;
             string? animationCapture = null;
             string? captureSuite = null;
+            string? blendCaptureSuite = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -129,11 +134,21 @@ public static class Program
                     case "--capture-suite" when index + 1 < args.Length:
                         captureSuite = Path.GetFullPath(args[++index]);
                         break;
+                    case "--blend-capture-suite" when index + 1 < args.Length:
+                        blendCaptureSuite = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
-            return new HarnessArguments(visible, asset, capture, skeletonCapture, animationCapture, captureSuite);
+            return new HarnessArguments(
+                visible,
+                asset,
+                capture,
+                skeletonCapture,
+                animationCapture,
+                captureSuite,
+                blendCaptureSuite);
         }
     }
 }

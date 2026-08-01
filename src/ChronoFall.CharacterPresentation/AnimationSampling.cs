@@ -76,12 +76,11 @@ public static class AnimationSampler
         int upperIndex = FindUpperKeyframe(keyframes, time, static keyframe => keyframe.Time);
         QuaternionKeyframe lower = keyframes[upperIndex - 1];
         QuaternionKeyframe upper = keyframes[upperIndex];
-        Quaternion upperValue = Quaternion.Dot(lower.Value, upper.Value) < 0.0f
-            ? new Quaternion(-upper.Value.X, -upper.Value.Y, -upper.Value.Z, -upper.Value.W)
-            : upper.Value;
         float amount = (time - lower.Time) / (upper.Time - lower.Time);
-        return DataValidation.NormalizeRotation(
-            Quaternion.Slerp(lower.Value, upperValue, amount),
+        return AnimationInterpolationMath.InterpolateRotation(
+            lower.Value,
+            upper.Value,
+            amount,
             nameof(channel));
     }
 

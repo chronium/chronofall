@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T17:09:17.3934670Z
+modifiedAt: 2026-08-01T17:59:39.2963670Z
 ---
 
 ## Status and ownership
@@ -210,6 +210,33 @@ A fresh five-frame `--capture-suite` run reproduced the documented bind-pose and
 
 The owner then exercised the visible native browser with `Idle_Loop`, `Walk_Loop`, `Sword_Attack`, and the animated skeleton overlay. On 2026-08-01, the owner confirmed that deformation, upright orientation, scale and framing, animation appearance, controls, and overlay still worked correctly. Automated captures supported this decision but did not replace it. No source, asset, runtime manifest, child repository, or headless dependency changed during validation.
 
+## Focused locomotion and action blending
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0008` retains this host as a provisional proof for the promoted stateless pose blender.
+
+The interactive path keeps Left/Right as direct inspection over all 43 clips. Key `1` requests `Idle_Loop`, key `2` requests `Walk_Loop`, and key `3` simulates receipt of a child-owned authoritative action event for `Sword_Attack`. Idle/Walk requests use a 0.25-second full-body crossfade. The attack uses a 0.10-second entry, clamps and plays once, then returns over 0.15 seconds to the continuously advancing selected locomotion loop. Repeated attack signals begin from the currently displayed pose. Pause, restart and skeleton visualization still operate over the evaluated blended pose.
+
+These timings and interruption rules are harness policy only. Animation does not decide whether an attack happened, when it hit, or whether gameplay can resume.
+
+The original `--capture-suite` files and M1 fingerprints remain unchanged. `--blend-capture-suite <directory>` adds six separate PPM files for idle, locomotion midpoint, walk, action entry, action body and action return. The initial Metal fingerprints are:
+
+| Frame | Fingerprint |
+| --- | --- |
+| Idle source | `247702bbf7799ca9` |
+| Locomotion midpoint | `620021052adb3084` |
+| Walk destination | `a2b427aea339d460` |
+| Action entry | `8d03eaf0fe5dd28e` |
+| Action body | `b8ad9c8aa7d18175` |
+| Action return | `771344f116121af7` |
+
+Two independently generated suites must compare byte-for-byte before completion. Native owner visual confirmation remains the acceptance gate for transition appearance and controls.
+
+### Native validation and visual checkpoint
+
+Debug and Release each pass all 74 solution tests, including 36 BCL-only presentation tests, 24 experiment tests, 8 SimpleMesh adapter tests, and 6 SDL GPU presentation tests. The opt-in native macOS ARM64 Metal integration test also passes. Two independent runs of both the original M1 suite and the six-frame blend suite compare byte-for-byte; all M1 fingerprints and SHA-256 hashes remain unchanged.
+
+The owner exercised Idle/Walk crossfades, one-shot and repeatedly signalled `Sword_Attack`, locomotion changes during the action, pause/restart, direct clip browsing, and the skeleton overlay in the visible native browser and confirmed that the behavior works surprisingly well. The owner selected the six-frame sheet at `docs/project-history/2026-08-01-animation-crossfades/contact-sheet.png` for permanent preservation without revision. Its SHA-256 is `ffd916ad5af750faeddf20d9608a472ad80dc1f652b176299fe377f183d9a791`; the reusable macOS AppKit compositor is `scripts/create-contact-sheet.swift`.
+
 ## Explicit exclusions
 
-This experiment does not add a rendered text/UI system, deterministic capture orchestration, blending, root motion, retargeting, IK, a general animation graph, textures, a material framework, modular equipment, cooking, a general camera, a production renderer, shared-engine promotion, child integration, child source changes, or gitlink updates.
+This experiment does not add a rendered text/UI system, general capture orchestration, blend tree, normalized locomotion parameter, shared transition player, bone mask, layered animation, root motion, retargeting, event marker, IK, general animation graph, textures, material framework, modular equipment, cooking, general camera, production renderer, child integration, child source changes or gitlink updates.

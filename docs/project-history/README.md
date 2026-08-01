@@ -33,4 +33,5 @@ Artifacts belong to the repository that produced the milestone. Child output sho
 
 ## Timeline
 
+- [2026-08-01 — First locomotion and action crossfades](2026-08-01-animation-crossfades/README.md)
 - [2026-08-01 — First deterministic skinned-character capture suite](2026-08-01-skinned-character-proof/README.md)

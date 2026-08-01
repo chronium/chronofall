@@ -14,12 +14,20 @@ public sealed class SdlGpuIntegrationTests
         string harnessPath = Path.Combine(AppContext.BaseDirectory, "gpu-harness", "ChronoFall.CharacterExperiment.GpuHarness.dll");
         Assert.True(File.Exists(harnessPath), $"GPU harness was not packaged at '{harnessPath}'.");
         using var captures = new TemporaryDirectory();
+        using var blendCaptures = new TemporaryDirectory();
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                ArgumentList = { harnessPath, "--capture-suite", captures.Path },
+                ArgumentList =
+                {
+                    harnessPath,
+                    "--capture-suite",
+                    captures.Path,
+                    "--blend-capture-suite",
+                    blendCaptures.Path,
+                },
                 WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -51,7 +59,16 @@ public sealed class SdlGpuIntegrationTests
         Assert.Contains("GPU_HARNESS_PASS skeleton-debug", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_PASS animation clip=Walk_Loop sample=0.500", stdout, StringComparison.Ordinal);
         Assert.Contains("later-sample=1.000", stdout, StringComparison.Ordinal);
+        Assert.Contains(
+            "GPU_HARNESS_PASS blending locomotion=247702bbf7799ca9/620021052adb3084/a2b427aea339d460 " +
+            "action=8d03eaf0fe5dd28e/b8ad9c8aa7d18175/771344f116121af7",
+            stdout,
+            StringComparison.Ordinal);
+        Assert.Contains("fingerprint=408d3a4c16278bbc", stdout, StringComparison.Ordinal);
+        Assert.Contains("fingerprint=4fd2e63aea97f7a3", stdout, StringComparison.Ordinal);
+        Assert.Contains("fingerprint=c6ad39a45245afed", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_BLEND_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_SUCCESS", stdout, StringComparison.Ordinal);
 
         string[] expectedFiles =
@@ -68,6 +85,22 @@ public sealed class SdlGpuIntegrationTests
             .ToArray();
         Assert.Equal(expectedFiles, actualFiles);
         Assert.All(expectedFiles, file => AssertPpm(Path.Combine(captures.Path, file)));
+
+        string[] expectedBlendFiles =
+        [
+            "blend-action-body.ppm",
+            "blend-action-entry.ppm",
+            "blend-action-return.ppm",
+            "blend-locomotion-idle.ppm",
+            "blend-locomotion-midpoint.ppm",
+            "blend-locomotion-walk.ppm",
+        ];
+        string[] actualBlendFiles = Directory.GetFiles(blendCaptures.Path)
+            .Select(static path => Path.GetFileName(path)!)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(expectedBlendFiles, actualBlendFiles);
+        Assert.All(expectedBlendFiles, file => AssertPpm(Path.Combine(blendCaptures.Path, file)));
     }
 
     private static void AssertPpm(string path)

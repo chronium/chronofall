@@ -50,6 +50,33 @@ public sealed class CharacterHarnessDataTests
         }
     }
 
+    [Fact]
+    public void SelectedLocomotionAndActionBlendsProduceFiniteDistinctPalettes()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        AnimationClip idle = Select(asset, "Idle_Loop");
+        AnimationClip walk = Select(asset, "Walk_Loop");
+        AnimationClip action = Select(asset, "Sword_Attack");
+        SkeletonPose idlePose = AnimationSampler.Sample(idle, 1.25f, AnimationPlaybackMode.Loop);
+        SkeletonPose walkPose = AnimationSampler.Sample(walk, 0.5f, AnimationPlaybackMode.Loop);
+        SkeletonPose locomotionMidpoint = SkeletonPoseBlender.Blend(idlePose, walkPose, 0.5f);
+        SkeletonPose actionMidpoint = SkeletonPoseBlender.Blend(
+            walkPose,
+            AnimationSampler.Sample(action, 0.05f, AnimationPlaybackMode.Clamp),
+            0.5f);
+
+        SkinningPalette idlePalette = CreatePalette(asset.Mesh.Skin, idlePose);
+        SkinningPalette walkPalette = CreatePalette(asset.Mesh.Skin, walkPose);
+        SkinningPalette locomotionPalette = CreatePalette(asset.Mesh.Skin, locomotionMidpoint);
+        SkinningPalette actionPalette = CreatePalette(asset.Mesh.Skin, actionMidpoint);
+
+        Assert.All(locomotionPalette.JointMatrices, static matrix => AssertFinite(matrix));
+        Assert.All(actionPalette.JointMatrices, static matrix => AssertFinite(matrix));
+        Assert.False(idlePalette.JointMatrices.SequenceEqual(locomotionPalette.JointMatrices));
+        Assert.False(walkPalette.JointMatrices.SequenceEqual(locomotionPalette.JointMatrices));
+        Assert.False(walkPalette.JointMatrices.SequenceEqual(actionPalette.JointMatrices));
+    }
+
     private static SkinningPalette CreatePalette(SkinDefinition skin, SkeletonPose pose)
     {
         SkeletonGlobalPose global = SkeletonPoseEvaluator.EvaluateGlobal(pose);
@@ -78,6 +105,9 @@ public sealed class CharacterHarnessDataTests
             "Unreal-Godot",
             "UAL1_Standard.glb"));
     }
+
+    private static AnimationClip Select(SkeletalCharacterAsset asset, string name) =>
+        Assert.Single(asset.Animations, candidate => string.Equals(candidate.Name, name, StringComparison.Ordinal));
 
     private static string FindRepositoryRoot()
     {

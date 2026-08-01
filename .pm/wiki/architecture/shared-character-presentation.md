@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-01T17:05:19.5488560Z
+modifiedAt: 2026-08-01T17:47:39.7888010Z
 ---
 
 ## Decision
@@ -31,6 +31,14 @@ The promoted core preserves the validated M1 semantics:
 - global poses kept distinct from GPU palettes so diagnostics consume authoritative presentation transforms rather than shader-packed matrices.
 
 These are presentation contracts. Server-authoritative gameplay state and events select animations; animation never decides attacks, hits, movement, equipment, damage, death or persistence.
+
+## Focused pose blending
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0008` adds one stateless full-body operation to the BCL-only core: `SkeletonPoseBlender.Blend(source, destination, amount)`.
+
+Both poses must use the same skeleton instance and the amount must be finite within `[0, 1]`. The operation blends local translation and scale linearly and uses normalized shortest-path quaternion interpolation. It returns a new validated local pose. Global transforms, inverse binds and GPU palettes are evaluated only after blending through the existing contracts.
+
+The shared module does not select clips, advance clocks, choose transition durations, queue or interrupt actions, interpret protocol messages, or decide gameplay. Each child consumes its own authoritative state and events and owns that presentation policy. The coordinator harness proves the math with `Idle_Loop`, `Walk_Loop` and a full-body `Sword_Attack`; its 0.25-second locomotion transition, 0.10-second action entry and 0.15-second action return remain provisional validation policy rather than shared API.
 
 ## SDL GPU host boundary
 
@@ -73,12 +81,13 @@ The coordinator continues to own its SDL3-CS pin, fetch verification, native run
 
 ## Deferred contracts
 
-This task does not decide or implement:
+The focused shared foundation still does not decide or implement:
 
 - skeletal cooking or a permanent file format;
 - package versioning, publication, feed selection or child acquisition;
 - textures, production materials or animated bounds;
-- blending, root motion, retargeting or animation graphs;
+- blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
+- bone masks or layered animation, which remain owned by `SHARED-0009`;
 - modular armour, attachments, equipment, sockets or IK;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.

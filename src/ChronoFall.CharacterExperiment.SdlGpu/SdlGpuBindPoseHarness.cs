@@ -14,7 +14,8 @@ internal sealed record CharacterHarnessOptions(
     string? CapturePath = null,
     string? SkeletonCapturePath = null,
     string? AnimationCapturePath = null,
-    string? CaptureSuiteDirectory = null);
+    string? CaptureSuiteDirectory = null,
+    string? BlendCaptureSuiteDirectory = null);
 
 internal sealed record CharacterHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
@@ -33,7 +34,22 @@ internal sealed record CharacterHarnessResult(
     ulong AnimationSampleFingerprint,
     ulong AnimationLaterSampleFingerprint,
     ulong AnimationLoopBoundaryFingerprint,
+    BlendHarnessResult Blend,
     int SkeletonLineCount);
+
+internal sealed record BlendHarnessResult(
+    FrameAnalysis LocomotionIdle,
+    FrameAnalysis LocomotionMidpoint,
+    FrameAnalysis LocomotionWalk,
+    FrameAnalysis ActionEntry,
+    FrameAnalysis ActionBody,
+    FrameAnalysis ActionReturn,
+    ulong LocomotionIdleFingerprint,
+    ulong LocomotionMidpointFingerprint,
+    ulong LocomotionWalkFingerprint,
+    ulong ActionEntryFingerprint,
+    ulong ActionBodyFingerprint,
+    ulong ActionReturnFingerprint);
 
 internal readonly record struct FrameAnalysis(
     int RenderedPixels,
@@ -61,6 +77,9 @@ internal static class SdlGpuCharacterHarness
     private static readonly SDL_FColor ClearColor = new() { r = 0.035f, g = 0.045f, b = 0.070f, a = 1.0f };
     private const float DeterministicAnimationSampleTime = 0.5f;
     private const float DeterministicAnimationLaterSampleTime = 1.0f;
+    private const float DeterministicIdleTime = 1.25f;
+    private const float DeterministicWalkTime = 0.5f;
+    private const float DeterministicActionBodyTime = 0.75f;
 
     internal static CharacterHarnessResult Run(
         SkeletalCharacterAsset asset,
@@ -74,6 +93,10 @@ internal static class SdlGpuCharacterHarness
             throw new ArgumentOutOfRangeException(nameof(options), "The GPU harness target must be at least 64x64.");
         if (!ReferenceEquals(animation.Skeleton, asset.Mesh.Skin.Skeleton))
             throw new ArgumentException($"Animation '{animation.Name}' does not use the selected mesh skeleton.", nameof(animation));
+
+        AnimationClip idleAnimation = SelectAnimation(asset, "Idle_Loop");
+        AnimationClip walkAnimation = SelectAnimation(asset, "Walk_Loop");
+        AnimationClip actionAnimation = SelectAnimation(asset, "Sword_Attack");
 
         MeshBounds bounds = MeshBounds.Create(asset.Mesh.Vertices.Select(static vertex => vertex.Position).ToArray());
         SkeletonPose bindPose = asset.Mesh.Skin.Skeleton.CreateBindPose();
@@ -144,6 +167,115 @@ internal static class SdlGpuCharacterHarness
             MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX) >= options.Width * 0.025f,
             $"Translated palette probe shifted the rendered centroid by only {MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX):F2} pixels.");
 
+        SkeletonPose idlePose = AnimationSampler.Sample(
+            idleAnimation,
+            DeterministicIdleTime,
+            AnimationPlaybackMode.Loop);
+        SkeletonPose walkPose = AnimationSampler.Sample(
+            walkAnimation,
+            DeterministicWalkTime,
+            AnimationPlaybackMode.Loop);
+        SkeletonPose locomotionMidpointPose = SkeletonPoseBlender.Blend(idlePose, walkPose, 0.5f);
+        SkeletonPose actionEntryPose = SkeletonPoseBlender.Blend(
+            walkPose,
+            AnimationSampler.Sample(
+                actionAnimation,
+                CharacterPlaybackController.ActionBlendInDuration * 0.5f,
+                AnimationPlaybackMode.Clamp),
+            0.5f);
+        SkeletonPose actionBodyPose = AnimationSampler.Sample(
+            actionAnimation,
+            DeterministicActionBodyTime,
+            AnimationPlaybackMode.Clamp);
+        float actionReturnTime = actionAnimation.Duration - CharacterPlaybackController.ActionBlendOutDuration * 0.5f;
+        SkeletonPose actionReturnPose = SkeletonPoseBlender.Blend(
+            AnimationSampler.Sample(actionAnimation, actionReturnTime, AnimationPlaybackMode.Clamp),
+            AnimationSampler.Sample(
+                walkAnimation,
+                DeterministicAnimationLaterSampleTime,
+                AnimationPlaybackMode.Loop),
+            0.5f);
+
+        byte[] locomotionIdlePixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            idlePose,
+            DeterministicIdleTime,
+            camera.ViewProjection,
+            options,
+            "blend-locomotion-idle",
+            out FrameAnalysis locomotionIdleAnalysis);
+        byte[] locomotionMidpointPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            locomotionMidpointPose,
+            DeterministicWalkTime,
+            camera.ViewProjection,
+            options,
+            "blend-locomotion-midpoint",
+            out FrameAnalysis locomotionMidpointAnalysis);
+        byte[] locomotionWalkPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            walkPose,
+            DeterministicWalkTime,
+            camera.ViewProjection,
+            options,
+            "blend-locomotion-walk",
+            out FrameAnalysis locomotionWalkAnalysis);
+        byte[] actionEntryPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            actionEntryPose,
+            CharacterPlaybackController.ActionBlendInDuration * 0.5f,
+            camera.ViewProjection,
+            options,
+            "blend-action-entry",
+            out FrameAnalysis actionEntryAnalysis);
+        byte[] actionBodyPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            actionBodyPose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "blend-action-body",
+            out FrameAnalysis actionBodyAnalysis);
+        byte[] actionReturnPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            actionReturnPose,
+            actionReturnTime,
+            camera.ViewProjection,
+            options,
+            "blend-action-return",
+            out FrameAnalysis actionReturnAnalysis);
+
+        var blendResult = new BlendHarnessResult(
+            locomotionIdleAnalysis,
+            locomotionMidpointAnalysis,
+            locomotionWalkAnalysis,
+            actionEntryAnalysis,
+            actionBodyAnalysis,
+            actionReturnAnalysis,
+            Fingerprint(locomotionIdlePixels),
+            Fingerprint(locomotionMidpointPixels),
+            Fingerprint(locomotionWalkPixels),
+            Fingerprint(actionEntryPixels),
+            Fingerprint(actionBodyPixels),
+            Fingerprint(actionReturnPixels));
+        Require(
+            blendResult.LocomotionMidpointFingerprint != blendResult.LocomotionIdleFingerprint &&
+            blendResult.LocomotionMidpointFingerprint != blendResult.LocomotionWalkFingerprint,
+            "Locomotion blend midpoint reproduced an endpoint fingerprint.");
+        Require(
+            blendResult.ActionEntryFingerprint != blendResult.LocomotionWalkFingerprint,
+            "Action entry blend reproduced the locomotion fingerprint.");
+        Require(
+            blendResult.ActionBodyFingerprint != blendResult.ActionEntryFingerprint &&
+            blendResult.ActionBodyFingerprint != blendResult.ActionReturnFingerprint,
+            "Action blend frames did not produce distinct fingerprints.");
+
         if (!string.IsNullOrWhiteSpace(options.CapturePath))
             WritePpm(options.CapturePath, options.Width, options.Height, bindPixels);
         if (!string.IsNullOrWhiteSpace(options.SkeletonCapturePath))
@@ -161,6 +293,19 @@ internal static class SdlGpuCharacterHarness
                 animationSamplePixels,
                 animationLaterSamplePixels,
                 animationLoopBoundaryPixels);
+        }
+        if (!string.IsNullOrWhiteSpace(options.BlendCaptureSuiteDirectory))
+        {
+            WriteBlendCaptureSuite(
+                options.BlendCaptureSuiteDirectory,
+                options.Width,
+                options.Height,
+                locomotionIdlePixels,
+                locomotionMidpointPixels,
+                locomotionWalkPixels,
+                actionEntryPixels,
+                actionBodyPixels,
+                actionReturnPixels);
         }
 
         Console.WriteLine(
@@ -181,6 +326,11 @@ internal static class SdlGpuCharacterHarness
             $"sample-fingerprint={animationSampleFingerprint:x16} " +
             $"later-sample={DeterministicAnimationLaterSampleTime:F3} " +
             $"later-fingerprint={animationLaterSampleFingerprint:x16} loop={animationLoopBoundaryFingerprint:x16}"));
+        Console.WriteLine(
+            $"GPU_HARNESS_PASS blending locomotion={blendResult.LocomotionIdleFingerprint:x16}/" +
+            $"{blendResult.LocomotionMidpointFingerprint:x16}/{blendResult.LocomotionWalkFingerprint:x16} " +
+            $"action={blendResult.ActionEntryFingerprint:x16}/{blendResult.ActionBodyFingerprint:x16}/" +
+            $"{blendResult.ActionReturnFingerprint:x16}");
 
         if (options.Visible)
         {
@@ -210,7 +360,37 @@ internal static class SdlGpuCharacterHarness
             animationSampleFingerprint,
             animationLaterSampleFingerprint,
             animationLoopBoundaryFingerprint,
+            blendResult,
             skeletonDebug.LineCount);
+    }
+
+    private static AnimationClip SelectAnimation(SkeletalCharacterAsset asset, string name)
+    {
+        AnimationClip? selected = asset.Animations.SingleOrDefault(
+            candidate => string.Equals(candidate.Name, name, StringComparison.Ordinal));
+        if (selected is not null)
+            return selected;
+
+        string available = string.Join(", ", asset.Animations.Select(static candidate => candidate.Name));
+        throw new InvalidOperationException(
+            $"Required blend animation '{name}' was not found by ordinal name. Available clips: {available}");
+    }
+
+    private static byte[] RenderPose(
+        CharacterGpuSession gpu,
+        SkinDefinition skin,
+        SkeletonPose pose,
+        float sampleTime,
+        Matrix4x4 viewProjection,
+        CharacterHarnessOptions options,
+        string label,
+        out FrameAnalysis analysis)
+    {
+        CharacterAnimationFrame frame = CreateAnimationFrame(skin, pose, sampleTime);
+        gpu.UploadPalette(frame.Palette);
+        byte[] pixels = gpu.RenderOffscreen(viewProjection, includeSkeleton: false);
+        analysis = Analyze(pixels, options.Width, options.Height, label);
+        return pixels;
     }
 
     internal static CharacterAnimationFrame CreateAnimationFrame(
@@ -225,6 +405,21 @@ internal static class SdlGpuCharacterHarness
 
         float sampleTime = AnimationSampler.ResolveTime(animation, time, AnimationPlaybackMode.Loop);
         SkeletonPose pose = AnimationSampler.Sample(animation, sampleTime, AnimationPlaybackMode.Clamp);
+        return CreateAnimationFrame(skin, pose, sampleTime);
+    }
+
+    internal static CharacterAnimationFrame CreateAnimationFrame(
+        SkinDefinition skin,
+        SkeletonPose pose,
+        float sampleTime)
+    {
+        ArgumentNullException.ThrowIfNull(skin);
+        ArgumentNullException.ThrowIfNull(pose);
+        if (!float.IsFinite(sampleTime) || sampleTime < 0.0f)
+            throw new ArgumentOutOfRangeException(nameof(sampleTime));
+        if (!ReferenceEquals(skin.Skeleton, pose.Skeleton))
+            throw new ArgumentException("Pose does not use the selected skin skeleton.", nameof(pose));
+
         SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(pose);
         SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(skin, globalPose);
         return new CharacterAnimationFrame(sampleTime, globalPose, palette);
@@ -390,6 +585,27 @@ internal static class SdlGpuCharacterHarness
         WritePpm(Path.Combine(fullDirectory, "animation-1000ms.ppm"), width, height, animationLaterSample);
         WritePpm(Path.Combine(fullDirectory, "animation-loop-boundary.ppm"), width, height, animationLoopBoundary);
         Console.WriteLine($"GPU_HARNESS_CAPTURE_SUITE {fullDirectory}");
+    }
+
+    private static void WriteBlendCaptureSuite(
+        string directory,
+        int width,
+        int height,
+        byte[] locomotionIdle,
+        byte[] locomotionMidpoint,
+        byte[] locomotionWalk,
+        byte[] actionEntry,
+        byte[] actionBody,
+        byte[] actionReturn)
+    {
+        string fullDirectory = Path.GetFullPath(directory);
+        WritePpm(Path.Combine(fullDirectory, "blend-locomotion-idle.ppm"), width, height, locomotionIdle);
+        WritePpm(Path.Combine(fullDirectory, "blend-locomotion-midpoint.ppm"), width, height, locomotionMidpoint);
+        WritePpm(Path.Combine(fullDirectory, "blend-locomotion-walk.ppm"), width, height, locomotionWalk);
+        WritePpm(Path.Combine(fullDirectory, "blend-action-entry.ppm"), width, height, actionEntry);
+        WritePpm(Path.Combine(fullDirectory, "blend-action-body.ppm"), width, height, actionBody);
+        WritePpm(Path.Combine(fullDirectory, "blend-action-return.ppm"), width, height, actionReturn);
+        Console.WriteLine($"GPU_HARNESS_BLEND_CAPTURE_SUITE {fullDirectory}");
     }
 
     private static byte ToByte(float value) => (byte)MathF.Round(Math.Clamp(value, 0.0f, 1.0f) * byte.MaxValue);
@@ -620,7 +836,8 @@ internal static class SdlGpuCharacterHarness
             ulong lastTitleCounter = 0;
             bool titleDirty = true;
             Console.WriteLine(
-                "GPU_HARNESS_CONTROLS Left/Right=clip 1=Idle_Loop 2=Walk_Loop 3=Sword_Attack " +
+                "GPU_HARNESS_CONTROLS Left/Right=direct-clip 1=blend-Idle_Loop 2=blend-Walk_Loop " +
+                "3=signal-Sword_Attack " +
                 "Space=pause/resume R=restart D=skeleton Escape=close");
             Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
             bool running = true;
@@ -656,7 +873,10 @@ internal static class SdlGpuCharacterHarness
                 float frameSampleTime = playback.SampleTime;
                 ExecuteInteractiveFrame(frameClip, frameSampleTime, jointCount, () =>
                 {
-                    CharacterAnimationFrame frame = CreateAnimationFrame(skin, frameClip, frameSampleTime);
+                    CharacterAnimationFrame frame = CreateAnimationFrame(
+                        skin,
+                        playback.CreatePose(),
+                        frameSampleTime);
                     UploadPalette(frame.Palette);
                     if (playback.IsSkeletonVisible)
                     {
@@ -749,13 +969,13 @@ internal static class SdlGpuCharacterHarness
                     playback.SelectNext();
                     return true;
                 case SDL_Keycode.SDLK_1:
-                    playback.SelectByName("Idle_Loop");
+                    playback.RequestLocomotion("Idle_Loop");
                     return true;
                 case SDL_Keycode.SDLK_2:
-                    playback.SelectByName("Walk_Loop");
+                    playback.RequestLocomotion("Walk_Loop");
                     return true;
                 case SDL_Keycode.SDLK_3:
-                    playback.SelectByName("Sword_Attack");
+                    playback.SignalAction("Sword_Attack");
                     return true;
                 case SDL_Keycode.SDLK_SPACE:
                     playback.TogglePlaying();

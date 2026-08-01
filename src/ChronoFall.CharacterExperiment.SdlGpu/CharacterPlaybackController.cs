@@ -2,12 +2,33 @@ using System.Globalization;
 
 namespace ChronoFall.CharacterExperiment.SdlGpu;
 
+internal enum CharacterPlaybackPhase
+{
+    Direct,
+    LocomotionBlend,
+    Locomotion,
+    ActionEntry,
+    ActionBody,
+    ActionReturn,
+}
+
 internal sealed class CharacterPlaybackController
 {
+    internal const float LocomotionBlendDuration = 0.25f;
+    internal const float ActionBlendInDuration = 0.10f;
+    internal const float ActionBlendOutDuration = 0.15f;
+
     private readonly AnimationClip[] clips;
     private readonly IReadOnlyList<AnimationClip> readOnlyClips;
-    private int clipIndex;
-    private double sampleTime;
+    private int directClipIndex;
+    private double directSampleTime;
+    private AnimationClip locomotionClip;
+    private double locomotionSampleTime;
+    private SkeletonPose? transitionSourcePose;
+    private double transitionElapsed;
+    private AnimationClip? actionClip;
+    private SkeletonPose? actionEntrySourcePose;
+    private double actionSampleTime;
 
     internal CharacterPlaybackController(IEnumerable<AnimationClip> clips, string initialClipName)
     {
@@ -31,27 +52,42 @@ internal sealed class CharacterPlaybackController
                 throw new ArgumentException($"Animation name '{clip.Name}' is duplicated.", nameof(clips));
         }
 
-        clipIndex = Array.FindIndex(
-            this.clips,
-            candidate => string.Equals(candidate.Name, initialClipName, StringComparison.Ordinal));
-        if (clipIndex < 0)
-        {
-            string available = string.Join(", ", this.clips.Select(static candidate => candidate.Name));
-            throw new ArgumentException(
-                $"Initial animation '{initialClipName}' was not found by ordinal name. Available clips: {available}",
-                nameof(initialClipName));
-        }
-
+        directClipIndex = FindClipIndex(initialClipName, nameof(initialClipName));
+        locomotionClip = this.clips[directClipIndex];
         readOnlyClips = Array.AsReadOnly(this.clips);
     }
 
     internal IReadOnlyList<AnimationClip> Clips => readOnlyClips;
 
-    internal AnimationClip CurrentClip => clips[clipIndex];
+    internal AnimationClip CurrentClip => Phase is
+        CharacterPlaybackPhase.ActionEntry or
+        CharacterPlaybackPhase.ActionBody or
+        CharacterPlaybackPhase.ActionReturn
+            ? actionClip!
+            : Phase is CharacterPlaybackPhase.Locomotion or CharacterPlaybackPhase.LocomotionBlend
+                ? locomotionClip
+                : clips[directClipIndex];
 
-    internal int CurrentClipIndex => clipIndex;
+    internal int CurrentClipIndex => Array.IndexOf(clips, CurrentClip);
 
-    internal float SampleTime => (float)sampleTime;
+    internal float SampleTime => (float)(Phase switch
+    {
+        CharacterPlaybackPhase.Direct => directSampleTime,
+        CharacterPlaybackPhase.LocomotionBlend or CharacterPlaybackPhase.Locomotion => locomotionSampleTime,
+        _ => actionSampleTime,
+    });
+
+    internal CharacterPlaybackPhase Phase { get; private set; }
+
+    internal float BlendAmount => Phase switch
+    {
+        CharacterPlaybackPhase.LocomotionBlend => ResolveAmount(transitionElapsed, LocomotionBlendDuration),
+        CharacterPlaybackPhase.ActionEntry => ResolveAmount(actionSampleTime, ActionBlendInDuration),
+        CharacterPlaybackPhase.ActionReturn => ResolveAmount(
+            actionSampleTime - (actionClip!.Duration - ActionBlendOutDuration),
+            ActionBlendOutDuration),
+        _ => 1.0f,
+    };
 
     internal bool IsPlaying { get; private set; } = true;
 
@@ -64,27 +100,148 @@ internal sealed class CharacterPlaybackController
         if (!IsPlaying || elapsedSeconds == 0.0)
             return;
 
-        sampleTime = (sampleTime + elapsedSeconds) % CurrentClip.Duration;
+        switch (Phase)
+        {
+            case CharacterPlaybackPhase.Direct:
+                directSampleTime = ResolveLoopTime(directSampleTime + elapsedSeconds, CurrentClip.Duration);
+                break;
+            case CharacterPlaybackPhase.LocomotionBlend:
+                AdvanceLocomotion(elapsedSeconds);
+                transitionElapsed += elapsedSeconds;
+                if (transitionElapsed >= LocomotionBlendDuration)
+                {
+                    transitionElapsed = LocomotionBlendDuration;
+                    transitionSourcePose = null;
+                    Phase = CharacterPlaybackPhase.Locomotion;
+                }
+                break;
+            case CharacterPlaybackPhase.Locomotion:
+                AdvanceLocomotion(elapsedSeconds);
+                break;
+            case CharacterPlaybackPhase.ActionEntry:
+            case CharacterPlaybackPhase.ActionBody:
+            case CharacterPlaybackPhase.ActionReturn:
+                AdvanceLocomotion(elapsedSeconds);
+                actionSampleTime += elapsedSeconds;
+                UpdateActionPhase();
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported playback phase {Phase}.");
+        }
     }
 
-    internal void SelectNext() => SelectIndex((clipIndex + 1) % clips.Length);
-
-    internal void SelectPrevious() => SelectIndex((clipIndex - 1 + clips.Length) % clips.Length);
-
-    internal void SelectByName(string name)
+    internal SkeletonPose CreatePose()
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        int selected = Array.FindIndex(
-            clips,
-            candidate => string.Equals(candidate.Name, name, StringComparison.Ordinal));
-        if (selected < 0)
-            throw new ArgumentException($"Animation '{name}' is not available in the browser.", nameof(name));
-        SelectIndex(selected);
+        return Phase switch
+        {
+            CharacterPlaybackPhase.Direct => AnimationSampler.Sample(CurrentClip, SampleTime, AnimationPlaybackMode.Loop),
+            CharacterPlaybackPhase.Locomotion => CreateLocomotionPose(),
+            CharacterPlaybackPhase.LocomotionBlend => SkeletonPoseBlender.Blend(
+                transitionSourcePose!,
+                CreateLocomotionPose(),
+                BlendAmount),
+            CharacterPlaybackPhase.ActionEntry => SkeletonPoseBlender.Blend(
+                actionEntrySourcePose!,
+                CreateActionPose(),
+                BlendAmount),
+            CharacterPlaybackPhase.ActionBody => CreateActionPose(),
+            CharacterPlaybackPhase.ActionReturn => SkeletonPoseBlender.Blend(
+                CreateActionPose(),
+                CreateLocomotionPose(),
+                BlendAmount),
+            _ => throw new InvalidOperationException($"Unsupported playback phase {Phase}."),
+        };
     }
+
+    internal void RequestLocomotion(string name)
+    {
+        AnimationClip selected = clips[FindClipIndex(name, nameof(name))];
+        if (Phase is CharacterPlaybackPhase.ActionEntry or CharacterPlaybackPhase.ActionBody or CharacterPlaybackPhase.ActionReturn)
+        {
+            if (!ReferenceEquals(locomotionClip, selected))
+            {
+                locomotionClip = selected;
+                locomotionSampleTime = 0.0;
+            }
+            return;
+        }
+
+        AnimationClip currentClip = CurrentClip;
+        if (ReferenceEquals(currentClip, selected))
+        {
+            if (Phase == CharacterPlaybackPhase.Direct)
+            {
+                locomotionClip = selected;
+                locomotionSampleTime = directSampleTime;
+            }
+            transitionSourcePose = null;
+            transitionElapsed = LocomotionBlendDuration;
+            Phase = CharacterPlaybackPhase.Locomotion;
+            return;
+        }
+
+        SkeletonPose sourcePose = CreatePose();
+        locomotionClip = selected;
+        locomotionSampleTime = 0.0;
+        transitionSourcePose = sourcePose;
+        transitionElapsed = 0.0;
+        Phase = CharacterPlaybackPhase.LocomotionBlend;
+    }
+
+    internal void SignalAction(string name)
+    {
+        AnimationClip selected = clips[FindClipIndex(name, nameof(name))];
+        if (selected.Duration <= ActionBlendInDuration + ActionBlendOutDuration)
+        {
+            throw new ArgumentException(
+                $"Action animation '{selected.Name}' must be longer than the combined blend duration.",
+                nameof(name));
+        }
+
+        if (Phase == CharacterPlaybackPhase.Direct)
+        {
+            locomotionClip = CurrentClip;
+            locomotionSampleTime = directSampleTime;
+        }
+        actionEntrySourcePose = CreatePose();
+        actionClip = selected;
+        actionSampleTime = 0.0;
+        transitionSourcePose = null;
+        transitionElapsed = 0.0;
+        Phase = CharacterPlaybackPhase.ActionEntry;
+    }
+
+    internal void SelectNext() => SelectIndex((directClipIndex + 1) % clips.Length);
+
+    internal void SelectPrevious() => SelectIndex((directClipIndex - 1 + clips.Length) % clips.Length);
+
+    internal void SelectByName(string name) => SelectIndex(FindClipIndex(name, nameof(name)));
 
     internal void TogglePlaying() => IsPlaying = !IsPlaying;
 
-    internal void Restart() => sampleTime = 0.0;
+    internal void Restart()
+    {
+        switch (Phase)
+        {
+            case CharacterPlaybackPhase.Direct:
+                directSampleTime = 0.0;
+                break;
+            case CharacterPlaybackPhase.LocomotionBlend:
+            case CharacterPlaybackPhase.Locomotion:
+                locomotionSampleTime = 0.0;
+                transitionSourcePose = null;
+                transitionElapsed = LocomotionBlendDuration;
+                Phase = CharacterPlaybackPhase.Locomotion;
+                break;
+            case CharacterPlaybackPhase.ActionEntry:
+            case CharacterPlaybackPhase.ActionBody:
+            case CharacterPlaybackPhase.ActionReturn:
+                SignalAction(actionClip!.Name);
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported playback phase {Phase}.");
+        }
+    }
 
     internal void ToggleSkeleton() => IsSkeletonVisible = !IsSkeletonVisible;
 
@@ -93,9 +250,10 @@ internal sealed class CharacterPlaybackController
         ValidateDiagnosticCounts(jointCount, paletteCount);
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"ChronoFall Character Experiment | {clipIndex + 1}/{clips.Length} {CurrentClip.Name} | " +
+            $"ChronoFall Character Experiment | {CurrentClipIndex + 1}/{clips.Length} {CurrentClip.Name} | " +
             $"{SampleTime:F3}/{CurrentClip.Duration:F3} s | {(IsPlaying ? "playing" : "paused")} | " +
-            $"skeleton {(IsSkeletonVisible ? "on" : "off")} | joints {jointCount} | palette {paletteCount}");
+            $"{CreatePhaseLabel()} {BlendAmount:F2} | skeleton {(IsSkeletonVisible ? "on" : "off")} | " +
+            $"joints {jointCount} | palette {paletteCount}");
     }
 
     internal string CreateConsoleDiagnostic(int jointCount, int paletteCount)
@@ -103,17 +261,78 @@ internal sealed class CharacterPlaybackController
         ValidateDiagnosticCounts(jointCount, paletteCount);
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"GPU_HARNESS_DIAGNOSTIC clip={CurrentClip.Name} index={clipIndex + 1}/{clips.Length} " +
+            $"GPU_HARNESS_DIAGNOSTIC clip={CurrentClip.Name} index={CurrentClipIndex + 1}/{clips.Length} " +
             $"sample={SampleTime:F3} duration={CurrentClip.Duration:F3} " +
-            $"state={(IsPlaying ? "playing" : "paused")} skeleton={(IsSkeletonVisible ? "on" : "off")} " +
-            $"joints={jointCount} palette={paletteCount}");
+            $"state={(IsPlaying ? "playing" : "paused")} phase={CreatePhaseLabel()} blend={BlendAmount:F3} " +
+            $"skeleton={(IsSkeletonVisible ? "on" : "off")} joints={jointCount} palette={paletteCount}");
     }
 
     private void SelectIndex(int index)
     {
-        clipIndex = index;
-        sampleTime = 0.0;
+        directClipIndex = index;
+        directSampleTime = 0.0;
+        locomotionClip = clips[index];
+        locomotionSampleTime = 0.0;
+        transitionSourcePose = null;
+        transitionElapsed = 0.0;
+        actionClip = null;
+        actionEntrySourcePose = null;
+        actionSampleTime = 0.0;
+        Phase = CharacterPlaybackPhase.Direct;
     }
+
+    private int FindClipIndex(string name, string parameterName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, parameterName);
+        int selected = Array.FindIndex(
+            clips,
+            candidate => string.Equals(candidate.Name, name, StringComparison.Ordinal));
+        if (selected >= 0)
+            return selected;
+
+        string available = string.Join(", ", clips.Select(static candidate => candidate.Name));
+        throw new ArgumentException(
+            $"Animation '{name}' was not found by ordinal name. Available clips: {available}",
+            parameterName);
+    }
+
+    private void AdvanceLocomotion(double elapsedSeconds) =>
+        locomotionSampleTime = ResolveLoopTime(locomotionSampleTime + elapsedSeconds, locomotionClip.Duration);
+
+    private SkeletonPose CreateLocomotionPose() =>
+        AnimationSampler.Sample(locomotionClip, (float)locomotionSampleTime, AnimationPlaybackMode.Loop);
+
+    private SkeletonPose CreateActionPose() =>
+        AnimationSampler.Sample(actionClip!, (float)actionSampleTime, AnimationPlaybackMode.Clamp);
+
+    private void UpdateActionPhase()
+    {
+        if (actionSampleTime >= actionClip!.Duration)
+        {
+            actionSampleTime = 0.0;
+            actionClip = null;
+            actionEntrySourcePose = null;
+            Phase = CharacterPlaybackPhase.Locomotion;
+            return;
+        }
+
+        Phase = actionSampleTime < ActionBlendInDuration
+            ? CharacterPlaybackPhase.ActionEntry
+            : actionSampleTime >= actionClip.Duration - ActionBlendOutDuration
+                ? CharacterPlaybackPhase.ActionReturn
+                : CharacterPlaybackPhase.ActionBody;
+    }
+
+    private string CreatePhaseLabel() => Phase switch
+    {
+        CharacterPlaybackPhase.Direct => "direct",
+        CharacterPlaybackPhase.LocomotionBlend => "locomotion-blend",
+        CharacterPlaybackPhase.Locomotion => "locomotion",
+        CharacterPlaybackPhase.ActionEntry => "action-entry",
+        CharacterPlaybackPhase.ActionBody => "action-body",
+        CharacterPlaybackPhase.ActionReturn => "action-return",
+        _ => throw new InvalidOperationException($"Unsupported playback phase {Phase}."),
+    };
 
     private void ValidateDiagnosticCounts(int jointCount, int paletteCount)
     {
@@ -130,4 +349,9 @@ internal sealed class CharacterPlaybackController
                 $"{jointCount} joints but {paletteCount} palette matrices.");
         }
     }
+
+    private static double ResolveLoopTime(double time, float duration) => time % duration;
+
+    private static float ResolveAmount(double elapsed, float duration) =>
+        Math.Clamp((float)(elapsed / duration), 0.0f, 1.0f);
 }
