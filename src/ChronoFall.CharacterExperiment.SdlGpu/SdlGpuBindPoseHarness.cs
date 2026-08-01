@@ -48,6 +48,11 @@ internal readonly record struct SkeletonOverlayAnalysis(
     int LinkPixels,
     int YAxisPixels);
 
+internal readonly record struct CharacterAnimationFrame(
+    float SampleTime,
+    SkeletonGlobalPose GlobalPose,
+    Matrix4x4[] PackedPalette);
+
 internal static class SdlGpuCharacterHarness
 {
     private static readonly SDL_FColor ClearColor = new() { r = 0.035f, g = 0.045f, b = 0.070f, a = 1.0f };
@@ -71,7 +76,8 @@ internal static class SdlGpuCharacterHarness
         SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(bindPose);
         SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(asset.Mesh.Skin, globalPose);
         BindPoseCamera camera = BindPoseCamera.Create(mesh.Bounds, options.Width, options.Height);
-        SkeletonDebugGeometry skeletonDebug = SkeletonDebugGeometry.Create(globalPose, mesh.Bounds.Radius * 0.04f);
+        float skeletonAxisLength = mesh.Bounds.Radius * 0.04f;
+        SkeletonDebugGeometry skeletonDebug = SkeletonDebugGeometry.Create(globalPose, skeletonAxisLength);
 
         using var gpu = new CharacterGpuSession(mesh, skeletonDebug, options.Width, options.Height, options.Visible);
 
@@ -91,18 +97,18 @@ internal static class SdlGpuCharacterHarness
         FrameAnalysis skeletonAnalysis = Analyze(skeletonPixels, options.Width, options.Height, "skeleton-debug");
         SkeletonOverlayAnalysis skeletonOverlay = AnalyzeSkeletonOverlay(bindPixels, skeletonPixels, options.Width, options.Height);
 
-        Matrix4x4[] animationStartPalette = CreateGpuPalette(asset.Mesh.Skin, animation, 0.0f);
-        gpu.UploadPalette(animationStartPalette);
+        CharacterAnimationFrame animationStart = CreateAnimationFrame(asset.Mesh.Skin, animation, 0.0f);
+        gpu.UploadPalette(animationStart.PackedPalette);
         byte[] animationStartPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
         FrameAnalysis animationStartAnalysis = Analyze(animationStartPixels, options.Width, options.Height, "animation-start");
 
-        Matrix4x4[] animationSamplePalette = CreateGpuPalette(asset.Mesh.Skin, animation, DeterministicAnimationSampleTime);
-        gpu.UploadPalette(animationSamplePalette);
+        CharacterAnimationFrame animationSample = CreateAnimationFrame(asset.Mesh.Skin, animation, DeterministicAnimationSampleTime);
+        gpu.UploadPalette(animationSample.PackedPalette);
         byte[] animationSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
         FrameAnalysis animationSampleAnalysis = Analyze(animationSamplePixels, options.Width, options.Height, "animation-sample");
 
-        Matrix4x4[] animationLoopBoundaryPalette = CreateGpuPalette(asset.Mesh.Skin, animation, animation.Duration);
-        gpu.UploadPalette(animationLoopBoundaryPalette);
+        CharacterAnimationFrame animationLoopBoundary = CreateAnimationFrame(asset.Mesh.Skin, animation, animation.Duration);
+        gpu.UploadPalette(animationLoopBoundary.PackedPalette);
         byte[] animationLoopBoundaryPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
         FrameAnalysis animationLoopBoundaryAnalysis = Analyze(animationLoopBoundaryPixels, options.Width, options.Height, "animation-loop-boundary");
 
@@ -150,7 +156,12 @@ internal static class SdlGpuCharacterHarness
         if (options.Visible)
         {
             Console.WriteLine($"GPU_HARNESS_VISIBLE Playing {animation.Name} at normal speed with root motion disabled. Close the window or press Escape after inspection.");
-            gpu.RunVisible(camera.TransposedViewProjection, animation, asset.Mesh.Skin);
+            gpu.RunVisible(
+                camera.TransposedViewProjection,
+                asset.Animations,
+                animation,
+                asset.Mesh.Skin,
+                skeletonAxisLength);
         }
 
         return new CharacterHarnessResult(
@@ -171,12 +182,21 @@ internal static class SdlGpuCharacterHarness
             skeletonDebug.LineCount);
     }
 
-    private static Matrix4x4[] CreateGpuPalette(SkinDefinition skin, AnimationClip animation, float time)
+    internal static CharacterAnimationFrame CreateAnimationFrame(
+        SkinDefinition skin,
+        AnimationClip animation,
+        float time)
     {
-        SkeletonPose pose = AnimationSampler.Sample(animation, time, AnimationPlaybackMode.Loop);
+        ArgumentNullException.ThrowIfNull(skin);
+        ArgumentNullException.ThrowIfNull(animation);
+        if (!ReferenceEquals(skin.Skeleton, animation.Skeleton))
+            throw new ArgumentException($"Animation '{animation.Name}' does not use the skin skeleton.", nameof(animation));
+
+        float sampleTime = AnimationSampler.ResolveTime(animation, time, AnimationPlaybackMode.Loop);
+        SkeletonPose pose = AnimationSampler.Sample(animation, sampleTime, AnimationPlaybackMode.Clamp);
         SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(pose);
         SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(skin, globalPose);
-        return GpuMatrixPacking.PackTransposed(palette);
+        return new CharacterAnimationFrame(sampleTime, globalPose, GpuMatrixPacking.PackTransposed(palette));
     }
 
     private static SkeletonOverlayAnalysis AnalyzeSkeletonOverlay(
@@ -341,6 +361,7 @@ internal static class SdlGpuCharacterHarness
         private SDL_GPUBuffer* paletteBuffer;
         private SDL_GPUTransferBuffer* paletteTransferBuffer;
         private SDL_GPUBuffer* skeletonVertexBuffer;
+        private SDL_GPUTransferBuffer* skeletonTransferBuffer;
         private SDL_GPUTexture* offscreenColor;
         private SDL_GPUTexture* offscreenDepth;
         private SDL_GPUTexture* visibleDepth;
@@ -405,6 +426,9 @@ internal static class SdlGpuCharacterHarness
                 skeletonVertexBuffer = CreateBuffer(
                     SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_VERTEX,
                     checked(skeletonVertexCount * GpuDebugLineVertex.Stride));
+                skeletonTransferBuffer = CreateTransfer(
+                    SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+                    checked(skeletonVertexCount * GpuDebugLineVertex.Stride));
                 UploadGeometry(mesh.Vertices, mesh.Indices);
                 UploadBuffer(skeletonVertexBuffer, skeletonDebug.Vertices);
 
@@ -425,25 +449,19 @@ internal static class SdlGpuCharacterHarness
             ArgumentNullException.ThrowIfNull(matrices);
             if (matrices.Length != jointCount)
                 throw new ArgumentException($"Expected {jointCount} palette matrices, received {matrices.Length}.", nameof(matrices));
+            UploadCycled(paletteTransferBuffer, paletteBuffer, matrices, "palette");
+        }
 
-            uint byteCount = checked((uint)(matrices.Length * sizeof(Matrix4x4)));
-            IntPtr mapped = SDL_MapGPUTransferBuffer(device, paletteTransferBuffer, cycle: true);
-            if (mapped == IntPtr.Zero)
-                throw new InvalidOperationException($"SDL GPU palette upload mapping failed: {SDL_GetError()}");
-            fixed (Matrix4x4* source = matrices)
-                Buffer.MemoryCopy(source, (void*)mapped, byteCount, byteCount);
-            SDL_UnmapGPUTransferBuffer(device, paletteTransferBuffer);
-
-            SDL_GPUCommandBuffer* command = AcquireCommand();
-            SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(command);
-            if (copy is null)
-                throw new InvalidOperationException($"SDL GPU palette upload copy pass failed: {SDL_GetError()}");
-            var sourceLocation = new SDL_GPUTransferBufferLocation { transfer_buffer = paletteTransferBuffer };
-            var region = new SDL_GPUBufferRegion { buffer = paletteBuffer, size = byteCount };
-            SDL_UploadToGPUBuffer(copy, &sourceLocation, &region, cycle: true);
-            SDL_EndGPUCopyPass(copy);
-            if (!SDL_SubmitGPUCommandBuffer(command))
-                throw new InvalidOperationException($"SDL GPU palette upload submission failed: {SDL_GetError()}");
+        internal void UploadSkeleton(GpuDebugLineVertex[] vertices)
+        {
+            ArgumentNullException.ThrowIfNull(vertices);
+            if (vertices.Length != skeletonVertexCount)
+            {
+                throw new ArgumentException(
+                    $"Expected {skeletonVertexCount} skeleton vertices, received {vertices.Length}.",
+                    nameof(vertices));
+            }
+            UploadCycled(skeletonTransferBuffer, skeletonVertexBuffer, vertices, "skeleton");
         }
 
         internal byte[] RenderOffscreen(Matrix4x4 transposedViewProjection, bool includeSkeleton)
@@ -505,16 +523,28 @@ internal static class SdlGpuCharacterHarness
 
         internal void RunVisible(
             Matrix4x4 transposedViewProjection,
-            AnimationClip animation,
-            SkinDefinition skin)
+            IReadOnlyList<AnimationClip> animations,
+            AnimationClip initialAnimation,
+            SkinDefinition skin,
+            float skeletonAxisLength)
         {
+            ArgumentNullException.ThrowIfNull(animations);
+            ArgumentNullException.ThrowIfNull(initialAnimation);
+            ArgumentNullException.ThrowIfNull(skin);
             if (!SDL_ShowWindow(window))
                 throw new InvalidOperationException($"SDL could not show the validation window: {SDL_GetError()}");
 
+            var playback = new CharacterPlaybackController(animations, initialAnimation.Name);
             ulong frequency = SDL_GetPerformanceFrequency();
             if (frequency == 0)
                 throw new InvalidOperationException("SDL returned a zero performance-counter frequency.");
-            ulong startCounter = SDL_GetPerformanceCounter();
+            ulong previousCounter = SDL_GetPerformanceCounter();
+            ulong lastTitleCounter = 0;
+            bool titleDirty = true;
+            Console.WriteLine(
+                "GPU_HARNESS_CONTROLS Left/Right=clip 1=Idle_Loop 2=Walk_Loop 3=Sword_Attack " +
+                "Space=pause/resume R=restart D=skeleton Escape=close");
+            Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
             bool running = true;
             while (running)
             {
@@ -523,15 +553,52 @@ internal static class SdlGpuCharacterHarness
                 {
                     if (sdlEvent.Type is SDL_EventType.SDL_EVENT_QUIT or SDL_EventType.SDL_EVENT_WINDOW_CLOSE_REQUESTED ||
                         sdlEvent.Type == SDL_EventType.SDL_EVENT_KEY_DOWN && sdlEvent.key.key == SDL_Keycode.SDLK_ESCAPE)
+                    {
                         running = false;
+                        continue;
+                    }
+
+                    if (sdlEvent.Type == SDL_EventType.SDL_EVENT_KEY_DOWN &&
+                        ApplyControl(playback, sdlEvent.key.key))
+                    {
+                        titleDirty = true;
+                        Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
+                    }
                 }
 
                 if (!running)
                     break;
 
                 ulong currentCounter = SDL_GetPerformanceCounter();
-                float elapsedSeconds = (float)((currentCounter - startCounter) / (double)frequency);
-                UploadPalette(CreateGpuPalette(skin, animation, elapsedSeconds));
+                double elapsedSeconds = (currentCounter - previousCounter) / (double)frequency;
+                previousCounter = currentCounter;
+                playback.Advance(elapsedSeconds);
+
+                CharacterAnimationFrame frame;
+                try
+                {
+                    frame = CreateAnimationFrame(skin, playback.CurrentClip, playback.SampleTime);
+                    UploadPalette(frame.PackedPalette);
+                    if (playback.IsSkeletonVisible)
+                    {
+                        SkeletonDebugGeometry skeleton = SkeletonDebugGeometry.Create(frame.GlobalPose, skeletonAxisLength);
+                        UploadSkeleton(skeleton.Vertices);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    throw new InvalidOperationException(
+                        $"Interactive animation validation failed for clip '{playback.CurrentClip.Name}' " +
+                        $"at {playback.SampleTime:F3} seconds with {jointCount} joints.",
+                        exception);
+                }
+
+                if (titleDirty || currentCounter - lastTitleCounter >= frequency / 10)
+                {
+                    SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.PackedPalette.Length));
+                    lastTitleCounter = currentCounter;
+                    titleDirty = false;
+                }
 
                 SDL_GPUCommandBuffer* command = AcquireCommand();
                 SDL_GPUTexture* swapchain;
@@ -542,7 +609,14 @@ internal static class SdlGpuCharacterHarness
                 if (swapchain is not null)
                 {
                     EnsureVisibleDepth(swapchainWidth, swapchainHeight);
-                    Render(command, swapchain, visibleDepth, swapchainWidth, swapchainHeight, transposedViewProjection, includeSkeleton: false);
+                    Render(
+                        command,
+                        swapchain,
+                        visibleDepth,
+                        swapchainWidth,
+                        swapchainHeight,
+                        transposedViewProjection,
+                        includeSkeleton: playback.IsSkeletonVisible);
                 }
                 if (!SDL_SubmitGPUCommandBuffer(command))
                     throw new InvalidOperationException($"SDL GPU visible submission failed: {SDL_GetError()}");
@@ -557,11 +631,14 @@ internal static class SdlGpuCharacterHarness
             ReleaseTexture(ref visibleDepth);
             ReleaseTexture(ref offscreenDepth);
             ReleaseTexture(ref offscreenColor);
-            ReleaseBuffer(ref skeletonVertexBuffer);
-            ReleaseBuffer(ref paletteBuffer);
+            if (skeletonTransferBuffer is not null && device is not null)
+                SDL_ReleaseGPUTransferBuffer(device, skeletonTransferBuffer);
+            skeletonTransferBuffer = null;
             if (paletteTransferBuffer is not null && device is not null)
                 SDL_ReleaseGPUTransferBuffer(device, paletteTransferBuffer);
             paletteTransferBuffer = null;
+            ReleaseBuffer(ref skeletonVertexBuffer);
+            ReleaseBuffer(ref paletteBuffer);
             ReleaseBuffer(ref indexBuffer);
             ReleaseBuffer(ref vertexBuffer);
             if (skeletonPipeline is not null && device is not null)
@@ -596,6 +673,49 @@ internal static class SdlGpuCharacterHarness
                 SDL_DestroyWindow(window);
             window = null;
             SDL_Quit();
+        }
+
+        private static bool ApplyControl(CharacterPlaybackController playback, SDL_Keycode key)
+        {
+            switch (key)
+            {
+                case SDL_Keycode.SDLK_LEFT:
+                    playback.SelectPrevious();
+                    return true;
+                case SDL_Keycode.SDLK_RIGHT:
+                    playback.SelectNext();
+                    return true;
+                case SDL_Keycode.SDLK_1:
+                    playback.SelectByName("Idle_Loop");
+                    return true;
+                case SDL_Keycode.SDLK_2:
+                    playback.SelectByName("Walk_Loop");
+                    return true;
+                case SDL_Keycode.SDLK_3:
+                    playback.SelectByName("Sword_Attack");
+                    return true;
+                case SDL_Keycode.SDLK_SPACE:
+                    playback.TogglePlaying();
+                    return true;
+                case SDL_Keycode.SDLK_R:
+                    playback.Restart();
+                    return true;
+                case SDL_Keycode.SDLK_D:
+                    playback.ToggleSkeleton();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void SetWindowTitle(string title)
+        {
+            byte[] titleBytes = Encoding.UTF8.GetBytes(title + '\0');
+            fixed (byte* titlePointer = titleBytes)
+            {
+                if (!SDL_SetWindowTitle(window, titlePointer))
+                    throw new InvalidOperationException($"SDL could not update the diagnostic window title: {SDL_GetError()}");
+            }
         }
 
         private void Render(
@@ -806,6 +926,33 @@ internal static class SdlGpuCharacterHarness
         {
             UploadBuffer(vertexBuffer, vertices);
             UploadBuffer(indexBuffer, indices);
+        }
+
+        private void UploadCycled<T>(
+            SDL_GPUTransferBuffer* transfer,
+            SDL_GPUBuffer* destination,
+            T[] values,
+            string label)
+            where T : unmanaged
+        {
+            uint byteCount = checked((uint)(values.Length * sizeof(T)));
+            IntPtr mapped = SDL_MapGPUTransferBuffer(device, transfer, cycle: true);
+            if (mapped == IntPtr.Zero)
+                throw new InvalidOperationException($"SDL GPU {label} upload mapping failed: {SDL_GetError()}");
+            fixed (T* source = values)
+                Buffer.MemoryCopy(source, (void*)mapped, byteCount, byteCount);
+            SDL_UnmapGPUTransferBuffer(device, transfer);
+
+            SDL_GPUCommandBuffer* command = AcquireCommand();
+            SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(command);
+            if (copy is null)
+                throw new InvalidOperationException($"SDL GPU {label} upload copy pass failed: {SDL_GetError()}");
+            var sourceLocation = new SDL_GPUTransferBufferLocation { transfer_buffer = transfer };
+            var region = new SDL_GPUBufferRegion { buffer = destination, size = byteCount };
+            SDL_UploadToGPUBuffer(copy, &sourceLocation, &region, cycle: true);
+            SDL_EndGPUCopyPass(copy);
+            if (!SDL_SubmitGPUCommandBuffer(command))
+                throw new InvalidOperationException($"SDL GPU {label} upload submission failed: {SDL_GetError()}");
         }
 
         private void UploadBuffer<T>(SDL_GPUBuffer* destination, T[] values) where T : unmanaged

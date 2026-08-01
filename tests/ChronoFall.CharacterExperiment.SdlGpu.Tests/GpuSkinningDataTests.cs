@@ -121,6 +121,35 @@ public sealed class GpuSkinningDataTests
             "The exact Walk_Loop duration did not reproduce the start palette.");
     }
 
+    [Fact]
+    public void EveryBrowserClipProducesFiniteGpuDataOnTheSelectedSkeleton()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        var controller = new CharacterPlaybackController(asset.Animations, "Walk_Loop");
+
+        Assert.Equal(43, controller.Clips.Count);
+        Assert.Equal("A_TPose", controller.Clips[0].Name);
+        Assert.Equal("Walk_Loop", controller.Clips[^1].Name);
+        Assert.Equal(42, controller.CurrentClipIndex);
+        foreach (AnimationClip clip in controller.Clips)
+        {
+            CharacterAnimationFrame frame = SdlGpuCharacterHarness.CreateAnimationFrame(
+                asset.Mesh.Skin,
+                clip,
+                clip.Duration * 0.37f);
+
+            Assert.Same(asset.Mesh.Skin.Skeleton, frame.GlobalPose.Skeleton);
+            Assert.Equal(65, frame.PackedPalette.Length);
+            Assert.Equal(4160, MemoryMarshal.AsBytes(frame.PackedPalette.AsSpan()).Length);
+            foreach (float value in MemoryMarshal.Cast<Matrix4x4, float>(frame.PackedPalette.AsSpan()))
+                Assert.True(float.IsFinite(value), $"Animation '{clip.Name}' produced a non-finite GPU value.");
+
+            SkeletonDebugGeometry skeleton = SkeletonDebugGeometry.Create(frame.GlobalPose, 0.04f);
+            Assert.Equal(259, skeleton.LineCount);
+            Assert.Equal(518, skeleton.Vertices.Length);
+        }
+    }
+
     private static Matrix4x4[] Pack(SkinDefinition skin, SkeletonPose pose)
     {
         SkeletonGlobalPose global = SkeletonPoseEvaluator.EvaluateGlobal(pose);

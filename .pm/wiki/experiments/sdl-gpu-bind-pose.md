@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T15:09:53.8885080Z
+modifiedAt: 2026-08-01T15:25:20.5737890Z
 ---
 
 ## Status and ownership
@@ -141,6 +141,31 @@ Use `--animation-capture <path>` to write the deterministic 0.5-second frame. Ex
 
 On native macOS ARM64 Metal, start and exact duration both produced `68ba446d672887a0`; the 0.5-second sample produced `a2b427aea339d460`; bind pose remained `408d3a4c16278bbc`. The focused native integration test passed, and the saved 512 by 512 capture was inspected. On 2026-08-01, the owner viewed the normal-speed native loop and confirmed that it works correctly. The deformation and loop-continuity visual gate is satisfied.
 
+## Interactive clip diagnostics
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0008` turns the visible native harness into a narrow diagnostic browser over all 43 structurally compatible clips in source order. This availability does not change the M1 evidence selection: `Idle_Loop`, `Walk_Loop`, and `Sword_Attack` remain the selected idle, locomotion, and attack clips.
+
+Controls are:
+
+| Input | Action |
+| --- | --- |
+| Left / Right | Select the previous or next clip with wrapping and restart it at zero. |
+| 1 / 2 / 3 | Select `Idle_Loop`, `Walk_Loop`, or `Sword_Attack`. |
+| Space | Pause or resume without changing the current sample. |
+| R | Restart the current clip at zero. |
+| D | Toggle the animated skeleton and joint-axis overlay. |
+| Escape | Close the harness. |
+
+Clip changes preserve the playing or paused state. The window title reports source index and count, exact clip name, resolved sample and duration, playing state, skeleton state, joint count, and palette count using invariant formatting. The console prints the control legend and the same state after every interactive change. Startup, skeleton-identity, timing, joint-count, palette-count, and GPU failures remain fail-fast and include clip/sample context through `GPU_HARNESS_FAILURE`.
+
+Each frame is sampled once. Its parent-first `SkeletonGlobalPose` feeds both the skinning palette and, when enabled, `SkeletonDebugGeometry`. The diagnostic never reconstructs joints from inverse-bind palette matrices. Palette and skeleton vertices use separate persistent cycled SDL upload transfer buffers. When the overlay is disabled, no dynamic skeleton upload is performed.
+
+The browser adds no text renderer or UI framework: live text uses the SDL window title and console. It does not add capture orchestration; deterministic multi-timestamp evidence remains owned by `EXPERIMENT-0009`.
+
+Automated coverage proves navigation, wrapping, shortcuts, pause/resume, restart, skeleton toggling, invariant diagnostics, validation errors, and source ordering. All 43 clips were sampled at a representative timestamp and produced a finite 65-matrix, 4,160-byte GPU palette on the selected skeleton. The coordinator build passed with zero warnings, 54 tests passed, and the focused native macOS ARM64 Metal integration passed.
+
+On 2026-08-01, the owner exercised the native controls. The console evidence includes all three selected shortcuts, pause/resume, animated skeleton on/off, and successful exit. The owner confirmed that it works correctly, satisfying the task's visual and interaction gate.
+
 ## Explicit exclusions
 
-This experiment does not add dynamic animated-skeleton visualization, clip controls, blending, root motion, retargeting, IK, a general animation graph, textures, a material framework, modular equipment, cooking, a general camera, a production renderer, shared-engine promotion, child integration, child source changes, or gitlink updates.
+This experiment does not add a rendered text/UI system, deterministic capture orchestration, blending, root motion, retargeting, IK, a general animation graph, textures, a material framework, modular equipment, cooking, a general camera, a production renderer, shared-engine promotion, child integration, child source changes, or gitlink updates.
