@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T16:09:51.9959730Z
+modifiedAt: 2026-08-01T16:29:30.7911680Z
 ---
 
 ## Status and ownership
@@ -197,6 +197,14 @@ Run the suite with:
 ```sh
 dotnet tests/ChronoFall.CharacterExperiment.GpuHarness/bin/Debug/net10.0/ChronoFall.CharacterExperiment.GpuHarness.dll --capture-suite artifacts/EXPERIMENT-0009/run-a
 ```
+
+## Native macOS ARM64 owner validation
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0010` closes the proof's explicit human-validation gate on native macOS ARM64 Metal. The coordinator solution built with zero warnings and errors, all 57 deterministic tests passed, and the focused native SDL GPU suite passed all 22 tests.
+
+A fresh five-frame `--capture-suite` run reproduced the documented bind-pose and `Walk_Loop` fingerprints and was byte-identical to the preserved `EXPERIMENT-0009` evidence. The exact loop-boundary frame remained identical to time zero. The ignored validation files stay under `artifacts/EXPERIMENT-0010/`; the already approved contact sheet remains the sole curated project-history artifact because this validation did not produce a materially different checkpoint.
+
+The owner then exercised the visible native browser with `Idle_Loop`, `Walk_Loop`, `Sword_Attack`, and the animated skeleton overlay. On 2026-08-01, the owner confirmed that deformation, upright orientation, scale and framing, animation appearance, controls, and overlay still worked correctly. Automated captures supported this decision but did not replace it. No source, asset, runtime manifest, child repository, or headless dependency changed during validation.
 
 ## Explicit exclusions
 
