@@ -1,7 +1,7 @@
 ---
 title: Experimental Skeletal Loader Decision
 createdAt: 2026-08-01T09:09:44.4811970Z
-modifiedAt: 2026-08-01T09:09:44.4811970Z
+modifiedAt: 2026-08-01T09:27:26.1890670Z
 ---
 
 ## Decision
@@ -73,4 +73,6 @@ For the next implementation task, ChronoFall will acquire SimpleMesh only. SDL3-
 
 ## Handoff
 
-A separate coordinator-owned M1 task will establish the scoped SimpleMesh acquisition, patch, adapter, and focused loader tests after the experiment data contract exists. The bind-pose rendering task must wait for both deterministic transform/sampling tests and that loader-adapter task. The follow-up remains inactive until selected and planned by the owner.
+The executable experiment contract is now defined at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-data-contract`.
+
+`EXPERIMENT-0012` owns coordinator-local SimpleMesh acquisition, the focused patch, adapter mapping, and asset-backed loader tests against those types. Bind-pose rendering must wait for both deterministic transform/sampling work and the loader adapter. Each follow-up remains inactive until selected and planned by the owner.

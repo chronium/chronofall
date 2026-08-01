@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ChronoFall.CharacterExperiment/ChronoFall.CharacterExperiment.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ChronoFall.CharacterExperiment.Tests/ChronoFall.CharacterExperiment.Tests.csproj" />
+  </Folder>
+</Solution>
