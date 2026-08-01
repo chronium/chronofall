@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-01T18:32:01.3586810Z
+modifiedAt: 2026-08-01T19:00:42.1255760Z
 ---
 
 ## Decision
@@ -49,6 +49,24 @@ The shared module does not select clips, advance clocks, choose transition durat
 `SkeletonPoseLayerer.Apply(basePose, layerPose, mask, amount)` returns a new validated local pose. All three inputs must use the same skeleton instance and the amount must be finite in `[0, 1]`. Unmasked transforms remain exactly from the base pose. Masked translation and scale interpolate linearly; masked rotation uses the same normalized shortest-path interpolation as full-body blending. Global poses and GPU palettes are evaluated only after composition.
 
 This operation remains stateless. Children own masks, clocks, clips, action signals, interruption and transition policy. Binary membership plus one global amount is the approved envelope; weighted per-joint masks and general layer stacks are deferred until demonstrated.
+
+## Skeleton sockets and attachment transform boundary
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0006` adds a BCL-only model-space contract for stable semantic sockets without selecting or rendering equipment.
+
+`SkeletonSocketDefinition` associates one caller-defined semantic name with a runtime joint index and a joint-local `JointTransform`. `SkeletonSocketSet` binds an ordered copied collection to exactly one skeleton instance, permits an empty set, validates joint indices, rejects duplicate names with ordinal comparison, and provides deterministic name-to-index lookup. The core defines no reserved names, anatomical policy, equipment slots, or joint-name mapping.
+
+`SkeletonSocketEvaluator.EvaluateModelSpace(socketSet, globalPose)` requires the set and pose to share the same skeleton instance. It resolves every socket in stable set order as:
+
+```text
+socketModel = socketLocal * posedJointGlobal
+```
+
+`SkeletonSocketPose` retains those finite model-space matrices and provides semantic-name lookup. The evaluator consumes `SkeletonGlobalPose`, never inverse-bind or skinning-palette matrices. Under the established row-vector convention, a client that needs final placement composes `socketModel * characterWorld`; character world selection and validation remain caller-owned and this contract does not alter the SDL GPU renderer.
+
+The unchanged `UAL1_Standard.glb` selected-asset proof maps `primary-hand` to `hand_r` and `back` to `spine_03`, resolves both from sampled `Sword_Attack` poses, proves the exact offset composition, and confirms the hand socket moves during the action. These names and offsets are test evidence only, not canonical game content.
+
+Rendering representative attachments remains `SHARED-0007`; weapon grips and off-hand targets remain `SHARED-0010`; effect and aim reference points remain `SHARED-0011`; socket/equipment/IK visualization remains `SHARED-0013`. Serialization, cooking, child equipment schemas, and gameplay ownership also remain outside this contract.
 
 ## SDL GPU host boundary
 
@@ -98,7 +116,7 @@ The focused shared foundation still does not decide or implement:
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
 - weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
-- modular armour, attachments, equipment, sockets or IK;
+- socket serialization or cooking, modular armour, rendered attachments, equipment schemas, grip or effect-point data, socket debugging or IK;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 
