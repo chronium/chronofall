@@ -1,7 +1,7 @@
 ---
 title: Skeletal Experiment Data Contract
 createdAt: 2026-08-01T09:27:13.9177630Z
-modifiedAt: 2026-08-01T14:50:02.9682680Z
+modifiedAt: 2026-08-01T15:10:03.4068350Z
 ---
 
 ## Status and ownership
@@ -76,6 +76,10 @@ Debug geometry does not derive joint locations from the skinning palette: palett
 `AnimationSampler.Sample` performs LINEAR vector interpolation and normalized shortest-path quaternion interpolation. Before a channel's first key it holds the first value; after its final key it holds the final value. The selected contract remains complete TRS, so no bind/default fallback is required.
 
 `SkeletonPoseEvaluator.EvaluateGlobal` processes the parent-first hierarchy using the documented row-vector convention. `CreateSkinningPalette` requires exact skeleton identity and computes `inverseBind * posedGlobal` without transposition. These APIs are implemented by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0004`.
+
+`EXPERIMENT-0006` is the first GPU consumer of this boundary. Its composition root selects `Walk_Loop` by exact ordinal name, samples with explicit `Loop` playback, evaluates the parent-first pose, creates the CPU palette, and hands the transposed 65-matrix result to the provisional SDL GPU layer. The visible clock and palette uploads remain presentation-owned; no animation state enters gameplay authority or a headless dependency.
+
+Deterministic GPU checks use time zero, 0.5 seconds, and exact duration. CPU packing tests require the 0.5-second palette to be finite, 4,160 bytes, and distinct from bind pose; exact duration must pack identically to time zero. Root motion, blending, retargeting, and animation-graph contracts remain excluded.
 
 ## Explicit exclusions
 

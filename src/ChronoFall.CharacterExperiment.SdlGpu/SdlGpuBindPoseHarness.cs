@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -6,22 +7,29 @@ using static SDL.SDL3;
 
 namespace ChronoFall.CharacterExperiment.SdlGpu;
 
-internal sealed record BindPoseHarnessOptions(
+internal sealed record CharacterHarnessOptions(
     int Width = 512,
     int Height = 512,
     bool Visible = false,
     string? CapturePath = null,
-    string? SkeletonCapturePath = null);
+    string? SkeletonCapturePath = null,
+    string? AnimationCapturePath = null);
 
-internal sealed record BindPoseHarnessResult(
+internal sealed record CharacterHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
     FrameAnalysis BindPose,
     FrameAnalysis TranslatedProbe,
     FrameAnalysis SkeletonDebug,
+    FrameAnalysis AnimationStart,
+    FrameAnalysis AnimationSample,
+    FrameAnalysis AnimationLoopBoundary,
     SkeletonOverlayAnalysis SkeletonOverlay,
     ulong BindPoseFingerprint,
     ulong TranslatedProbeFingerprint,
     ulong SkeletonDebugFingerprint,
+    ulong AnimationStartFingerprint,
+    ulong AnimationSampleFingerprint,
+    ulong AnimationLoopBoundaryFingerprint,
     int SkeletonLineCount);
 
 internal readonly record struct FrameAnalysis(
@@ -40,16 +48,23 @@ internal readonly record struct SkeletonOverlayAnalysis(
     int LinkPixels,
     int YAxisPixels);
 
-internal static class SdlGpuBindPoseHarness
+internal static class SdlGpuCharacterHarness
 {
     private static readonly SDL_FColor ClearColor = new() { r = 0.035f, g = 0.045f, b = 0.070f, a = 1.0f };
+    private const float DeterministicAnimationSampleTime = 0.5f;
 
-    internal static BindPoseHarnessResult Run(SkeletalCharacterAsset asset, BindPoseHarnessOptions options)
+    internal static CharacterHarnessResult Run(
+        SkeletalCharacterAsset asset,
+        AnimationClip animation,
+        CharacterHarnessOptions options)
     {
         ArgumentNullException.ThrowIfNull(asset);
+        ArgumentNullException.ThrowIfNull(animation);
         ArgumentNullException.ThrowIfNull(options);
         if (options.Width < 64 || options.Height < 64)
             throw new ArgumentOutOfRangeException(nameof(options), "The GPU harness target must be at least 64x64.");
+        if (!ReferenceEquals(animation.Skeleton, asset.Mesh.Skin.Skeleton))
+            throw new ArgumentException($"Animation '{animation.Name}' does not use the selected mesh skeleton.", nameof(animation));
 
         GpuSkinnedMeshData mesh = GpuSkinnedMeshData.Create(asset.Mesh);
         SkeletonPose bindPose = asset.Mesh.Skin.Skeleton.CreateBindPose();
@@ -58,7 +73,7 @@ internal static class SdlGpuBindPoseHarness
         BindPoseCamera camera = BindPoseCamera.Create(mesh.Bounds, options.Width, options.Height);
         SkeletonDebugGeometry skeletonDebug = SkeletonDebugGeometry.Create(globalPose, mesh.Bounds.Radius * 0.04f);
 
-        using var gpu = new BindPoseGpuSession(mesh, skeletonDebug, options.Width, options.Height, options.Visible);
+        using var gpu = new CharacterGpuSession(mesh, skeletonDebug, options.Width, options.Height, options.Visible);
 
         gpu.UploadPalette(GpuMatrixPacking.PackTransposed(palette));
         byte[] bindPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
@@ -76,11 +91,34 @@ internal static class SdlGpuBindPoseHarness
         FrameAnalysis skeletonAnalysis = Analyze(skeletonPixels, options.Width, options.Height, "skeleton-debug");
         SkeletonOverlayAnalysis skeletonOverlay = AnalyzeSkeletonOverlay(bindPixels, skeletonPixels, options.Width, options.Height);
 
+        Matrix4x4[] animationStartPalette = CreateGpuPalette(asset.Mesh.Skin, animation, 0.0f);
+        gpu.UploadPalette(animationStartPalette);
+        byte[] animationStartPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        FrameAnalysis animationStartAnalysis = Analyze(animationStartPixels, options.Width, options.Height, "animation-start");
+
+        Matrix4x4[] animationSamplePalette = CreateGpuPalette(asset.Mesh.Skin, animation, DeterministicAnimationSampleTime);
+        gpu.UploadPalette(animationSamplePalette);
+        byte[] animationSamplePixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        FrameAnalysis animationSampleAnalysis = Analyze(animationSamplePixels, options.Width, options.Height, "animation-sample");
+
+        Matrix4x4[] animationLoopBoundaryPalette = CreateGpuPalette(asset.Mesh.Skin, animation, animation.Duration);
+        gpu.UploadPalette(animationLoopBoundaryPalette);
+        byte[] animationLoopBoundaryPixels = gpu.RenderOffscreen(camera.TransposedViewProjection, includeSkeleton: false);
+        FrameAnalysis animationLoopBoundaryAnalysis = Analyze(animationLoopBoundaryPixels, options.Width, options.Height, "animation-loop-boundary");
+
         ulong bindFingerprint = Fingerprint(bindPixels);
         ulong probeFingerprint = Fingerprint(probePixels);
         ulong skeletonFingerprint = Fingerprint(skeletonPixels);
+        ulong animationStartFingerprint = Fingerprint(animationStartPixels);
+        ulong animationSampleFingerprint = Fingerprint(animationSamplePixels);
+        ulong animationLoopBoundaryFingerprint = Fingerprint(animationLoopBoundaryPixels);
         Require(bindFingerprint != probeFingerprint, "Translated palette probe produced the bind-pose fingerprint.");
         Require(bindFingerprint != skeletonFingerprint, "Skeleton debug overlay produced the bind-pose fingerprint.");
+        Require(
+            animationStartFingerprint == animationLoopBoundaryFingerprint,
+            $"Animation loop boundary {animationLoopBoundaryFingerprint:x16} did not reproduce start {animationStartFingerprint:x16}.");
+        Require(animationSampleFingerprint != animationStartFingerprint, "Animation sample produced the loop-start fingerprint.");
+        Require(animationSampleFingerprint != bindFingerprint, "Animation sample produced the bind-pose fingerprint.");
         Require(
             MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX) >= options.Width * 0.025f,
             $"Translated palette probe shifted the rendered centroid by only {MathF.Abs(probeAnalysis.CentroidX - bindAnalysis.CentroidX):F2} pixels.");
@@ -89,6 +127,8 @@ internal static class SdlGpuBindPoseHarness
             WritePpm(options.CapturePath, options.Width, options.Height, bindPixels);
         if (!string.IsNullOrWhiteSpace(options.SkeletonCapturePath))
             WritePpm(options.SkeletonCapturePath, options.Width, options.Height, skeletonPixels);
+        if (!string.IsNullOrWhiteSpace(options.AnimationCapturePath))
+            WritePpm(options.AnimationCapturePath, options.Width, options.Height, animationSamplePixels);
 
         Console.WriteLine(
             $"GPU_HARNESS_PASS bind-pose shader={gpu.ShaderFormat} pixels={bindAnalysis.RenderedPixels} " +
@@ -102,23 +142,41 @@ internal static class SdlGpuBindPoseHarness
             $"GPU_HARNESS_PASS skeleton-debug lines={skeletonDebug.LineCount} changed={skeletonOverlay.ChangedPixels} " +
             $"links={skeletonOverlay.LinkPixels} y-axes={skeletonOverlay.YAxisPixels} " +
             $"fingerprint={skeletonFingerprint:x16}");
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"GPU_HARNESS_PASS animation clip={animation.Name} sample={DeterministicAnimationSampleTime:F3} " +
+            $"duration={animation.Duration:F6} start={animationStartFingerprint:x16} " +
+            $"sample-fingerprint={animationSampleFingerprint:x16} loop={animationLoopBoundaryFingerprint:x16}"));
 
         if (options.Visible)
         {
-            Console.WriteLine("GPU_HARNESS_VISIBLE X-ray skeleton links and joint axes enabled. Close the window or press Escape after inspection.");
-            gpu.RunVisible(camera.TransposedViewProjection);
+            Console.WriteLine($"GPU_HARNESS_VISIBLE Playing {animation.Name} at normal speed with root motion disabled. Close the window or press Escape after inspection.");
+            gpu.RunVisible(camera.TransposedViewProjection, animation, asset.Mesh.Skin);
         }
 
-        return new BindPoseHarnessResult(
+        return new CharacterHarnessResult(
             gpu.ShaderFormat,
             bindAnalysis,
             probeAnalysis,
             skeletonAnalysis,
+            animationStartAnalysis,
+            animationSampleAnalysis,
+            animationLoopBoundaryAnalysis,
             skeletonOverlay,
             bindFingerprint,
             probeFingerprint,
             skeletonFingerprint,
+            animationStartFingerprint,
+            animationSampleFingerprint,
+            animationLoopBoundaryFingerprint,
             skeletonDebug.LineCount);
+    }
+
+    private static Matrix4x4[] CreateGpuPalette(SkinDefinition skin, AnimationClip animation, float time)
+    {
+        SkeletonPose pose = AnimationSampler.Sample(animation, time, AnimationPlaybackMode.Loop);
+        SkeletonGlobalPose globalPose = SkeletonPoseEvaluator.EvaluateGlobal(pose);
+        SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(skin, globalPose);
+        return GpuMatrixPacking.PackTransposed(palette);
     }
 
     private static SkeletonOverlayAnalysis AnalyzeSkeletonOverlay(
@@ -265,7 +323,7 @@ internal static class SdlGpuBindPoseHarness
     [StructLayout(LayoutKind.Sequential)]
     private readonly record struct MaterialConstants(Vector4 BaseColor, Vector4 LightDirection);
 
-    private sealed unsafe class BindPoseGpuSession : IDisposable
+    private sealed unsafe class CharacterGpuSession : IDisposable
     {
         private const SDL_GPUTextureFormat DepthFormat = SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
         private readonly int width;
@@ -281,6 +339,7 @@ internal static class SdlGpuBindPoseHarness
         private SDL_GPUBuffer* vertexBuffer;
         private SDL_GPUBuffer* indexBuffer;
         private SDL_GPUBuffer* paletteBuffer;
+        private SDL_GPUTransferBuffer* paletteTransferBuffer;
         private SDL_GPUBuffer* skeletonVertexBuffer;
         private SDL_GPUTexture* offscreenColor;
         private SDL_GPUTexture* offscreenDepth;
@@ -292,7 +351,7 @@ internal static class SdlGpuBindPoseHarness
         private readonly int jointCount;
         private readonly uint skeletonVertexCount;
 
-        internal BindPoseGpuSession(
+        internal CharacterGpuSession(
             GpuSkinnedMeshData mesh,
             SkeletonDebugGeometry skeletonDebug,
             int width,
@@ -312,7 +371,7 @@ internal static class SdlGpuBindPoseHarness
             try
             {
                 SDL_WindowFlags flags = visible ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : SDL_WindowFlags.SDL_WINDOW_HIDDEN;
-                window = SDL_CreateWindow("ChronoFall skeleton debug experiment", width, height, flags);
+                window = SDL_CreateWindow("ChronoFall character animation experiment", width, height, flags);
                 if (window is null)
                     throw new InvalidOperationException($"SDL window creation failed: {SDL_GetError()}");
 
@@ -340,6 +399,9 @@ internal static class SdlGpuBindPoseHarness
                 paletteBuffer = CreateBuffer(
                     SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
                     checked((uint)(jointCount * sizeof(Matrix4x4))));
+                paletteTransferBuffer = CreateTransfer(
+                    SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+                    checked((uint)(jointCount * sizeof(Matrix4x4))));
                 skeletonVertexBuffer = CreateBuffer(
                     SDL_GPUBufferUsageFlags.SDL_GPU_BUFFERUSAGE_VERTEX,
                     checked(skeletonVertexCount * GpuDebugLineVertex.Stride));
@@ -363,7 +425,25 @@ internal static class SdlGpuBindPoseHarness
             ArgumentNullException.ThrowIfNull(matrices);
             if (matrices.Length != jointCount)
                 throw new ArgumentException($"Expected {jointCount} palette matrices, received {matrices.Length}.", nameof(matrices));
-            UploadBuffer(paletteBuffer, matrices);
+
+            uint byteCount = checked((uint)(matrices.Length * sizeof(Matrix4x4)));
+            IntPtr mapped = SDL_MapGPUTransferBuffer(device, paletteTransferBuffer, cycle: true);
+            if (mapped == IntPtr.Zero)
+                throw new InvalidOperationException($"SDL GPU palette upload mapping failed: {SDL_GetError()}");
+            fixed (Matrix4x4* source = matrices)
+                Buffer.MemoryCopy(source, (void*)mapped, byteCount, byteCount);
+            SDL_UnmapGPUTransferBuffer(device, paletteTransferBuffer);
+
+            SDL_GPUCommandBuffer* command = AcquireCommand();
+            SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(command);
+            if (copy is null)
+                throw new InvalidOperationException($"SDL GPU palette upload copy pass failed: {SDL_GetError()}");
+            var sourceLocation = new SDL_GPUTransferBufferLocation { transfer_buffer = paletteTransferBuffer };
+            var region = new SDL_GPUBufferRegion { buffer = paletteBuffer, size = byteCount };
+            SDL_UploadToGPUBuffer(copy, &sourceLocation, &region, cycle: true);
+            SDL_EndGPUCopyPass(copy);
+            if (!SDL_SubmitGPUCommandBuffer(command))
+                throw new InvalidOperationException($"SDL GPU palette upload submission failed: {SDL_GetError()}");
         }
 
         internal byte[] RenderOffscreen(Matrix4x4 transposedViewProjection, bool includeSkeleton)
@@ -423,11 +503,18 @@ internal static class SdlGpuBindPoseHarness
             }
         }
 
-        internal void RunVisible(Matrix4x4 transposedViewProjection)
+        internal void RunVisible(
+            Matrix4x4 transposedViewProjection,
+            AnimationClip animation,
+            SkinDefinition skin)
         {
             if (!SDL_ShowWindow(window))
                 throw new InvalidOperationException($"SDL could not show the validation window: {SDL_GetError()}");
 
+            ulong frequency = SDL_GetPerformanceFrequency();
+            if (frequency == 0)
+                throw new InvalidOperationException("SDL returned a zero performance-counter frequency.");
+            ulong startCounter = SDL_GetPerformanceCounter();
             bool running = true;
             while (running)
             {
@@ -442,6 +529,10 @@ internal static class SdlGpuBindPoseHarness
                 if (!running)
                     break;
 
+                ulong currentCounter = SDL_GetPerformanceCounter();
+                float elapsedSeconds = (float)((currentCounter - startCounter) / (double)frequency);
+                UploadPalette(CreateGpuPalette(skin, animation, elapsedSeconds));
+
                 SDL_GPUCommandBuffer* command = AcquireCommand();
                 SDL_GPUTexture* swapchain;
                 uint swapchainWidth;
@@ -451,7 +542,7 @@ internal static class SdlGpuBindPoseHarness
                 if (swapchain is not null)
                 {
                     EnsureVisibleDepth(swapchainWidth, swapchainHeight);
-                    Render(command, swapchain, visibleDepth, swapchainWidth, swapchainHeight, transposedViewProjection, includeSkeleton: true);
+                    Render(command, swapchain, visibleDepth, swapchainWidth, swapchainHeight, transposedViewProjection, includeSkeleton: false);
                 }
                 if (!SDL_SubmitGPUCommandBuffer(command))
                     throw new InvalidOperationException($"SDL GPU visible submission failed: {SDL_GetError()}");
@@ -468,6 +559,9 @@ internal static class SdlGpuBindPoseHarness
             ReleaseTexture(ref offscreenColor);
             ReleaseBuffer(ref skeletonVertexBuffer);
             ReleaseBuffer(ref paletteBuffer);
+            if (paletteTransferBuffer is not null && device is not null)
+                SDL_ReleaseGPUTransferBuffer(device, paletteTransferBuffer);
+            paletteTransferBuffer = null;
             ReleaseBuffer(ref indexBuffer);
             ReleaseBuffer(ref vertexBuffer);
             if (skeletonPipeline is not null && device is not null)

@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T14:52:43.5951540Z
+modifiedAt: 2026-08-01T15:09:53.8885080Z
 ---
 
 ## Status and ownership
@@ -122,6 +122,25 @@ The first native Metal skeleton-debug frame emitted 259 lines, changed 2,076 pix
 
 Automated native validation and agent capture inspection passed. On 2026-08-01, the owner viewed the native Metal overlay and confirmed: “that looks like a skeleton, fingers and all.” The skeleton and joint visualization gate is satisfied.
 
+## Looping animation playback
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0006` extends the same provisional harness with the exact ordinally selected `Walk_Loop` clip from the unchanged UAL1 Standard GLB. The clip duration is 1.333333 seconds. It is an in-place source clip: the experiment does not extract or apply root motion.
+
+For every animation frame, the presentation path performs the established sequence:
+
+```text
+Loop sample -> parent-first global pose -> inverseBind * posedGlobal
+            -> transpose at GPU boundary -> 65-matrix palette upload -> GPU skinning
+```
+
+The visible loop uses SDL's performance counter at normal speed. A persistent upload transfer buffer is mapped and cycled for each 4,160-byte palette update; the mesh, shaders, vertex ABI, palette storage buffer, and render pipeline remain unchanged. The visible animation is mesh-only. Dynamic skeleton visualization remains owned by the later animated-debug task rather than being folded into this loop.
+
+The hidden native harness renders mesh-only frames at time zero, the fixed 0.5-second sample, and the exact clip duration under `AnimationPlaybackMode.Loop`. It requires the start and exact-duration GPU fingerprints to match, the 0.5-second fingerprint to differ from start and bind pose, and all earlier bind-pose, palette-probe, and static skeleton diagnostics to continue passing.
+
+Use `--animation-capture <path>` to write the deterministic 0.5-second frame. Existing `--capture` and `--skeleton-capture` behavior is unchanged.
+
+On native macOS ARM64 Metal, start and exact duration both produced `68ba446d672887a0`; the 0.5-second sample produced `a2b427aea339d460`; bind pose remained `408d3a4c16278bbc`. The focused native integration test passed, and the saved 512 by 512 capture was inspected. On 2026-08-01, the owner viewed the normal-speed native loop and confirmed that it works correctly. The deformation and loop-continuity visual gate is satisfied.
+
 ## Explicit exclusions
 
-This task does not add animation playback, textures, a material framework, modular equipment, retargeting, cooking, a general camera, a production renderer, shared-engine promotion, child integration, child source changes, or gitlink updates.
+This experiment does not add dynamic animated-skeleton visualization, clip controls, blending, root motion, retargeting, IK, a general animation graph, textures, a material framework, modular equipment, cooking, a general camera, a production renderer, shared-engine promotion, child integration, child source changes, or gitlink updates.

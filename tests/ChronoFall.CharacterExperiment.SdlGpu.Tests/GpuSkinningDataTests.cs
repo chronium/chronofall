@@ -79,6 +79,67 @@ public sealed class GpuSkinningDataTests
         Assert.Equal(4160, MemoryMarshal.AsBytes(packed.AsSpan()).Length);
     }
 
+    [Fact]
+    public void SelectedWalkSampleProducesFiniteDistinctGpuPalette()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        AnimationClip animation = Assert.Single(
+            asset.Animations,
+            candidate => string.Equals(candidate.Name, "Walk_Loop", StringComparison.Ordinal));
+
+        Matrix4x4[] bind = Pack(asset.Mesh.Skin, asset.Mesh.Skin.Skeleton.CreateBindPose());
+        Matrix4x4[] sample = Pack(
+            asset.Mesh.Skin,
+            AnimationSampler.Sample(animation, 0.5f, AnimationPlaybackMode.Loop));
+
+        Assert.Equal(65, sample.Length);
+        Assert.Equal(4160, MemoryMarshal.AsBytes(sample.AsSpan()).Length);
+        foreach (float value in MemoryMarshal.Cast<Matrix4x4, float>(sample.AsSpan()))
+            Assert.True(float.IsFinite(value));
+        Assert.False(
+            MemoryMarshal.AsBytes(bind.AsSpan()).SequenceEqual(MemoryMarshal.AsBytes(sample.AsSpan())),
+            "The deterministic Walk_Loop sample unexpectedly matched the bind-pose palette.");
+    }
+
+    [Fact]
+    public void SelectedWalkLoopBoundaryPacksExactlyLikeStart()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        AnimationClip animation = Assert.Single(
+            asset.Animations,
+            candidate => string.Equals(candidate.Name, "Walk_Loop", StringComparison.Ordinal));
+
+        Matrix4x4[] start = Pack(
+            asset.Mesh.Skin,
+            AnimationSampler.Sample(animation, 0.0f, AnimationPlaybackMode.Loop));
+        Matrix4x4[] boundary = Pack(
+            asset.Mesh.Skin,
+            AnimationSampler.Sample(animation, animation.Duration, AnimationPlaybackMode.Loop));
+
+        Assert.True(
+            MemoryMarshal.AsBytes(start.AsSpan()).SequenceEqual(MemoryMarshal.AsBytes(boundary.AsSpan())),
+            "The exact Walk_Loop duration did not reproduce the start palette.");
+    }
+
+    private static Matrix4x4[] Pack(SkinDefinition skin, SkeletonPose pose)
+    {
+        SkeletonGlobalPose global = SkeletonPoseEvaluator.EvaluateGlobal(pose);
+        SkinningPalette palette = SkeletonPoseEvaluator.CreateSkinningPalette(skin, global);
+        return GpuMatrixPacking.PackTransposed(palette);
+    }
+
+    private static SkeletalCharacterAsset LoadSelectedAsset()
+    {
+        string root = FindRepositoryRoot();
+        return SimpleMeshSkeletalAssetLoader.LoadFromFile(Path.Combine(
+            root,
+            "assets",
+            "Quaternius",
+            "Universal Animation Library[Standard]",
+            "Unreal-Godot",
+            "UAL1_Standard.glb"));
+    }
+
     private static SkeletonDefinition CreateSkeleton() => new([
         new SkeletonJoint("root", -1, JointTransform.Identity),
         new SkeletonJoint("child", 0, new JointTransform(Vector3.UnitY, Quaternion.Identity, Vector3.One)),

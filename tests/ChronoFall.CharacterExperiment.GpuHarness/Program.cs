@@ -9,6 +9,7 @@ namespace ChronoFall.CharacterExperiment.GpuHarness;
 public static class Program
 {
     private const string SelectedAsset = "assets/Quaternius/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb";
+    private const string SelectedAnimation = "Walk_Loop";
 
     public static int Main(string[] args)
     {
@@ -19,17 +20,21 @@ public static class Program
             HarnessArguments options = HarnessArguments.Parse(args);
             string assetPath = options.AssetPath ?? Path.Combine(FindRepositoryRoot(), SelectedAsset);
             SkeletalCharacterAsset asset = SimpleMeshSkeletalAssetLoader.LoadFromFile(assetPath);
-            BindPoseHarnessResult result = SdlGpuBindPoseHarness.Run(
+            AnimationClip animation = SelectAnimation(asset);
+            CharacterHarnessResult result = SdlGpuCharacterHarness.Run(
                 asset,
-                new BindPoseHarnessOptions(
+                animation,
+                new CharacterHarnessOptions(
                     512,
                     512,
                     options.Visible,
                     options.CapturePath,
-                    options.SkeletonCapturePath));
+                    options.SkeletonCapturePath,
+                    options.AnimationCapturePath));
             Console.WriteLine(
                 $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
-                $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16}");
+                $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16} " +
+                $"animation={result.AnimationSampleFingerprint:x16}");
             return 0;
         }
         catch (Exception exception)
@@ -37,6 +42,18 @@ public static class Program
             Console.Error.WriteLine($"GPU_HARNESS_FAILURE: {exception}");
             return 1;
         }
+    }
+
+    private static AnimationClip SelectAnimation(SkeletalCharacterAsset asset)
+    {
+        AnimationClip? selected = asset.Animations.SingleOrDefault(
+            candidate => string.Equals(candidate.Name, SelectedAnimation, StringComparison.Ordinal));
+        if (selected is not null)
+            return selected;
+
+        string available = string.Join(", ", asset.Animations.Select(static candidate => candidate.Name));
+        throw new InvalidOperationException(
+            $"Required animation '{SelectedAnimation}' was not found by ordinal name. Available clips: {available}");
     }
 
     private static void ConfigureNativeSdl()
@@ -77,7 +94,8 @@ public static class Program
         bool Visible,
         string? AssetPath,
         string? CapturePath,
-        string? SkeletonCapturePath)
+        string? SkeletonCapturePath,
+        string? AnimationCapturePath)
     {
         internal static HarnessArguments Parse(string[] args)
         {
@@ -85,6 +103,7 @@ public static class Program
             string? asset = null;
             string? capture = null;
             string? skeletonCapture = null;
+            string? animationCapture = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -101,11 +120,14 @@ public static class Program
                     case "--skeleton-capture" when index + 1 < args.Length:
                         skeletonCapture = Path.GetFullPath(args[++index]);
                         break;
+                    case "--animation-capture" when index + 1 < args.Length:
+                        animationCapture = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
-            return new HarnessArguments(visible, asset, capture, skeletonCapture);
+            return new HarnessArguments(visible, asset, capture, skeletonCapture, animationCapture);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace ChronoFall.CharacterExperiment.SdlGpu.Tests;
 public sealed class SdlGpuIntegrationTests
 {
     [Fact]
-    public async Task StandaloneHarnessRendersSelectedBindPoseWhenEnabled()
+    public async Task StandaloneHarnessRendersSelectedLoopingAnimationWhenEnabled()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("CHRONOFALL_GPU_TESTS"), "1", StringComparison.Ordinal))
             return;
@@ -47,6 +47,7 @@ public sealed class SdlGpuIntegrationTests
         Assert.Contains("GPU_HARNESS_PASS bind-pose", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_PASS palette-probe", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_PASS skeleton-debug", stdout, StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_PASS animation clip=Walk_Loop sample=0.500", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_SUCCESS", stdout, StringComparison.Ordinal);
     }
 }
