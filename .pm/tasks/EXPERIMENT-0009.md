@@ -7,7 +7,7 @@ dependsOn:
 - EXPERIMENT-0008
 - EXPERIMENT-0013
 createdAt: 2026-08-01T05:34:33.2084090Z
-modifiedAt: 2026-08-01T16:01:37.3619200Z
+modifiedAt: 2026-08-01T16:09:42.8279250Z
 ---
 
 Use the supported offscreen/readback path to capture deterministic visual evidence at multiple fixed timestamps for the selected bind pose and animation.
@@ -42,7 +42,7 @@ Use the supported offscreen/readback path to capture deterministic visual eviden
   - 0.500: `3cc9b0e6278c51a4616922fcc0ffa9ed6eb35fb8fdea807cc3a3808502a49e37`
   - 1.000: `9dc755418dc3372ab562afb845440865ff26b7c400d3c5a0fcfb510ed37c2f16`
 - Review-only PNGs under ignored `artifacts/EXPERIMENT-0009/review/` showed full framing, correct orientation, distinct walk phases, no visible deformation discontinuity, and an exact start/loop match.
-- No generated PPM or PNG is committed.
+- Raw PPM captures, individual PNG review copies, and repeatability-run outputs remain ignored. After task completion, the owner selected one labeled contact sheet as a curated project-history artifact at `docs/project-history/2026-08-01-skinned-character-proof/contact-sheet.png` (SHA-256 `709b7633adcb37055338740749a90ad17d980ff570763a5d5798641f76492f44`).
 - The coordinator build passes with zero warnings; all 57 automated tests pass; the focused native macOS ARM64 Metal integration passes and validates the exact five-file contract.
 - Royale and Starfall source, PM data, commits, and gitlinks remain unchanged.
 - Explicit owner visual validation remains owned by downstream `EXPERIMENT-0010`.
@@ -58,4 +58,4 @@ Use the supported offscreen/readback path to capture deterministic visual eviden
 
 ## Exclusions preserved
 
-No committed generated captures, owner visual sign-off, animation blending, root motion, retargeting, IK, general capture framework, new image dependency, shared-engine extraction, child changes, or gitlink updates.
+No committed raw capture suite, owner visual sign-off, animation blending, root motion, retargeting, IK, general capture framework, new image dependency, shared-engine extraction, child changes, or gitlink updates. The single tracked contact sheet is an owner-selected documentation derivative, not runtime content or capture-pipeline output.

@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T16:01:08.9142120Z
+modifiedAt: 2026-08-01T16:09:51.9959730Z
 ---
 
 ## Status and ownership
@@ -188,7 +188,7 @@ Focused policy tests cover visible and hidden window flags, successful diagnosti
 | `animation-1000ms.ppm` | `Walk_Loop` at 1.000 seconds | `85c5d42b4eac399d` | `9dc755418dc3372ab562afb845440865ff26b7c400d3c5a0fcfb510ed37c2f16` |
 | `animation-loop-boundary.ppm` | exact 1.333333-second loop boundary | `68ba446d672887a0` | `1268476a5f5ff930e521e1e5401ba4cc043743e2e9c2bac768d558a3034138bc` |
 
-Each PPM is 786,447 bytes: a deterministic 15-byte header followed by 512 by 512 RGB pixels. Two independent native macOS ARM64 Metal runs under `artifacts/EXPERIMENT-0009/run-a/` and `run-b/` compared byte-for-byte with no differences. Review-only PNG conversions live under the ignored `artifacts/EXPERIMENT-0009/review/` directory. None of these generated files are committed.
+Each PPM is 786,447 bytes: a deterministic 15-byte header followed by 512 by 512 RGB pixels. Two independent native macOS ARM64 Metal runs under `artifacts/EXPERIMENT-0009/run-a/` and `run-b/` compared byte-for-byte with no differences. Review-only PNG conversions live under the ignored `artifacts/EXPERIMENT-0009/review/` directory. The raw PPM suite, individual review PNGs, and duplicate run remain ignored. After task completion, the owner selected the labeled 3072 by 2240 contact sheet as a curated project-history artifact at `docs/project-history/2026-08-01-skinned-character-proof/contact-sheet.png`; its SHA-256 is `709b7633adcb37055338740749a90ad17d980ff570763a5d5798641f76492f44`. The dated path is intended for later use by a PM wiki image/timeline feature.
 
 Agent visual inspection found the character fully framed with correct orientation and no visible deformation discontinuity. The three unique animation phases differ as expected, while the exact loop boundary reproduces the start image. Explicit owner review of deformation, scale, orientation, and animation appearance remains owned by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0010`.
 
