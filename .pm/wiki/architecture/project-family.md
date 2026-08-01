@@ -1,7 +1,7 @@
 ---
 title: Coordinator and Child Project Topology
 createdAt: 2026-08-01T05:44:06.9895610Z
-modifiedAt: 2026-08-01T05:44:06.9895610Z
+modifiedAt: 2026-08-01T05:51:04.9307660Z
 ---
 
 ## Stable family
@@ -24,7 +24,14 @@ Parent-owned shared modules may be consumed by either child but must not depend 
 
 ## Pinned checkouts at kickoff
 
+Initial checked-out commits before bootstrap:
+
 - Royale: `5feafe2cf1fe6484fd4fc9d5d8ceeb13c331db51`
 - Starfall: `20c25eebc60b1c72d5503c8a81e79cb683631208`
 
-A child implementation commit and a coordinator gitlink update are separate tasks and commits. The parent pointer is advanced only after the child task is complete and committed.
+Independently committed PM bootstraps selected for the coordinator pointers:
+
+- Royale: `174fa32600887da2093bcf7cbc9ebf89dc92990f` (`BUILD-025`)
+- Starfall: `ac1b03425da91cadd58e1cc76b1f4850dddbf76d` (`SF-0002`)
+
+A child implementation commit and a coordinator gitlink update remain separate tasks and commits. The parent pointer is advanced only after the child task is complete and committed.
