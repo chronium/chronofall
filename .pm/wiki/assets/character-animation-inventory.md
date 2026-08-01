@@ -1,7 +1,7 @@
 ---
 title: Quaternius Character and Animation Inventory
 createdAt: 2026-08-01T07:17:10.6916090Z
-modifiedAt: 2026-08-01T07:17:10.6916090Z
+modifiedAt: 2026-08-01T07:59:39.5125070Z
 ---
 
 ## Scope and provenance
@@ -96,16 +96,20 @@ No coordinate or unit conversion should be committed during inventory. The exper
 
 ## Compatibility findings
 
-Joint identity is promising but not sufficient proof of deformation compatibility:
+Joint identity remains promising but is not sufficient proof of cross-file deformation compatibility:
 
 - Male/female base, UAL1, UAL2, the female mannequin, and representative outfits all match 65/65 ordered names and hierarchy.
 - The female base and complete Female Ranger outfit match local rest transforms and inverse-bind matrices exactly.
 - The base-character rest transforms and inverse-bind matrices differ materially from the UAL mannequin. For example, male base versus UAL1 has 62 local-transform mismatches above `1e-5` (maximum component difference 0.146273) and 64 inverse-bind mismatches (maximum component difference 0.329977).
-- Every UAL clip fully keys all three transforms for all 65 joints, so the exact name/hierarchy mapping may permit direct clip application despite different mannequin proportions. That remains a deformation question, not an identity question.
+- Every UAL clip fully keys all three transforms for all 65 joints, but exact name/hierarchy mapping alone does not prove correct deformation across different rest poses.
 
-Therefore no attack clip is yet labeled visually compatible and no retargeting system is justified. A provisional smallest-input candidate for the next selection task is the female base plus UAL1 non-RM `Idle_Loop`, `Walk_Loop`, and `Sword_Attack`; this is a candidate only, not the final `ASSET-0002` selection.
+`ASSET-0002` therefore avoids the unresolved cross-rig contract. The final M1 selection uses the mannequin mesh, `Armature` skin, inverse binds, and `Idle_Loop`, `Walk_Loop`, and `Sword_Attack` clips embedded together in the non-root-motion `UAL1_Standard.glb`.
 
-The smallest resolving experiment is to load the female base's own skin and inverse binds, map one UAL1 clip by the exact ordered joint names, sample its complete TRS channels at deterministic timestamps, and inspect bind pose plus deformation. Failure should report the first mismatching joint/matrix; it must not introduce generic retargeting.
+Compatibility for that selection is structural: the `Mannequin` mesh node directly binds the selected 65-joint skin, and every selected clip targets exactly those same 65 joints with complete LINEAR TRS channels. The attack clip is therefore included without retargeting or cross-file mapping.
+
+This supersedes the provisional female-base candidate. Universal Base Characters, their broken external image references, and base-to-UAL deformation compatibility are deferred rather than repaired or treated as M1 prerequisites.
+
+The canonical selection, exact identifiers, root-motion evidence, exclusions, and downstream loader handoff are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/skinned-character-experiment-inputs`.
 
 ## Broken external references and conversion evidence
 
@@ -115,9 +119,9 @@ All external BIN/image URIs across the Base Character and Outfit glTF files were
 - male base references `T_Eye_Normal_png.png`, while `T_Eye_Normal.png` is present;
 - male base references `T_Hair_1_Normal_png.png`, while `T_Hair_1_Normal.png` is present.
 
-The external BIN resources all resolve. Do not rename or rewrite supplied source files in this task. `ASSET-0002` or the approved experimental loader plan must choose an explicit, narrow URI correction/material mapping.
+The external BIN resources all resolve. Do not rename or rewrite supplied source files. The final M1 selection avoids these external references by using the embedded `UAL1_Standard.glb`; no URI repair or material remapping is required for the proof. Any future Universal Base Character work must make a separate, explicit correction/material-mapping decision.
 
-The minimum loader/cooking requirements exposed by this inventory are glTF JSON plus external BIN/images, GLB JSON/BIN chunks, float inverse-bind matrices, four-influence joint/weight attributes, and LINEAR TRS animation samplers. This is evidence for a later loader contract decision, not approval for a permanent format, importer, converter, or native dependency.
+The selected experiment requires embedded GLB JSON/BIN, float inverse-bind matrices, four-influence joint/weight attributes, and LINEAR TRS animation samplers. External glTF resources remain inventory evidence for later character integration, not approval for a permanent format, importer, converter, or native dependency.
 
 ## Reproduction
 
