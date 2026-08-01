@@ -21,3 +21,24 @@ sh thirdparty/verify-simplemesh.sh
 ```
 
 The resulting source is placed at `thirdparty/repos/SimpleMesh`. The fetch script resets and cleans only that explicitly ignored dependency checkout before applying the committed patch set. Parent source never references either child's dependency directory.
+
+## SDL3-CS
+
+| Property | Value |
+| --- | --- |
+| Official source | `https://github.com/ppy/SDL3-CS` |
+| Pinned revision | `a0a5276a874c0c48db705696ab7e2adc8b5db0a1` |
+| Binding license | MIT |
+| Bundled SDL license | zlib license notice |
+| Purpose | Provisional native SDL window and GPU binding for the M1 bind-pose experiment |
+
+The binding license and generated SDL notice are preserved under `licenses/SDL3-CS/`. The macOS ARM64 native library is verified as an ARM64 Mach-O with SHA-256 `35797abd1dc9e130f8e7ca8aeee33d68f8eecbf0af479184913297aaad4760ca`. The ordered build-only patch under `patches/SDL3-CS/` selects the upstream binding's existing desktop-only switch so coordinator builds do not require Android or WebAssembly workloads; it does not modify bindings or native code.
+
+Fetch and verify the ignored source checkout:
+
+```sh
+sh thirdparty/fetch-sdl3-cs.sh
+sh thirdparty/verify-sdl3-cs.sh
+```
+
+The resulting source is placed at `thirdparty/repos/SDL3-CS`. ChronoFall pins SDL3-CS independently for a demonstrated coordinator consumer and never references Royale's dependency checkout. This experiment pin does not itself establish a permanent shared native-loading or SDL abstraction.

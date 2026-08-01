@@ -2,12 +2,16 @@
   <Folder Name="/src/">
     <Project Path="src/ChronoFall.CharacterExperiment/ChronoFall.CharacterExperiment.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
+    <Project Path="src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ChronoFall.CharacterExperiment.Tests/ChronoFall.CharacterExperiment.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.SimpleMesh.Tests/ChronoFall.CharacterExperiment.SimpleMesh.Tests.csproj" />
+    <Project Path="tests/ChronoFall.CharacterExperiment.SdlGpu.Tests/ChronoFall.CharacterExperiment.SdlGpu.Tests.csproj" />
+    <Project Path="tests/ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj" />
   </Folder>
   <Folder Name="/thirdparty/">
     <Project Path="thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj" />
+    <Project Path="thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj" />
   </Folder>
 </Solution>

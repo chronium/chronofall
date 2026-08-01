@@ -1,0 +1,13 @@
+diff --git a/Directory.Build.props b/Directory.Build.props
+index c0ad5c6..ff2e093 100644
+--- a/Directory.Build.props
++++ b/Directory.Build.props
+@@ -1,5 +1,8 @@
+ ﻿<!-- Contains required properties for osu!framework projects. -->
+ <Project>
++  <PropertyGroup Label="ChronoFall coordinator build">
++    <CI_DONT_TARGET_ANDROID>1</CI_DONT_TARGET_ANDROID>
++  </PropertyGroup>
+   <PropertyGroup Label="C#">
+     <LangVersion>12.0</LangVersion>
+     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

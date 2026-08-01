@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
+    <ProjectReference Include="../../src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
+    <ProjectReference Include="../ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Target Name="CopyGpuHarnessOutput" AfterTargets="Build">
+    <ItemGroup>
+      <GpuHarnessOutput Include="../ChronoFall.CharacterExperiment.GpuHarness/bin/$(Configuration)/$(TargetFramework)/**/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GpuHarnessOutput)"
+          DestinationFiles="@(GpuHarnessOutput->'$(OutputPath)gpu-harness/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
