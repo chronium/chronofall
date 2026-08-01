@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-01T05:47:38.1252920Z
+modifiedAt: 2026-08-01T16:37:04.6472580Z
 ---
 
 ## M0 — Coordinator foundation
@@ -20,6 +20,8 @@ The dependency graph is intentionally narrow:
 6. `EXPERIMENT-0008` diagnostics, `EXPERIMENT-0009` deterministic captures, `EXPERIMENT-0010` native owner validation, and `EXPERIMENT-0011` findings/promotion criteria.
 
 M1 excludes modular armour, blending, root motion, retargeting, IK, general animation graphs, and production engine design.
+
+M1 completed on 2026-08-01. The supplied Quaternius mannequin and compatible animation passed deterministic CPU sampling, native SDL GPU skinning, skeleton diagnostics, repeatable multi-timestamp captures, and explicit owner visual validation. The conclusions and bounded promotion matrix are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skinned-character-proof-findings`. Completion makes `SHARED-0001` dependency-ready but does not activate M2 work.
 
 ## M2 — Shared character presentation
 

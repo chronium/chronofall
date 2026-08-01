@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-01T09:09:56.7209760Z
+modifiedAt: 2026-08-01T16:36:57.1990230Z
 ---
 
 ## Focus
@@ -26,9 +26,11 @@ Servers own attacks, shots, casts, hits, movement transitions, equipment changes
 
 ## Promotion gate
 
-The skinned-character experiment establishes the first candidate shared contracts. Promotion requires deterministic tests, correct GPU skinning, skeleton debug visualization, deterministic multi-timestamp captures, native macOS ARM64 execution, explicit owner visual confirmation, and a concrete child integration need.
+The M1 skinned-character proof satisfied its gate: deterministic transform and sampling tests, correct GPU skinning, skeleton debug visualization, deterministic multi-timestamp captures, native macOS ARM64 Metal execution, explicit owner visual confirmation, and concrete integration demand from both children.
 
-Do not promote experimental loader choices, permanent skeletal formats, retargeting, generic animation graphs, or generalized scene/component frameworks without separate owner-approved contract tasks.
+The promotion decision and evidence matrix are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skinned-character-proof-findings`. Shared design may preserve the proven skeletal, animation, pose, palette, debug-pose, and GPU-skinning semantics. It must not mechanically freeze the experiment assemblies, SimpleMesh adapter, exact vertex/shader ABI, harness, camera, or capture tooling.
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001` owns final shared-module and public-API design. Loader permanence, cooked formats, materials, animated bounds, cross-rig animation, retargeting, root motion, blending, equipment, IK, animation graphs, and generalized scene/component frameworks require their separately approved contracts.
 
 ## Later authoring exploration
 
