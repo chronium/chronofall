@@ -340,6 +340,33 @@ internal static class SdlGpuCharacterHarness
             throw new InvalidOperationException(message);
     }
 
+    internal static SDL_WindowFlags SelectWindowFlags(bool visible) =>
+        visible ? (SDL_WindowFlags)0 : SDL_WindowFlags.SDL_WINDOW_HIDDEN;
+
+    internal static void ExecuteInteractiveFrame(
+        AnimationClip clip,
+        float sampleTime,
+        int jointCount,
+        Action operation)
+    {
+        ArgumentNullException.ThrowIfNull(clip);
+        ArgumentNullException.ThrowIfNull(operation);
+
+        try
+        {
+            operation();
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException(
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"Interactive animation validation failed for clip '{clip.Name}' " +
+                    $"at sample {sampleTime:F3} seconds (joints={jointCount})."),
+                exception);
+        }
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     private readonly record struct MaterialConstants(Vector4 BaseColor, Vector4 LightDirection);
 
@@ -391,7 +418,7 @@ internal static class SdlGpuCharacterHarness
 
             try
             {
-                SDL_WindowFlags flags = visible ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : SDL_WindowFlags.SDL_WINDOW_HIDDEN;
+                SDL_WindowFlags flags = SelectWindowFlags(visible);
                 window = SDL_CreateWindow("ChronoFall character animation experiment", width, height, flags);
                 if (window is null)
                     throw new InvalidOperationException($"SDL window creation failed: {SDL_GetError()}");
@@ -574,52 +601,46 @@ internal static class SdlGpuCharacterHarness
                 previousCounter = currentCounter;
                 playback.Advance(elapsedSeconds);
 
-                CharacterAnimationFrame frame;
-                try
+                AnimationClip frameClip = playback.CurrentClip;
+                float frameSampleTime = playback.SampleTime;
+                ExecuteInteractiveFrame(frameClip, frameSampleTime, jointCount, () =>
                 {
-                    frame = CreateAnimationFrame(skin, playback.CurrentClip, playback.SampleTime);
+                    CharacterAnimationFrame frame = CreateAnimationFrame(skin, frameClip, frameSampleTime);
                     UploadPalette(frame.PackedPalette);
                     if (playback.IsSkeletonVisible)
                     {
                         SkeletonDebugGeometry skeleton = SkeletonDebugGeometry.Create(frame.GlobalPose, skeletonAxisLength);
                         UploadSkeleton(skeleton.Vertices);
                     }
-                }
-                catch (Exception exception)
-                {
-                    throw new InvalidOperationException(
-                        $"Interactive animation validation failed for clip '{playback.CurrentClip.Name}' " +
-                        $"at {playback.SampleTime:F3} seconds with {jointCount} joints.",
-                        exception);
-                }
 
-                if (titleDirty || currentCounter - lastTitleCounter >= frequency / 10)
-                {
-                    SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.PackedPalette.Length));
-                    lastTitleCounter = currentCounter;
-                    titleDirty = false;
-                }
+                    if (titleDirty || currentCounter - lastTitleCounter >= frequency / 10)
+                    {
+                        SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.PackedPalette.Length));
+                        lastTitleCounter = currentCounter;
+                        titleDirty = false;
+                    }
 
-                SDL_GPUCommandBuffer* command = AcquireCommand();
-                SDL_GPUTexture* swapchain;
-                uint swapchainWidth;
-                uint swapchainHeight;
-                if (!SDL_WaitAndAcquireGPUSwapchainTexture(command, window, &swapchain, &swapchainWidth, &swapchainHeight))
-                    throw new InvalidOperationException($"SDL GPU swapchain acquisition failed: {SDL_GetError()}");
-                if (swapchain is not null)
-                {
-                    EnsureVisibleDepth(swapchainWidth, swapchainHeight);
-                    Render(
-                        command,
-                        swapchain,
-                        visibleDepth,
-                        swapchainWidth,
-                        swapchainHeight,
-                        transposedViewProjection,
-                        includeSkeleton: playback.IsSkeletonVisible);
-                }
-                if (!SDL_SubmitGPUCommandBuffer(command))
-                    throw new InvalidOperationException($"SDL GPU visible submission failed: {SDL_GetError()}");
+                    SDL_GPUCommandBuffer* command = AcquireCommand();
+                    SDL_GPUTexture* swapchain;
+                    uint swapchainWidth;
+                    uint swapchainHeight;
+                    if (!SDL_WaitAndAcquireGPUSwapchainTexture(command, window, &swapchain, &swapchainWidth, &swapchainHeight))
+                        throw new InvalidOperationException($"SDL GPU swapchain acquisition failed: {SDL_GetError()}");
+                    if (swapchain is not null)
+                    {
+                        EnsureVisibleDepth(swapchainWidth, swapchainHeight);
+                        Render(
+                            command,
+                            swapchain,
+                            visibleDepth,
+                            swapchainWidth,
+                            swapchainHeight,
+                            transposedViewProjection,
+                            includeSkeleton: playback.IsSkeletonVisible);
+                    }
+                    if (!SDL_SubmitGPUCommandBuffer(command))
+                        throw new InvalidOperationException($"SDL GPU visible submission failed: {SDL_GetError()}");
+                });
                 SDL_Delay(16);
             }
         }

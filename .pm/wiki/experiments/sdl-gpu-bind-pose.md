@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T15:25:20.5737890Z
+modifiedAt: 2026-08-01T15:47:51.9190640Z
 ---
 
 ## Status and ownership
@@ -165,6 +165,15 @@ The browser adds no text renderer or UI framework: live text uses the SDL window
 Automated coverage proves navigation, wrapping, shortcuts, pause/resume, restart, skeleton toggling, invariant diagnostics, validation errors, and source ordering. All 43 clips were sampled at a representative timestamp and produced a finite 65-matrix, 4,160-byte GPU palette on the selected skeleton. The coordinator build passed with zero warnings, 54 tests passed, and the focused native macOS ARM64 Metal integration passed.
 
 On 2026-08-01, the owner exercised the native controls. The console evidence includes all three selected shortcuts, pause/resume, animated skeleton on/off, and successful exit. The owner confirmed that it works correctly, satisfying the task's visual and interaction gate.
+
+
+## Fixed-window and full-frame diagnostics
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0013` hardens the interactive browser before deterministic capture work. The experiment camera remains a fixed 512 by 512 contract: visible windows use no resize flag, and hidden validation windows remain hidden and non-resizable. Responsive projection and general camera behavior remain outside this harness.
+
+At the start of each visible frame, the browser captures the exact clip and sample timestamp used for evaluation. One diagnostic boundary now covers pose evaluation, palette and optional skeleton uploads, title refresh, command-buffer and swapchain acquisition, visible-depth preparation, render-pass recording, and command submission. Failures add invariant clip, sample, and joint-count context while retaining the original operation-specific exception as the inner failure.
+
+Focused policy tests cover visible and hidden window flags, successful diagnostic execution, and preservation of a simulated late GPU submission failure. The coordinator build passes with zero warnings; 57 tests pass across the core, SimpleMesh adapter, and SDL GPU projects; and the focused native macOS ARM64 Metal integration passes. The native run retained bind-pose `408d3a4c16278bbc`, palette-probe `4fd2e63aea97f7a3`, skeleton `c6ad39a45245afed`, and animation `a2b427aea339d460` fingerprints. On 2026-08-01, the owner confirmed that the window did not resize and that the controls and animations still looked correct.
 
 ## Explicit exclusions
 
