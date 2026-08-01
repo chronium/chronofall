@@ -15,7 +15,8 @@ internal sealed record CharacterHarnessOptions(
     string? SkeletonCapturePath = null,
     string? AnimationCapturePath = null,
     string? CaptureSuiteDirectory = null,
-    string? BlendCaptureSuiteDirectory = null);
+    string? BlendCaptureSuiteDirectory = null,
+    string? LayeredCaptureSuiteDirectory = null);
 
 internal sealed record CharacterHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
@@ -35,6 +36,7 @@ internal sealed record CharacterHarnessResult(
     ulong AnimationLaterSampleFingerprint,
     ulong AnimationLoopBoundaryFingerprint,
     BlendHarnessResult Blend,
+    LayeredHarnessResult Layered,
     int SkeletonLineCount);
 
 internal sealed record BlendHarnessResult(
@@ -50,6 +52,22 @@ internal sealed record BlendHarnessResult(
     ulong ActionEntryFingerprint,
     ulong ActionBodyFingerprint,
     ulong ActionReturnFingerprint);
+
+internal sealed record LayeredHarnessResult(
+    FrameAnalysis WalkBase,
+    FrameAnalysis FullBodyAction,
+    FrameAnalysis UpperBodyAction,
+    FrameAnalysis ActionEntry,
+    FrameAnalysis ActionReturn,
+    FrameAnalysis WalkAdvanced,
+    ulong WalkBaseFingerprint,
+    ulong FullBodyActionFingerprint,
+    ulong UpperBodyActionFingerprint,
+    ulong ActionEntryFingerprint,
+    ulong ActionReturnFingerprint,
+    ulong WalkAdvancedFingerprint,
+    int MaskRootIndex,
+    int MaskedJointCount);
 
 internal readonly record struct FrameAnalysis(
     int RenderedPixels,
@@ -80,6 +98,7 @@ internal static class SdlGpuCharacterHarness
     private const float DeterministicIdleTime = 1.25f;
     private const float DeterministicWalkTime = 0.5f;
     private const float DeterministicActionBodyTime = 0.75f;
+    private const float DeterministicLayerWalkTime = 0.75f;
 
     internal static CharacterHarnessResult Run(
         SkeletalCharacterAsset asset,
@@ -97,6 +116,7 @@ internal static class SdlGpuCharacterHarness
         AnimationClip idleAnimation = SelectAnimation(asset, "Idle_Loop");
         AnimationClip walkAnimation = SelectAnimation(asset, "Walk_Loop");
         AnimationClip actionAnimation = SelectAnimation(asset, "Sword_Attack");
+        SkeletonJointMask upperBodyMask = CreateUpperBodyMask(asset.Mesh.Skin.Skeleton);
 
         MeshBounds bounds = MeshBounds.Create(asset.Mesh.Vertices.Select(static vertex => vertex.Position).ToArray());
         SkeletonPose bindPose = asset.Mesh.Skin.Skeleton.CreateBindPose();
@@ -276,6 +296,134 @@ internal static class SdlGpuCharacterHarness
             blendResult.ActionBodyFingerprint != blendResult.ActionReturnFingerprint,
             "Action blend frames did not produce distinct fingerprints.");
 
+        SkeletonPose layerWalkBasePose = AnimationSampler.Sample(
+            walkAnimation,
+            DeterministicLayerWalkTime,
+            AnimationPlaybackMode.Loop);
+        SkeletonPose layerFullBodyActionPose = AnimationSampler.Sample(
+            actionAnimation,
+            DeterministicActionBodyTime,
+            AnimationPlaybackMode.Clamp);
+        SkeletonPose layerUpperBodyActionPose = SkeletonPoseLayerer.Apply(
+            layerWalkBasePose,
+            layerFullBodyActionPose,
+            upperBodyMask,
+            1.0f);
+        float layeredEntryActionTime = CharacterPlaybackController.ActionBlendInDuration * 0.5f;
+        SkeletonPose layerEntryAdvancingBase = AnimationSampler.Sample(
+            walkAnimation,
+            DeterministicWalkTime + layeredEntryActionTime,
+            AnimationPlaybackMode.Loop);
+        SkeletonPose layerEntryDisplayedSource = SkeletonPoseLayerer.Apply(
+            layerEntryAdvancingBase,
+            AnimationSampler.Sample(
+                walkAnimation,
+                DeterministicWalkTime,
+                AnimationPlaybackMode.Loop),
+            upperBodyMask,
+            1.0f);
+        SkeletonPose layerEntryPose = SkeletonPoseLayerer.Apply(
+            layerEntryDisplayedSource,
+            AnimationSampler.Sample(
+                actionAnimation,
+                layeredEntryActionTime,
+                AnimationPlaybackMode.Clamp),
+            upperBodyMask,
+            0.5f);
+        SkeletonPose layerWalkAdvancedPose = AnimationSampler.Sample(
+            walkAnimation,
+            DeterministicAnimationLaterSampleTime,
+            AnimationPlaybackMode.Loop);
+        SkeletonPose layerReturnPose = SkeletonPoseLayerer.Apply(
+            layerWalkAdvancedPose,
+            AnimationSampler.Sample(actionAnimation, actionReturnTime, AnimationPlaybackMode.Clamp),
+            upperBodyMask,
+            0.5f);
+
+        ValidateLayeredPose(layerWalkBasePose, layerFullBodyActionPose, layerUpperBodyActionPose, upperBodyMask);
+
+        byte[] layerWalkBasePixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerWalkBasePose,
+            DeterministicLayerWalkTime,
+            camera.ViewProjection,
+            options,
+            "layer-walk-base",
+            out FrameAnalysis layerWalkBaseAnalysis);
+        byte[] layerFullBodyActionPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerFullBodyActionPose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "layer-full-action",
+            out FrameAnalysis layerFullBodyActionAnalysis);
+        byte[] layerUpperBodyActionPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerUpperBodyActionPose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "layer-upper-action",
+            out FrameAnalysis layerUpperBodyActionAnalysis);
+        byte[] layerActionEntryPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerEntryPose,
+            layeredEntryActionTime,
+            camera.ViewProjection,
+            options,
+            "layer-action-entry",
+            out FrameAnalysis layerActionEntryAnalysis);
+        byte[] layerActionReturnPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerReturnPose,
+            actionReturnTime,
+            camera.ViewProjection,
+            options,
+            "layer-action-return",
+            out FrameAnalysis layerActionReturnAnalysis);
+        byte[] layerWalkAdvancedPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            layerWalkAdvancedPose,
+            DeterministicAnimationLaterSampleTime,
+            camera.ViewProjection,
+            options,
+            "layer-walk-advanced",
+            out FrameAnalysis layerWalkAdvancedAnalysis);
+
+        var layeredResult = new LayeredHarnessResult(
+            layerWalkBaseAnalysis,
+            layerFullBodyActionAnalysis,
+            layerUpperBodyActionAnalysis,
+            layerActionEntryAnalysis,
+            layerActionReturnAnalysis,
+            layerWalkAdvancedAnalysis,
+            Fingerprint(layerWalkBasePixels),
+            Fingerprint(layerFullBodyActionPixels),
+            Fingerprint(layerUpperBodyActionPixels),
+            Fingerprint(layerActionEntryPixels),
+            Fingerprint(layerActionReturnPixels),
+            Fingerprint(layerWalkAdvancedPixels),
+            FindJointIndex(asset.Mesh.Skin.Skeleton, "spine_01"),
+            upperBodyMask.IncludedJointCount);
+        Require(
+            layeredResult.UpperBodyActionFingerprint != layeredResult.WalkBaseFingerprint &&
+            layeredResult.UpperBodyActionFingerprint != layeredResult.FullBodyActionFingerprint,
+            "Upper-body layered action reproduced one of its source fingerprints.");
+        Require(
+            layeredResult.ActionEntryFingerprint != layeredResult.UpperBodyActionFingerprint &&
+            layeredResult.ActionReturnFingerprint != layeredResult.UpperBodyActionFingerprint,
+            "Layered transition frames reproduced the action-body fingerprint.");
+        Require(
+            layeredResult.WalkBaseFingerprint != layeredResult.WalkAdvancedFingerprint,
+            "Layered evidence walk timestamps produced the same fingerprint.");
+
         if (!string.IsNullOrWhiteSpace(options.CapturePath))
             WritePpm(options.CapturePath, options.Width, options.Height, bindPixels);
         if (!string.IsNullOrWhiteSpace(options.SkeletonCapturePath))
@@ -307,6 +455,19 @@ internal static class SdlGpuCharacterHarness
                 actionBodyPixels,
                 actionReturnPixels);
         }
+        if (!string.IsNullOrWhiteSpace(options.LayeredCaptureSuiteDirectory))
+        {
+            WriteLayeredCaptureSuite(
+                options.LayeredCaptureSuiteDirectory,
+                options.Width,
+                options.Height,
+                layerWalkBasePixels,
+                layerFullBodyActionPixels,
+                layerUpperBodyActionPixels,
+                layerActionEntryPixels,
+                layerActionReturnPixels,
+                layerWalkAdvancedPixels);
+        }
 
         Console.WriteLine(
             $"GPU_HARNESS_PASS bind-pose shader={gpu.ShaderFormat} pixels={bindAnalysis.RenderedPixels} " +
@@ -331,6 +492,11 @@ internal static class SdlGpuCharacterHarness
             $"{blendResult.LocomotionMidpointFingerprint:x16}/{blendResult.LocomotionWalkFingerprint:x16} " +
             $"action={blendResult.ActionEntryFingerprint:x16}/{blendResult.ActionBodyFingerprint:x16}/" +
             $"{blendResult.ActionReturnFingerprint:x16}");
+        Console.WriteLine(
+            $"GPU_HARNESS_PASS layering mask=spine_01:{layeredResult.MaskedJointCount}/{asset.Mesh.Skin.Skeleton.JointCount} " +
+            $"comparison={layeredResult.WalkBaseFingerprint:x16}/{layeredResult.FullBodyActionFingerprint:x16}/" +
+            $"{layeredResult.UpperBodyActionFingerprint:x16} transition={layeredResult.ActionEntryFingerprint:x16}/" +
+            $"{layeredResult.ActionReturnFingerprint:x16}/{layeredResult.WalkAdvancedFingerprint:x16}");
 
         if (options.Visible)
         {
@@ -340,6 +506,7 @@ internal static class SdlGpuCharacterHarness
                 asset.Animations,
                 animation,
                 asset.Mesh.Skin,
+                upperBodyMask,
                 skeletonAxisLength);
         }
 
@@ -361,7 +528,42 @@ internal static class SdlGpuCharacterHarness
             animationLaterSampleFingerprint,
             animationLoopBoundaryFingerprint,
             blendResult,
+            layeredResult,
             skeletonDebug.LineCount);
+    }
+
+    private static SkeletonJointMask CreateUpperBodyMask(SkeletonDefinition skeleton)
+    {
+        int rootIndex = FindJointIndex(skeleton, "spine_01");
+        SkeletonJointMask mask = SkeletonJointMask.CreateSubtree(skeleton, rootIndex);
+        Require(
+            mask.IncludedJointCount == 53,
+            $"Expected the selected spine_01 subtree to contain 53 joints, but found {mask.IncludedJointCount}.");
+        return mask;
+    }
+
+    private static int FindJointIndex(SkeletonDefinition skeleton, string name)
+    {
+        if (skeleton.TryGetJointIndex(name, out int index))
+            return index;
+        throw new InvalidOperationException($"Required selected-skeleton joint '{name}' was not found.");
+    }
+
+    private static void ValidateLayeredPose(
+        SkeletonPose basePose,
+        SkeletonPose layerPose,
+        SkeletonPose result,
+        SkeletonJointMask mask)
+    {
+        for (int index = 0; index < mask.Skeleton.JointCount; index++)
+        {
+            JointTransform expected = mask[index]
+                ? layerPose.LocalTransforms[index]
+                : basePose.LocalTransforms[index];
+            Require(
+                result.LocalTransforms[index] == expected,
+                $"Layered pose joint {index} did not preserve the selected endpoint transform.");
+        }
     }
 
     private static AnimationClip SelectAnimation(SkeletalCharacterAsset asset, string name)
@@ -608,6 +810,27 @@ internal static class SdlGpuCharacterHarness
         Console.WriteLine($"GPU_HARNESS_BLEND_CAPTURE_SUITE {fullDirectory}");
     }
 
+    private static void WriteLayeredCaptureSuite(
+        string directory,
+        int width,
+        int height,
+        byte[] walkBase,
+        byte[] fullBodyAction,
+        byte[] upperBodyAction,
+        byte[] actionEntry,
+        byte[] actionReturn,
+        byte[] walkAdvanced)
+    {
+        string fullDirectory = Path.GetFullPath(directory);
+        WritePpm(Path.Combine(fullDirectory, "layer-walk-base.ppm"), width, height, walkBase);
+        WritePpm(Path.Combine(fullDirectory, "layer-full-action.ppm"), width, height, fullBodyAction);
+        WritePpm(Path.Combine(fullDirectory, "layer-upper-action.ppm"), width, height, upperBodyAction);
+        WritePpm(Path.Combine(fullDirectory, "layer-action-entry.ppm"), width, height, actionEntry);
+        WritePpm(Path.Combine(fullDirectory, "layer-action-return.ppm"), width, height, actionReturn);
+        WritePpm(Path.Combine(fullDirectory, "layer-walk-advanced.ppm"), width, height, walkAdvanced);
+        Console.WriteLine($"GPU_HARNESS_LAYERED_CAPTURE_SUITE {fullDirectory}");
+    }
+
     private static byte ToByte(float value) => (byte)MathF.Round(Math.Clamp(value, 0.0f, 1.0f) * byte.MaxValue);
 
     private static void Require(bool condition, string message)
@@ -820,11 +1043,15 @@ internal static class SdlGpuCharacterHarness
             IReadOnlyList<AnimationClip> animations,
             AnimationClip initialAnimation,
             SkinDefinition skin,
+            SkeletonJointMask upperBodyMask,
             float skeletonAxisLength)
         {
             ArgumentNullException.ThrowIfNull(animations);
             ArgumentNullException.ThrowIfNull(initialAnimation);
             ArgumentNullException.ThrowIfNull(skin);
+            ArgumentNullException.ThrowIfNull(upperBodyMask);
+            if (!ReferenceEquals(skin.Skeleton, upperBodyMask.Skeleton))
+                throw new ArgumentException("The visible action mask must use the skin skeleton.", nameof(upperBodyMask));
             if (!SDL_ShowWindow(window))
                 throw new InvalidOperationException($"SDL could not show the validation window: {SDL_GetError()}");
 
@@ -837,7 +1064,7 @@ internal static class SdlGpuCharacterHarness
             bool titleDirty = true;
             Console.WriteLine(
                 "GPU_HARNESS_CONTROLS Left/Right=direct-clip 1=blend-Idle_Loop 2=blend-Walk_Loop " +
-                "3=signal-Sword_Attack " +
+                "3=signal-full-Sword_Attack 4=signal-layered-Sword_Attack " +
                 "Space=pause/resume R=restart D=skeleton Escape=close");
             Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
             bool running = true;
@@ -854,7 +1081,7 @@ internal static class SdlGpuCharacterHarness
                     }
 
                     if (sdlEvent.Type == SDL_EventType.SDL_EVENT_KEY_DOWN &&
-                        ApplyControl(playback, sdlEvent.key.key))
+                        ApplyControl(playback, upperBodyMask, sdlEvent.key.key))
                     {
                         titleDirty = true;
                         Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
@@ -958,7 +1185,10 @@ internal static class SdlGpuCharacterHarness
             SDL_Quit();
         }
 
-        private static bool ApplyControl(CharacterPlaybackController playback, SDL_Keycode key)
+        private static bool ApplyControl(
+            CharacterPlaybackController playback,
+            SkeletonJointMask upperBodyMask,
+            SDL_Keycode key)
         {
             switch (key)
             {
@@ -976,6 +1206,9 @@ internal static class SdlGpuCharacterHarness
                     return true;
                 case SDL_Keycode.SDLK_3:
                     playback.SignalAction("Sword_Attack");
+                    return true;
+                case SDL_Keycode.SDLK_4:
+                    playback.SignalLayeredAction("Sword_Attack", upperBodyMask);
                     return true;
                 case SDL_Keycode.SDLK_SPACE:
                     playback.TogglePlaying();

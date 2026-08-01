@@ -77,6 +77,50 @@ public sealed class CharacterHarnessDataTests
         Assert.False(walkPalette.JointMatrices.SequenceEqual(actionPalette.JointMatrices));
     }
 
+    [Fact]
+    public void SelectedSpineSubtreeLayersActionOverAdvancingLocomotion()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        SkeletonDefinition skeleton = asset.Mesh.Skin.Skeleton;
+        Assert.True(skeleton.TryGetJointIndex("spine_01", out int spineIndex));
+        Assert.True(skeleton.TryGetJointIndex("hand_l", out int handIndex));
+        Assert.True(skeleton.TryGetJointIndex("thigh_l", out int thighIndex));
+        SkeletonJointMask mask = SkeletonJointMask.CreateSubtree(skeleton, spineIndex);
+        AnimationClip walk = Select(asset, "Walk_Loop");
+        AnimationClip action = Select(asset, "Sword_Attack");
+        SkeletonPose walkPose = AnimationSampler.Sample(walk, 0.75f, AnimationPlaybackMode.Loop);
+        SkeletonPose actionPose = AnimationSampler.Sample(action, 0.75f, AnimationPlaybackMode.Clamp);
+
+        SkeletonPose layered = SkeletonPoseLayerer.Apply(walkPose, actionPose, mask, 1.0f);
+        SkeletonPose midpoint = SkeletonPoseLayerer.Apply(walkPose, actionPose, mask, 0.5f);
+
+        Assert.Equal(53, mask.IncludedJointCount);
+        Assert.True(mask[spineIndex]);
+        Assert.True(mask[handIndex]);
+        Assert.False(mask[0]);
+        Assert.False(mask[1]);
+        Assert.False(mask[thighIndex]);
+        for (int index = 0; index < skeleton.JointCount; index++)
+        {
+            JointTransform expected = mask[index]
+                ? actionPose.LocalTransforms[index]
+                : walkPose.LocalTransforms[index];
+            Assert.Equal(expected, layered.LocalTransforms[index]);
+            if (!mask[index])
+                Assert.Equal(walkPose.LocalTransforms[index], midpoint.LocalTransforms[index]);
+        }
+
+        SkinningPalette layeredPalette = CreatePalette(asset.Mesh.Skin, layered);
+        SkinningPalette midpointPalette = CreatePalette(asset.Mesh.Skin, midpoint);
+        SkeletonGlobalPose layeredGlobal = SkeletonPoseEvaluator.EvaluateGlobal(layered);
+        SkeletonGlobalPose midpointGlobal = SkeletonPoseEvaluator.EvaluateGlobal(midpoint);
+        Assert.All(layeredGlobal.GlobalTransforms, static matrix => AssertFinite(matrix));
+        Assert.All(midpointGlobal.GlobalTransforms, static matrix => AssertFinite(matrix));
+        Assert.All(layeredPalette.JointMatrices, static matrix => AssertFinite(matrix));
+        Assert.All(midpointPalette.JointMatrices, static matrix => AssertFinite(matrix));
+        Assert.False(layeredPalette.JointMatrices.SequenceEqual(midpointPalette.JointMatrices));
+    }
+
     private static SkinningPalette CreatePalette(SkinDefinition skin, SkeletonPose pose)
     {
         SkeletonGlobalPose global = SkeletonPoseEvaluator.EvaluateGlobal(pose);

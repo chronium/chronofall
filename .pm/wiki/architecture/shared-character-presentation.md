@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-01T17:47:39.7888010Z
+modifiedAt: 2026-08-01T18:32:01.3586810Z
 ---
 
 ## Decision
@@ -39,6 +39,16 @@ These are presentation contracts. Server-authoritative gameplay state and events
 Both poses must use the same skeleton instance and the amount must be finite within `[0, 1]`. The operation blends local translation and scale linearly and uses normalized shortest-path quaternion interpolation. It returns a new validated local pose. Global transforms, inverse binds and GPU palettes are evaluated only after blending through the existing contracts.
 
 The shared module does not select clips, advance clocks, choose transition durations, queue or interrupt actions, interpret protocol messages, or decide gameplay. Each child consumes its own authoritative state and events and owns that presentation policy. The coordinator harness proves the math with `Idle_Loop`, `Walk_Loop` and a full-body `Sword_Attack`; its 0.25-second locomotion transition, 0.10-second action entry and 0.15-second action return remain provisional validation policy rather than shared API.
+
+## Bounded binary masks and pose layering
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0009` adds two focused BCL-only contracts for needs already declared by Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/GAME-018` and Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0007`.
+
+`SkeletonJointMask` binds copied binary membership to one skeleton instance. `CreateSubtree(skeleton, rootJointIndex)` uses the existing parent-first hierarchy to include exactly the selected joint and its descendants. The shared API does not assign anatomical meaning to joint names or choose an upper body.
+
+`SkeletonPoseLayerer.Apply(basePose, layerPose, mask, amount)` returns a new validated local pose. All three inputs must use the same skeleton instance and the amount must be finite in `[0, 1]`. Unmasked transforms remain exactly from the base pose. Masked translation and scale interpolate linearly; masked rotation uses the same normalized shortest-path interpolation as full-body blending. Global poses and GPU palettes are evaluated only after composition.
+
+This operation remains stateless. Children own masks, clocks, clips, action signals, interruption and transition policy. Binary membership plus one global amount is the approved envelope; weighted per-joint masks and general layer stacks are deferred until demonstrated.
 
 ## SDL GPU host boundary
 
@@ -87,7 +97,7 @@ The focused shared foundation still does not decide or implement:
 - package versioning, publication, feed selection or child acquisition;
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
-- bone masks or layered animation, which remain owned by `SHARED-0009`;
+- weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
 - modular armour, attachments, equipment, sockets or IK;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.

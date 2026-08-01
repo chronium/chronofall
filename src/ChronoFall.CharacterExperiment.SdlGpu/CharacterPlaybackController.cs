@@ -28,6 +28,7 @@ internal sealed class CharacterPlaybackController
     private double transitionElapsed;
     private AnimationClip? actionClip;
     private SkeletonPose? actionEntrySourcePose;
+    private SkeletonJointMask? actionMask;
     private double actionSampleTime;
 
     internal CharacterPlaybackController(IEnumerable<AnimationClip> clips, string initialClipName)
@@ -93,6 +94,8 @@ internal sealed class CharacterPlaybackController
 
     internal bool IsSkeletonVisible { get; private set; }
 
+    internal bool IsLayeredAction => actionMask is not null;
+
     internal void Advance(double elapsedSeconds)
     {
         if (!double.IsFinite(elapsedSeconds) || elapsedSeconds < 0.0)
@@ -140,15 +143,9 @@ internal sealed class CharacterPlaybackController
                 transitionSourcePose!,
                 CreateLocomotionPose(),
                 BlendAmount),
-            CharacterPlaybackPhase.ActionEntry => SkeletonPoseBlender.Blend(
-                actionEntrySourcePose!,
-                CreateActionPose(),
-                BlendAmount),
-            CharacterPlaybackPhase.ActionBody => CreateActionPose(),
-            CharacterPlaybackPhase.ActionReturn => SkeletonPoseBlender.Blend(
-                CreateActionPose(),
-                CreateLocomotionPose(),
-                BlendAmount),
+            CharacterPlaybackPhase.ActionEntry => CreateActionEntryPose(),
+            CharacterPlaybackPhase.ActionBody => CreateActionBodyPose(),
+            CharacterPlaybackPhase.ActionReturn => CreateActionReturnPose(),
             _ => throw new InvalidOperationException($"Unsupported playback phase {Phase}."),
         };
     }
@@ -188,14 +185,28 @@ internal sealed class CharacterPlaybackController
         Phase = CharacterPlaybackPhase.LocomotionBlend;
     }
 
-    internal void SignalAction(string name)
+    internal void SignalAction(string name) =>
+        SignalAction(FindClip(name, nameof(name)), mask: null);
+
+    internal void SignalLayeredAction(string name, SkeletonJointMask mask)
     {
-        AnimationClip selected = clips[FindClipIndex(name, nameof(name))];
+        ArgumentNullException.ThrowIfNull(mask);
+        AnimationClip selected = FindClip(name, nameof(name));
+        if (!ReferenceEquals(selected.Skeleton, mask.Skeleton))
+            throw new ArgumentException("The action mask must use the browser skeleton.", nameof(mask));
+        if (mask.IncludedJointCount == 0)
+            throw new ArgumentException("The action mask must include at least one joint.", nameof(mask));
+
+        SignalAction(selected, mask);
+    }
+
+    private void SignalAction(AnimationClip selected, SkeletonJointMask? mask)
+    {
         if (selected.Duration <= ActionBlendInDuration + ActionBlendOutDuration)
         {
             throw new ArgumentException(
                 $"Action animation '{selected.Name}' must be longer than the combined blend duration.",
-                nameof(name));
+                nameof(selected));
         }
 
         if (Phase == CharacterPlaybackPhase.Direct)
@@ -205,6 +216,7 @@ internal sealed class CharacterPlaybackController
         }
         actionEntrySourcePose = CreatePose();
         actionClip = selected;
+        actionMask = mask;
         actionSampleTime = 0.0;
         transitionSourcePose = null;
         transitionElapsed = 0.0;
@@ -236,7 +248,10 @@ internal sealed class CharacterPlaybackController
             case CharacterPlaybackPhase.ActionEntry:
             case CharacterPlaybackPhase.ActionBody:
             case CharacterPlaybackPhase.ActionReturn:
-                SignalAction(actionClip!.Name);
+                if (actionMask is null)
+                    SignalAction(actionClip!.Name);
+                else
+                    SignalLayeredAction(actionClip!.Name, actionMask);
                 break;
             default:
                 throw new InvalidOperationException($"Unsupported playback phase {Phase}.");
@@ -252,7 +267,8 @@ internal sealed class CharacterPlaybackController
             CultureInfo.InvariantCulture,
             $"ChronoFall Character Experiment | {CurrentClipIndex + 1}/{clips.Length} {CurrentClip.Name} | " +
             $"{SampleTime:F3}/{CurrentClip.Duration:F3} s | {(IsPlaying ? "playing" : "paused")} | " +
-            $"{CreatePhaseLabel()} {BlendAmount:F2} | skeleton {(IsSkeletonVisible ? "on" : "off")} | " +
+            $"{CreatePhaseLabel()} {BlendAmount:F2} | layer {CreateLayerLabel()} | " +
+            $"skeleton {(IsSkeletonVisible ? "on" : "off")} | " +
             $"joints {jointCount} | palette {paletteCount}");
     }
 
@@ -264,7 +280,8 @@ internal sealed class CharacterPlaybackController
             $"GPU_HARNESS_DIAGNOSTIC clip={CurrentClip.Name} index={CurrentClipIndex + 1}/{clips.Length} " +
             $"sample={SampleTime:F3} duration={CurrentClip.Duration:F3} " +
             $"state={(IsPlaying ? "playing" : "paused")} phase={CreatePhaseLabel()} blend={BlendAmount:F3} " +
-            $"skeleton={(IsSkeletonVisible ? "on" : "off")} joints={jointCount} palette={paletteCount}");
+            $"layer={CreateLayerLabel()} skeleton={(IsSkeletonVisible ? "on" : "off")} " +
+            $"joints={jointCount} palette={paletteCount}");
     }
 
     private void SelectIndex(int index)
@@ -277,6 +294,7 @@ internal sealed class CharacterPlaybackController
         transitionElapsed = 0.0;
         actionClip = null;
         actionEntrySourcePose = null;
+        actionMask = null;
         actionSampleTime = 0.0;
         Phase = CharacterPlaybackPhase.Direct;
     }
@@ -296,6 +314,9 @@ internal sealed class CharacterPlaybackController
             parameterName);
     }
 
+    private AnimationClip FindClip(string name, string parameterName) =>
+        clips[FindClipIndex(name, parameterName)];
+
     private void AdvanceLocomotion(double elapsedSeconds) =>
         locomotionSampleTime = ResolveLoopTime(locomotionSampleTime + elapsedSeconds, locomotionClip.Duration);
 
@@ -305,6 +326,37 @@ internal sealed class CharacterPlaybackController
     private SkeletonPose CreateActionPose() =>
         AnimationSampler.Sample(actionClip!, (float)actionSampleTime, AnimationPlaybackMode.Clamp);
 
+    private SkeletonPose CreateActionEntryPose()
+    {
+        if (actionMask is null)
+            return SkeletonPoseBlender.Blend(actionEntrySourcePose!, CreateActionPose(), BlendAmount);
+
+        SkeletonPose advancingBase = CreateLocomotionPose();
+        SkeletonPose displayedSource = SkeletonPoseLayerer.Apply(
+            advancingBase,
+            actionEntrySourcePose!,
+            actionMask,
+            1.0f);
+        return SkeletonPoseLayerer.Apply(displayedSource, CreateActionPose(), actionMask, BlendAmount);
+    }
+
+    private SkeletonPose CreateActionBodyPose()
+    {
+        SkeletonPose actionPose = CreateActionPose();
+        return actionMask is null
+            ? actionPose
+            : SkeletonPoseLayerer.Apply(CreateLocomotionPose(), actionPose, actionMask, 1.0f);
+    }
+
+    private SkeletonPose CreateActionReturnPose()
+    {
+        SkeletonPose actionPose = CreateActionPose();
+        SkeletonPose locomotionPose = CreateLocomotionPose();
+        return actionMask is null
+            ? SkeletonPoseBlender.Blend(actionPose, locomotionPose, BlendAmount)
+            : SkeletonPoseLayerer.Apply(locomotionPose, actionPose, actionMask, 1.0f - BlendAmount);
+    }
+
     private void UpdateActionPhase()
     {
         if (actionSampleTime >= actionClip!.Duration)
@@ -312,6 +364,7 @@ internal sealed class CharacterPlaybackController
             actionSampleTime = 0.0;
             actionClip = null;
             actionEntrySourcePose = null;
+            actionMask = null;
             Phase = CharacterPlaybackPhase.Locomotion;
             return;
         }
@@ -333,6 +386,15 @@ internal sealed class CharacterPlaybackController
         CharacterPlaybackPhase.ActionReturn => "action-return",
         _ => throw new InvalidOperationException($"Unsupported playback phase {Phase}."),
     };
+
+    private string CreateLayerLabel() => Phase is
+        CharacterPlaybackPhase.ActionEntry or
+        CharacterPlaybackPhase.ActionBody or
+        CharacterPlaybackPhase.ActionReturn
+            ? actionMask is null
+                ? "full"
+                : $"{actionMask.IncludedJointCount}/{actionMask.Skeleton.JointCount}"
+            : "none";
 
     private void ValidateDiagnosticCounts(int jointCount, int paletteCount)
     {

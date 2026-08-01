@@ -32,13 +32,14 @@ public static class Program
                     options.SkeletonCapturePath,
                     options.AnimationCapturePath,
                     options.CaptureSuiteDirectory,
-                    options.BlendCaptureSuiteDirectory));
+                    options.BlendCaptureSuiteDirectory,
+                    options.LayeredCaptureSuiteDirectory));
             Console.WriteLine(
                 $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
                 $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16} " +
                 $"animation={result.AnimationSampleFingerprint:x16} " +
                 $"blend={result.Blend.LocomotionMidpointFingerprint:x16}/" +
-                $"{result.Blend.ActionBodyFingerprint:x16}");
+                $"{result.Blend.ActionBodyFingerprint:x16} layer={result.Layered.UpperBodyActionFingerprint:x16}");
             return 0;
         }
         catch (Exception exception)
@@ -101,7 +102,8 @@ public static class Program
         string? SkeletonCapturePath,
         string? AnimationCapturePath,
         string? CaptureSuiteDirectory,
-        string? BlendCaptureSuiteDirectory)
+        string? BlendCaptureSuiteDirectory,
+        string? LayeredCaptureSuiteDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
@@ -112,6 +114,7 @@ public static class Program
             string? animationCapture = null;
             string? captureSuite = null;
             string? blendCaptureSuite = null;
+            string? layeredCaptureSuite = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -137,6 +140,9 @@ public static class Program
                     case "--blend-capture-suite" when index + 1 < args.Length:
                         blendCaptureSuite = Path.GetFullPath(args[++index]);
                         break;
+                    case "--layered-capture-suite" when index + 1 < args.Length:
+                        layeredCaptureSuite = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
@@ -148,7 +154,8 @@ public static class Program
                 skeletonCapture,
                 animationCapture,
                 captureSuite,
-                blendCaptureSuite);
+                blendCaptureSuite,
+                layeredCaptureSuite);
         }
     }
 }

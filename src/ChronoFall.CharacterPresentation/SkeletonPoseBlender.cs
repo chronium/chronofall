@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace ChronoFall.CharacterPresentation;
 
 public static class SkeletonPoseBlender
@@ -19,16 +17,11 @@ public static class SkeletonPoseBlender
         var transforms = new JointTransform[source.Skeleton.JointCount];
         for (int index = 0; index < transforms.Length; index++)
         {
-            JointTransform sourceTransform = source.LocalTransforms[index];
-            JointTransform destinationTransform = destination.LocalTransforms[index];
-            transforms[index] = new JointTransform(
-                Vector3.Lerp(sourceTransform.Translation, destinationTransform.Translation, amount),
-                AnimationInterpolationMath.InterpolateRotation(
-                    sourceTransform.Rotation,
-                    destinationTransform.Rotation,
-                    amount,
-                    nameof(destination)),
-                Vector3.Lerp(sourceTransform.Scale, destinationTransform.Scale, amount));
+            transforms[index] = AnimationInterpolationMath.InterpolateTransform(
+                source.LocalTransforms[index],
+                destination.LocalTransforms[index],
+                amount,
+                nameof(destination));
         }
 
         return new SkeletonPose(source.Skeleton, transforms);

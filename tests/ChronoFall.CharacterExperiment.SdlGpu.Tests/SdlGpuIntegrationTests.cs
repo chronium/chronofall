@@ -15,6 +15,7 @@ public sealed class SdlGpuIntegrationTests
         Assert.True(File.Exists(harnessPath), $"GPU harness was not packaged at '{harnessPath}'.");
         using var captures = new TemporaryDirectory();
         using var blendCaptures = new TemporaryDirectory();
+        using var layeredCaptures = new TemporaryDirectory();
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -27,6 +28,8 @@ public sealed class SdlGpuIntegrationTests
                     captures.Path,
                     "--blend-capture-suite",
                     blendCaptures.Path,
+                    "--layered-capture-suite",
+                    layeredCaptures.Path,
                 },
                 WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
                 RedirectStandardOutput = true,
@@ -69,6 +72,13 @@ public sealed class SdlGpuIntegrationTests
         Assert.Contains("fingerprint=c6ad39a45245afed", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_BLEND_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
+        Assert.Contains(
+            "GPU_HARNESS_PASS layering mask=spine_01:53/65 " +
+            "comparison=1b80c2c70e8e2d89/b8ad9c8aa7d18175/902ee9ea51c7bb1f " +
+            "transition=c987968d560c8090/e34e7058c81a532e/85c5d42b4eac399d",
+            stdout,
+            StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_LAYERED_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_SUCCESS", stdout, StringComparison.Ordinal);
 
         string[] expectedFiles =
@@ -101,6 +111,22 @@ public sealed class SdlGpuIntegrationTests
             .ToArray();
         Assert.Equal(expectedBlendFiles, actualBlendFiles);
         Assert.All(expectedBlendFiles, file => AssertPpm(Path.Combine(blendCaptures.Path, file)));
+
+        string[] expectedLayeredFiles =
+        [
+            "layer-action-entry.ppm",
+            "layer-action-return.ppm",
+            "layer-full-action.ppm",
+            "layer-upper-action.ppm",
+            "layer-walk-advanced.ppm",
+            "layer-walk-base.ppm",
+        ];
+        string[] actualLayeredFiles = Directory.GetFiles(layeredCaptures.Path)
+            .Select(static path => Path.GetFileName(path)!)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(expectedLayeredFiles, actualLayeredFiles);
+        Assert.All(expectedLayeredFiles, file => AssertPpm(Path.Combine(layeredCaptures.Path, file)));
     }
 
     private static void AssertPpm(string path)

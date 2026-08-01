@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T17:59:39.2963670Z
+modifiedAt: 2026-08-01T18:40:58.4517030Z
 ---
 
 ## Status and ownership
@@ -237,6 +237,33 @@ Debug and Release each pass all 74 solution tests, including 36 BCL-only present
 
 The owner exercised Idle/Walk crossfades, one-shot and repeatedly signalled `Sword_Attack`, locomotion changes during the action, pause/restart, direct clip browsing, and the skeleton overlay in the visible native browser and confirmed that the behavior works surprisingly well. The owner selected the six-frame sheet at `docs/project-history/2026-08-01-animation-crossfades/contact-sheet.png` for permanent preservation without revision. Its SHA-256 is `ffd916ad5af750faeddf20d9608a472ad80dc1f652b176299fe377f183d9a791`; the reusable macOS AppKit compositor is `scripts/create-contact-sheet.swift`.
 
+## Upper-body layered action proof
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0009` retains the native host as a narrow proof for binary masks and stateless pose layering. The selected `UAL1_Standard.glb` skeleton resolves `spine_01` and its complete descendant subtree to exactly 53 of 65 joints. Root, pelvis, both thighs, calves, feet, balls and ball leaves remain outside the mask.
+
+The harness layers `Sword_Attack` over continuously advancing `Walk_Loop`. Unmasked local transforms remain exactly the sampled locomotion transforms; masked local transforms come from or interpolate toward the action. The already evaluated composed local pose feeds the unchanged global-pose, palette, skeleton-debug and SDL GPU renderer path. No shader, GPU ABI or renderer contract changes.
+
+Interactive controls retain key `3` for the existing full-body attack and add key `4` for the layered comparison. Diagnostics distinguish `layer=full`, `layer=53/65` and `layer=none`. Locomotion requests, direct clip browsing, pause/restart and the animated skeleton overlay remain available. These keys, the anatomical root name and transition timings are provisional harness policy, not shared API or gameplay authority.
+
+`--layered-capture-suite <directory>` writes a separate six-frame suite without altering the M1 or full-body blend suites:
+
+| File | Evidence | GPU fingerprint | SHA-256 |
+| --- | --- | --- | --- |
+| `layer-walk-base.ppm` | `Walk_Loop` at 0.75 seconds | `1b80c2c70e8e2d89` | `9bb71056dbf929b793ac671caf41f9eb33df0a7a76f46adcf418c37c0592806b` |
+| `layer-full-action.ppm` | full-body `Sword_Attack` at 0.75 seconds | `b8ad9c8aa7d18175` | `f9e5d41568b6764baef721743f289153a62a6ba074c890f352092f4951100f47` |
+| `layer-upper-action.ppm` | upper-body action over walk at 0.75 seconds | `902ee9ea51c7bb1f` | `14d19f1f2d90b0b90f0e65b2c10dd9876219d8051de2733e045c69357029a47d` |
+| `layer-action-entry.ppm` | 50% layered entry with advancing lower body | `c987968d560c8090` | `f7f192af7f77bc7d0613e98b155fe80a0b5f8a9c47138498f68f0e72027515a5` |
+| `layer-action-return.ppm` | 50% layered return to advancing walk | `e34e7058c81a532e` | `7592d71eb8f9f2863389ba568cdd6ea0001b56009a3c61b4b70c08300b0b5409` |
+| `layer-walk-advanced.ppm` | `Walk_Loop` at 1.0 seconds | `85c5d42b4eac399d` | `9dc755418dc3372ab562afb845440865ff26b7c400d3c5a0fcfb510ed37c2f16` |
+
+The suite is deterministic evidence, not runtime content. Binary membership, one global amount and one action layer are the complete proof envelope; per-joint weights, additive animation, arbitrary layer stacks and animation graphs remain deferred.
+
+### Native validation and owner review
+
+Debug and Release each pass all 93 solution tests: 51 BCL-only presentation tests, 28 experiment tests, 8 SimpleMesh adapter tests, and 6 SDL GPU presentation tests. Coordinator-owned projects pass focused formatting verification, the opt-in native macOS ARM64 Metal integration test passes, and two fresh complete M1, full-body blend, and layered suites compare byte-for-byte. All previously recorded M1 and full-body blend fingerprints remain unchanged.
+
+The owner exercised the native browser's full-body and 53-of-65-joint layered attacks, repeated layered retriggers, locomotion changes, pause/restart, and existing diagnostics, then confirmed that the layered result looks great. A six-frame review sheet was shown, but the owner deliberately declined permanent project-history preservation because this is an incremental animation capability rather than a lasting checkpoint. No screenshot or raw capture was committed.
+
 ## Explicit exclusions
 
-This experiment does not add a rendered text/UI system, general capture orchestration, blend tree, normalized locomotion parameter, shared transition player, bone mask, layered animation, root motion, retargeting, event marker, IK, general animation graph, textures, material framework, modular equipment, cooking, general camera, production renderer, child integration, child source changes or gitlink updates.
+This experiment does not add a rendered text/UI system, general capture orchestration, blend tree, normalized locomotion parameter, shared transition player, weighted per-joint mask, arbitrary layer stack, additive animation, root motion, retargeting, event marker, IK, general animation graph, textures, material framework, modular equipment, cooking, general camera, production renderer, child integration, child source changes or gitlink updates.

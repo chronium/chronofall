@@ -57,10 +57,10 @@ public sealed class CharacterPlaybackControllerTests
         controller.Advance(0.5);
 
         Assert.Equal(
-            "ChronoFall Character Experiment | 2/2 Walk_Loop | 0.500/1.333 s | playing | direct 1.00 | skeleton off | joints 1 | palette 1",
+            "ChronoFall Character Experiment | 2/2 Walk_Loop | 0.500/1.333 s | playing | direct 1.00 | layer none | skeleton off | joints 1 | palette 1",
             controller.CreateWindowTitle(1, 1));
         Assert.Equal(
-            "GPU_HARNESS_DIAGNOSTIC clip=Walk_Loop index=2/2 sample=0.500 duration=1.333 state=playing phase=direct blend=1.000 skeleton=off joints=1 palette=1",
+            "GPU_HARNESS_DIAGNOSTIC clip=Walk_Loop index=2/2 sample=0.500 duration=1.333 state=playing phase=direct blend=1.000 layer=none skeleton=off joints=1 palette=1",
             controller.CreateConsoleDiagnostic(1, 1));
     }
 
@@ -231,8 +231,68 @@ public sealed class CharacterPlaybackControllerTests
         Assert.Equal(3.0f, controller.CreatePose().LocalTransforms[0].Translation.X);
     }
 
+    [Fact]
+    public void LayeredActionKeepsLowerBodyOnAdvancingLocomotion()
+    {
+        SkeletonDefinition skeleton = CreateTwoJointSkeleton();
+        AnimationClip walk = CreateTwoJointClip("Walk_Loop", skeleton, 2.0f, 0.0f, 2.0f, 4.0f, 6.0f);
+        AnimationClip attack = CreateTwoJointClip("Sword_Attack", skeleton, 1.5f, 10.0f, 25.0f, 20.0f, 35.0f);
+        var mask = new SkeletonJointMask(skeleton, [false, true]);
+        var controller = new CharacterPlaybackController([walk, attack], walk.Name);
+        controller.RequestLocomotion(walk.Name);
+
+        controller.SignalLayeredAction(attack.Name, mask);
+        controller.Advance(0.5);
+        SkeletonPose pose = controller.CreatePose();
+
+        Assert.True(controller.IsLayeredAction);
+        Assert.Equal(CharacterPlaybackPhase.ActionBody, controller.Phase);
+        Assert.Equal(0.5f, pose.LocalTransforms[0].Translation.X, precision: 5);
+        Assert.Equal(25.0f, pose.LocalTransforms[1].Translation.X, precision: 5);
+        Assert.Contains("layer=1/2", controller.CreateConsoleDiagnostic(2, 2), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void RepeatedLayeredActionStartsMaskedJointsFromDisplayedPose()
+    {
+        SkeletonDefinition skeleton = CreateTwoJointSkeleton();
+        AnimationClip walk = CreateTwoJointClip("Walk_Loop", skeleton, 2.0f, 0.0f, 2.0f, 4.0f, 6.0f);
+        AnimationClip attack = CreateTwoJointClip("Sword_Attack", skeleton, 1.5f, 10.0f, 25.0f, 20.0f, 35.0f);
+        var mask = new SkeletonJointMask(skeleton, [false, true]);
+        var controller = new CharacterPlaybackController([walk, attack], walk.Name);
+        controller.SignalLayeredAction(attack.Name, mask);
+        controller.Advance(0.4);
+        SkeletonPose displayed = controller.CreatePose();
+
+        controller.SignalLayeredAction(attack.Name, mask);
+        SkeletonPose restarted = controller.CreatePose();
+
+        Assert.Equal(displayed.LocalTransforms[1], restarted.LocalTransforms[1]);
+        Assert.Equal(displayed.LocalTransforms[0], restarted.LocalTransforms[0]);
+        Assert.Equal(CharacterPlaybackPhase.ActionEntry, controller.Phase);
+        Assert.Equal(0.0f, controller.BlendAmount);
+    }
+
+    [Fact]
+    public void LayeredActionRejectsEmptyOrDifferentSkeletonMask()
+    {
+        SkeletonDefinition skeleton = CreateSkeleton();
+        AnimationClip attack = CreateLinearClip("Sword_Attack", skeleton, 1.5f, 10.0f, 25.0f);
+        var controller = new CharacterPlaybackController([attack], attack.Name);
+        var emptyMask = new SkeletonJointMask(skeleton, [false]);
+        SkeletonJointMask foreignMask = SkeletonJointMask.CreateSubtree(CreateSkeleton(), 0);
+
+        Assert.Throws<ArgumentException>(() => controller.SignalLayeredAction(attack.Name, emptyMask));
+        Assert.Throws<ArgumentException>(() => controller.SignalLayeredAction(attack.Name, foreignMask));
+    }
+
     private static SkeletonDefinition CreateSkeleton() =>
         new([new SkeletonJoint("root", -1, JointTransform.Identity)]);
+
+    private static SkeletonDefinition CreateTwoJointSkeleton() => new([
+        new SkeletonJoint("root", -1, JointTransform.Identity),
+        new SkeletonJoint("spine", 0, JointTransform.Identity),
+    ]);
 
     private static AnimationClip CreateClip(string name, SkeletonDefinition skeleton, float duration) =>
         new(
@@ -265,14 +325,35 @@ public sealed class CharacterPlaybackControllerTests
         new(
             name,
             skeleton,
+            [CreateTrack(0, duration, startTranslation, endTranslation)]);
+
+    private static AnimationClip CreateTwoJointClip(
+        string name,
+        SkeletonDefinition skeleton,
+        float duration,
+        float rootStart,
+        float rootEnd,
+        float childStart,
+        float childEnd) =>
+        new(
+            name,
+            skeleton,
             [
-                new JointAnimationTrack(
-                    0,
-                    new Vector3AnimationChannel([
-                        new Vector3Keyframe(0.0f, Vector3.UnitX * startTranslation),
-                        new Vector3Keyframe(duration, Vector3.UnitX * endTranslation),
-                    ]),
-                    new QuaternionAnimationChannel([new QuaternionKeyframe(0.0f, Quaternion.Identity)]),
-                    new Vector3AnimationChannel([new Vector3Keyframe(0.0f, Vector3.One)])),
+                CreateTrack(0, duration, rootStart, rootEnd),
+                CreateTrack(1, duration, childStart, childEnd),
             ]);
+
+    private static JointAnimationTrack CreateTrack(
+        int jointIndex,
+        float duration,
+        float startTranslation,
+        float endTranslation) =>
+        new(
+            jointIndex,
+            new Vector3AnimationChannel([
+                new Vector3Keyframe(0.0f, Vector3.UnitX * startTranslation),
+                new Vector3Keyframe(duration, Vector3.UnitX * endTranslation),
+            ]),
+            new QuaternionAnimationChannel([new QuaternionKeyframe(0.0f, Quaternion.Identity)]),
+            new Vector3AnimationChannel([new Vector3Keyframe(0.0f, Vector3.One)]));
 }
