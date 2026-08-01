@@ -21,9 +21,15 @@ public static class Program
             SkeletalCharacterAsset asset = SimpleMeshSkeletalAssetLoader.LoadFromFile(assetPath);
             BindPoseHarnessResult result = SdlGpuBindPoseHarness.Run(
                 asset,
-                new BindPoseHarnessOptions(512, 512, options.Visible, options.CapturePath));
+                new BindPoseHarnessOptions(
+                    512,
+                    512,
+                    options.Visible,
+                    options.CapturePath,
+                    options.SkeletonCapturePath));
             Console.WriteLine(
-                $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} probe={result.TranslatedProbeFingerprint:x16}");
+                $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
+                $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16}");
             return 0;
         }
         catch (Exception exception)
@@ -67,13 +73,18 @@ public static class Program
         throw new DirectoryNotFoundException("Could not find the ChronoFall repository root containing ChronoFall.slnx.");
     }
 
-    private sealed record HarnessArguments(bool Visible, string? AssetPath, string? CapturePath)
+    private sealed record HarnessArguments(
+        bool Visible,
+        string? AssetPath,
+        string? CapturePath,
+        string? SkeletonCapturePath)
     {
         internal static HarnessArguments Parse(string[] args)
         {
             bool visible = false;
             string? asset = null;
             string? capture = null;
+            string? skeletonCapture = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -87,11 +98,14 @@ public static class Program
                     case "--capture" when index + 1 < args.Length:
                         capture = Path.GetFullPath(args[++index]);
                         break;
+                    case "--skeleton-capture" when index + 1 < args.Length:
+                        skeletonCapture = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
-            return new HarnessArguments(visible, asset, capture);
+            return new HarnessArguments(visible, asset, capture, skeletonCapture);
         }
     }
 }

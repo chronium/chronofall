@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T14:30:04.1603340Z
+modifiedAt: 2026-08-01T14:52:43.5951540Z
 ---
 
 ## Status and ownership
@@ -68,6 +68,24 @@ CPU matrices remain untransposed. Each palette matrix and the view-projection ma
 
 The committed HLSL compiles through `shadercross` to MSL and SPIR-V. Native macOS ARM64 selects MSL with entry point `main0`; SPIR-V uses `main`. The pipeline uses back-face counter-clockwise culling, triangle lists, D32 depth testing/writes, two flat diagnostic section colors, and simple directional lighting.
 
+## Skeleton debug overlay
+
+`EXPERIMENT-0007` adds an experiment-only line overlay generated from the evaluated `SkeletonGlobalPose`. It does not infer joints from skinned vertices or reconstruct them from palette matrices.
+
+For the selected 65-joint hierarchy, the builder emits:
+
+- 64 yellow parent-to-child links;
+- 65 red local X axes;
+- 65 green local Y axes;
+- 65 blue local Z axes;
+- 259 lines and 518 vertices in total.
+
+Axis length is 4% of the selected mesh-bound radius. Each line vertex is 28 bytes: a `float3` model-space position followed by a `float4` color. Links are emitted first in parent-first joint order, followed by X, Y, and Z axes for each joint. The builder is deterministic, validates positive finite axis length, and rejects non-finite transformed endpoints.
+
+Dedicated `skeleton-debug` HLSL shaders consume the model-space position, color, and the existing transposed view-projection matrix. SDL GPU renders the vertices as a line list after the skinned mesh. The overlay disables depth testing and depth writes, making the complete hierarchy visible through the mannequin as an explicit x-ray diagnostic. It is not a promoted generic debug renderer.
+
+The hidden harness retains the original mesh-only bind-pose and translated-palette probes, then renders a third bind-pose frame with the overlay. The overlay frame must differ from the baseline and contain meaningful yellow-link and green-axis pixel coverage. `--capture` remains the mesh-only capture; `--skeleton-capture <path>` writes the overlay frame. `--visible` displays the x-ray overlay for owner inspection.
+
 ## Harness and validation contract
 
 The standalone harness initializes Cocoa and SDL on `Program.Main`, loads the selected GLB, computes the bind palette, and renders to a 512 by 512 offscreen target. Readback requires:
@@ -99,6 +117,10 @@ dotnet tests/ChronoFall.CharacterExperiment.GpuHarness/bin/Debug/net10.0/ChronoF
 The first native Metal capture produced 24,803 rendered pixels, section classifications 22,672 and 2,131, unclipped bounds `111,62-463,449`, bind fingerprint `408d3a4c16278bbc`, and a 19.39-pixel palette-probe centroid shift with fingerprint `4fd2e63aea97f7a3`.
 
 Automated and agent capture inspection passed. On 2026-08-01, the owner viewed the native Metal window and explicitly confirmed seeing the character; the bind-pose visual gate is satisfied.
+
+The first native Metal skeleton-debug frame emitted 259 lines, changed 2,076 pixels from the mesh-only bind pose, classified 872 yellow hierarchy-link pixels and 349 green Y-axis pixels, and produced fingerprint `c6ad39a45245afed`. The unchanged baseline remained `408d3a4c16278bbc`, and the translated-palette probe remained `4fd2e63aea97f7a3`.
+
+Automated native validation and agent capture inspection passed. On 2026-08-01, the owner viewed the native Metal overlay and confirmed: “that looks like a skeleton, fingers and all.” The skeleton and joint visualization gate is satisfied.
 
 ## Explicit exclusions
 

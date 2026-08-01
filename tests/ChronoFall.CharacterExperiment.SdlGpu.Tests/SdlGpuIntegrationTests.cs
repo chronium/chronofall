@@ -46,6 +46,7 @@ public sealed class SdlGpuIntegrationTests
         Assert.True(process.ExitCode == 0, $"GPU harness exited with code {process.ExitCode}.\nstdout:\n{stdout}\nstderr:\n{stderr}");
         Assert.Contains("GPU_HARNESS_PASS bind-pose", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_PASS palette-probe", stdout, StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_PASS skeleton-debug", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_SUCCESS", stdout, StringComparison.Ordinal);
     }
 }

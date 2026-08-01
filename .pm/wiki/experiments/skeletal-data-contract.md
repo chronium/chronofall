@@ -1,7 +1,7 @@
 ---
 title: Skeletal Experiment Data Contract
 createdAt: 2026-08-01T09:27:13.9177630Z
-modifiedAt: 2026-08-01T14:24:37.5260190Z
+modifiedAt: 2026-08-01T14:50:02.9682680Z
 ---
 
 ## Status and ownership
@@ -57,6 +57,12 @@ palette[j]        = inverseBind[j] * posedGlobal[j]
 The loader preserves glTF's right-handed, Y-up, metre-based model space. It does not flatten the skeleton or bake a coordinate conversion. For M1, the loader must assert the selected mesh and skeleton share the documented identity `Armature` space. A different relationship is an unsupported input requiring a reviewed contract rather than silent normalization.
 
 CPU matrices remain untransposed. The provisional SDL GPU boundary established by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0005` owns vertex packing, palette transport, shader matrix layout, upload transposition, skinned normal handling, and bounds-based framing. Its exact ABI and native validation are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/sdl-gpu-bind-pose`.
+
+## Debug visualization boundary
+
+The provisional skeleton diagnostic established by `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/EXPERIMENT-0007` consumes `SkeletonGlobalPose.GlobalTransforms` directly. Joint origins come from each evaluated global transform, hierarchy links use the skeleton's parent indices, and local RGB axes transform through the same evaluated matrices.
+
+Debug geometry does not derive joint locations from the skinning palette: palette matrices include inverse binds and exist for vertex deformation, while global pose matrices describe the inspectable joint hierarchy. GPU packing, colors, axis scale, line rendering, depth behavior, captures, and native validation remain private to `ChronoFall.CharacterExperiment.SdlGpu` and are documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/sdl-gpu-bind-pose`. No debug-rendering dependency enters the BCL-only data contract.
 
 ## Animation boundary
 
