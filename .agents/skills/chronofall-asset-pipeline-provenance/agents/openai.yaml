@@ -1,0 +1,4 @@
+interface:
+  display_name: "Asset Pipeline and Provenance"
+  short_description: "Inspect and preserve supplied assets"
+  default_prompt: "Use $chronofall-asset-pipeline-provenance to inventory a supplied Quaternius asset without widening scope."

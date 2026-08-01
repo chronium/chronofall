@@ -1,0 +1,4 @@
+interface:
+  display_name: "Character Rendering and Animation"
+  short_description: "Plan focused skeletal rendering proof"
+  default_prompt: "Use $chronofall-character-rendering-animation to plan the next approved character rendering experiment task."

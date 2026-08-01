@@ -1,0 +1,4 @@
+interface:
+  display_name: "ChronoFall Build Validation"
+  short_description: "Validate coordinator and child changes"
+  default_prompt: "Use $chronofall-build-validation to choose proportionate checks for a coordinator or child task."

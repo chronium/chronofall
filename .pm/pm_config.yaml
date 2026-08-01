@@ -9,5 +9,18 @@ taskStates:
   done: Done
 tracks:
   CF: CF
-milestones: {}
-milestonePriorities: {}
+  COORD: Coordinator foundation
+  ASSET: Asset research and provenance
+  EXPERIMENT: Character rendering experiments
+  SHARED: Shared engine promotion
+  SUBMODULE: Child commit integration
+milestones:
+  M0: Coordinator foundation
+  M1: Skinned mesh and animation proof
+  M2: Shared character presentation
+  M3: MMO bootstrap
+milestonePriorities:
+  M0: urgent
+  M1: high
+  M2: medium
+  M3: low

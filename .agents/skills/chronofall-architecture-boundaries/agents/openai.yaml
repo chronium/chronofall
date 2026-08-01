@@ -1,0 +1,4 @@
+interface:
+  display_name: "ChronoFall Architecture Boundaries"
+  short_description: "Preserve parent and child ownership"
+  default_prompt: "Use $chronofall-architecture-boundaries to place a proposed game or shared-engine change in the correct repository."

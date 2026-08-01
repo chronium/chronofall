@@ -1,0 +1,4 @@
+interface:
+  display_name: "ChronoFall Review"
+  short_description: "Review project ownership and contracts"
+  default_prompt: "Use $chronofall-review to review a ChronoFall family change for ownership, authority, dependency, and validation defects."

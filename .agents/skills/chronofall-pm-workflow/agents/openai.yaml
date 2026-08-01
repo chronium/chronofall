@@ -1,0 +1,4 @@
+interface:
+  display_name: "ChronoFall PM Workflow"
+  short_description: "Coordinate linked PM work safely"
+  default_prompt: "Use $chronofall-pm-workflow to select and plan one dependency-ready task across the ChronoFall family."
