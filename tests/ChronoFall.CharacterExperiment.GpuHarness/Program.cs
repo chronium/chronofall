@@ -33,13 +33,15 @@ public static class Program
                     options.AnimationCapturePath,
                     options.CaptureSuiteDirectory,
                     options.BlendCaptureSuiteDirectory,
-                    options.LayeredCaptureSuiteDirectory));
+                    options.LayeredCaptureSuiteDirectory,
+                    options.IkAimCaptureSuiteDirectory));
             Console.WriteLine(
                 $"GPU_HARNESS_SUCCESS shader={result.ShaderFormat} bind={result.BindPoseFingerprint:x16} " +
                 $"probe={result.TranslatedProbeFingerprint:x16} skeleton={result.SkeletonDebugFingerprint:x16} " +
                 $"animation={result.AnimationSampleFingerprint:x16} " +
                 $"blend={result.Blend.LocomotionMidpointFingerprint:x16}/" +
-                $"{result.Blend.ActionBodyFingerprint:x16} layer={result.Layered.UpperBodyActionFingerprint:x16}");
+                $"{result.Blend.ActionBodyFingerprint:x16} layer={result.Layered.UpperBodyActionFingerprint:x16} " +
+                $"ik-aim={result.IkAim.CombinedFingerprint:x16}");
             return 0;
         }
         catch (Exception exception)
@@ -103,7 +105,8 @@ public static class Program
         string? AnimationCapturePath,
         string? CaptureSuiteDirectory,
         string? BlendCaptureSuiteDirectory,
-        string? LayeredCaptureSuiteDirectory)
+        string? LayeredCaptureSuiteDirectory,
+        string? IkAimCaptureSuiteDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
@@ -115,6 +118,7 @@ public static class Program
             string? captureSuite = null;
             string? blendCaptureSuite = null;
             string? layeredCaptureSuite = null;
+            string? ikAimCaptureSuite = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -143,6 +147,9 @@ public static class Program
                     case "--layered-capture-suite" when index + 1 < args.Length:
                         layeredCaptureSuite = Path.GetFullPath(args[++index]);
                         break;
+                    case "--ik-aim-capture-suite" when index + 1 < args.Length:
+                        ikAimCaptureSuite = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
@@ -155,7 +162,8 @@ public static class Program
                 animationCapture,
                 captureSuite,
                 blendCaptureSuite,
-                layeredCaptureSuite);
+                layeredCaptureSuite,
+                ikAimCaptureSuite);
         }
     }
 }

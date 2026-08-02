@@ -121,6 +121,34 @@ public sealed class CharacterHarnessDataTests
         Assert.False(layeredPalette.JointMatrices.SequenceEqual(midpointPalette.JointMatrices));
     }
 
+    [Fact]
+    public void SelectedIkAimPresentationProducesDistinctFiniteModes()
+    {
+        SkeletalCharacterAsset asset = LoadSelectedAsset();
+        AnimationClip action = Select(asset, "Sword_Attack");
+        SkeletonPose source = AnimationSampler.Sample(action, 0.75f, AnimationPlaybackMode.Clamp);
+        var presentation = new SelectedIkAimPresentation(asset.Mesh.Skin.Skeleton);
+
+        SelectedIkAimPose aimOnly = presentation.Apply(source, applyAim: true, applyIk: false);
+        SelectedIkAimPose ikOnly = presentation.Apply(source, applyAim: false, applyIk: true);
+        SelectedIkAimPose combined = presentation.Apply(source, applyAim: true, applyIk: true);
+        SkinningPalette sourcePalette = CreatePalette(asset.Mesh.Skin, source);
+        SkinningPalette aimPalette = CreatePalette(asset.Mesh.Skin, aimOnly.Pose);
+        SkinningPalette ikPalette = CreatePalette(asset.Mesh.Skin, ikOnly.Pose);
+        SkinningPalette combinedPalette = CreatePalette(asset.Mesh.Skin, combined.Pose);
+
+        Assert.NotNull(aimOnly.AimOffset);
+        Assert.NotNull(combined.AimOffset);
+        Assert.Null(ikOnly.AimOffset);
+        Assert.False(aimOnly.AimOffset.Value.WasClamped);
+        Assert.InRange(ikOnly.EndEffectorError, 0.0f, 0.002f);
+        Assert.InRange(combined.EndEffectorError, 0.0f, 0.002f);
+        Assert.False(sourcePalette.JointMatrices.SequenceEqual(aimPalette.JointMatrices));
+        Assert.False(sourcePalette.JointMatrices.SequenceEqual(ikPalette.JointMatrices));
+        Assert.False(aimPalette.JointMatrices.SequenceEqual(combinedPalette.JointMatrices));
+        Assert.All(combinedPalette.JointMatrices, static matrix => AssertFinite(matrix));
+    }
+
     private static SkinningPalette CreatePalette(SkinDefinition skin, SkeletonPose pose)
     {
         SkeletonGlobalPose global = SkeletonPoseEvaluator.EvaluateGlobal(pose);

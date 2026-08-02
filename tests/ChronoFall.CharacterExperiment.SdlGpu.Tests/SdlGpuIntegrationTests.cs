@@ -16,6 +16,7 @@ public sealed class SdlGpuIntegrationTests
         using var captures = new TemporaryDirectory();
         using var blendCaptures = new TemporaryDirectory();
         using var layeredCaptures = new TemporaryDirectory();
+        using var ikAimCaptures = new TemporaryDirectory();
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -30,6 +31,8 @@ public sealed class SdlGpuIntegrationTests
                     blendCaptures.Path,
                     "--layered-capture-suite",
                     layeredCaptures.Path,
+                    "--ik-aim-capture-suite",
+                    ikAimCaptures.Path,
                 },
                 WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
                 RedirectStandardOutput = true,
@@ -79,6 +82,13 @@ public sealed class SdlGpuIntegrationTests
             stdout,
             StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_LAYERED_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
+        Assert.Contains(
+            "GPU_HARNESS_PASS ik-aim " +
+            "fingerprints=b8ad9c8aa7d18175/9e2df0bd4b37fd65/189c992928f1ef01/11f48674481b3770 " +
+            "error=0.000000/0.000000",
+            stdout,
+            StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_IK_AIM_CAPTURE_SUITE", stdout, StringComparison.Ordinal);
         Assert.Contains("GPU_HARNESS_SUCCESS", stdout, StringComparison.Ordinal);
 
         string[] expectedFiles =
@@ -127,6 +137,76 @@ public sealed class SdlGpuIntegrationTests
             .ToArray();
         Assert.Equal(expectedLayeredFiles, actualLayeredFiles);
         Assert.All(expectedLayeredFiles, file => AssertPpm(Path.Combine(layeredCaptures.Path, file)));
+
+        string[] expectedIkAimFiles =
+        [
+            "ik-aim-aim-only.ppm",
+            "ik-aim-base.ppm",
+            "ik-aim-combined.ppm",
+            "ik-aim-ik-only.ppm",
+        ];
+        string[] actualIkAimFiles = Directory.GetFiles(ikAimCaptures.Path)
+            .Select(static path => Path.GetFileName(path)!)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(expectedIkAimFiles, actualIkAimFiles);
+        Assert.All(expectedIkAimFiles, file => AssertPpm(Path.Combine(ikAimCaptures.Path, file)));
+
+        using var repeatedIkAimCaptures = new TemporaryDirectory();
+        ProcessResult repeated = await RunCaptureOnlyHarness(
+            harnessPath,
+            repeatedIkAimCaptures.Path,
+            TimeSpan.FromSeconds(45));
+        Assert.True(
+            repeated.ExitCode == 0,
+            $"Repeated GPU harness exited with code {repeated.ExitCode}.\nstdout:\n{repeated.StandardOutput}\nstderr:\n{repeated.StandardError}");
+        foreach (string file in expectedIkAimFiles)
+        {
+            Assert.Equal(
+                File.ReadAllBytes(Path.Combine(ikAimCaptures.Path, file)),
+                File.ReadAllBytes(Path.Combine(repeatedIkAimCaptures.Path, file)));
+        }
+    }
+
+    private static async Task<ProcessResult> RunCaptureOnlyHarness(
+        string harnessPath,
+        string captureDirectory,
+        TimeSpan timeout)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                ArgumentList =
+                {
+                    harnessPath,
+                    "--ik-aim-capture-suite",
+                    captureDirectory,
+                },
+                WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+        };
+        Assert.True(process.Start(), "Repeated GPU harness process did not start.");
+        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+        using var cancellation = new CancellationTokenSource(timeout);
+        try
+        {
+            await process.WaitForExitAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync();
+            Assert.Fail("Repeated GPU harness exceeded its timeout.");
+        }
+
+        return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
     }
 
     private static void AssertPpm(string path)
@@ -152,4 +232,9 @@ public sealed class SdlGpuIntegrationTests
                 Directory.Delete(Path, recursive: true);
         }
     }
+
+    private sealed record ProcessResult(
+        int ExitCode,
+        string StandardOutput,
+        string StandardError);
 }

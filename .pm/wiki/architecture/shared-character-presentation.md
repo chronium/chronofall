@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T05:52:28.6033420Z
+modifiedAt: 2026-08-02T06:30:54.3541450Z
 ---
 
 ## Decision
@@ -116,6 +116,44 @@ The evaluator produces only the first line. Character world placement remains ca
 
 No weapon asset, serialization/cooking format, renderer, effect implementation, protocol event, or game-specific selection is part of this contract. Shared two-bone IK and aim behavior remains `SHARED-0012`; Royale integration remains `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-013`.
 
+## Bounded two-bone IK and one-joint aim offsets
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0012` adds two stateless BCL-only presentation operations over the approved grip and Aim-reference frames.
+
+### Two-bone IK
+
+`TwoBoneIkChain` binds a skeleton instance to direct root, middle and end joint indices. The shared API assigns no anatomical names or handedness. `TwoBoneIkSolver.ApplyModelSpace` consumes a same-skeleton local pose, the full off-hand target model transform produced by grip placement, a model-space pole position and an amount in `[0, 1]`.
+
+At full amount, the solver:
+
+1. evaluates current model-space root, middle and end positions;
+2. derives the two current segment lengths;
+3. clamps the requested target distance into `[abs(first - second), first + second]`;
+4. selects the bend side from the pole, falling back to the current bend plane and then a deterministic perpendicular axis only when degenerate;
+5. solves the desired middle position with the law of cosines;
+6. rotates root and middle toward the solved segments and aligns the end-joint model orientation to the target.
+
+All local translations and scales remain exactly from the source pose. Only root, middle and end local rotations can change; every unrelated local transform remains exact. Partial amounts use normalized shortest-path rotation interpolation. Inputs must be finite, direct-chain segments must have non-zero model-space length, and transforms must be decomposable with positive near-uniform scale. The bounded solver is not a general constraint graph and defines no joint limits, twist distribution, collision avoidance or gameplay result.
+
+### Aim offset
+
+`AimOffsetEvaluator.EvaluateModelSpace` consumes a finite Aim reference model transform, a finite non-zero desired model-space direction and symmetric `AimOffsetLimits`. It interprets local `+Z` as forward and `+Y` as up; positive yaw points toward `+X` and positive pitch toward `+Y`. It returns clamped yaw and pitch, whether clamping occurred, and the normalized roll-free model-space rotation delta.
+
+`AimOffsetApplier.ApplyModelSpace` applies that delta to exactly one caller-selected joint with an amount in `[0, 1]`. It preserves every local translation and scale and every unselected local transform. Children choose the joint, target direction, limits, timing and whether to compose the operation across more than one joint; weighted spine distribution is not shared policy.
+
+The caller-owned ordering is:
+
+```text
+sample/blend/layer pose
+-> optional aim offset
+-> evaluate global pose and primary socket
+-> place weapon and its Aim/off-hand frames
+-> optional off-hand two-bone IK
+-> evaluate final global pose and GPU palette
+```
+
+Aim and IK consume client presentation inputs only. They never determine an attack, shot, cast, trajectory, hit, damage result or equipment state. The selected-rig proof uses `spine_03`, `upperarm_l -> lowerarm_l -> hand_l` and `hand_r` only as provisional harness mappings; they are not shared anatomy or content identifiers.
+
 ## SDL GPU host boundary
 
 The shared SDL layer accepts an existing `SDL_GPUDevice*`, target formats and caller-supplied MSL or SPIR-V bytecode. It exposes:
@@ -164,7 +202,8 @@ The focused shared foundation still does not decide or implement:
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
 - weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
-- socket, grip, or reference-point serialization and cooking, modular armour, rendered attachments, equipment schemas, multiple grip profiles, socket/grip/reference-point debugging, or IK;
+- socket, grip, reference-point or IK serialization and cooking, modular armour, rendered attachments, equipment schemas, multiple grip profiles or presentation debugging;
+- shared anatomical chain names, joint-limit policy, twist distribution, multiple simultaneous constraints, weighted multi-joint aim distribution, collision avoidance or a general constraint graph;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 

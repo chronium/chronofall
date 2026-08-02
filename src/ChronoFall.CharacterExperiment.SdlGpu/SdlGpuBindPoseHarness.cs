@@ -16,7 +16,8 @@ internal sealed record CharacterHarnessOptions(
     string? AnimationCapturePath = null,
     string? CaptureSuiteDirectory = null,
     string? BlendCaptureSuiteDirectory = null,
-    string? LayeredCaptureSuiteDirectory = null);
+    string? LayeredCaptureSuiteDirectory = null,
+    string? IkAimCaptureSuiteDirectory = null);
 
 internal sealed record CharacterHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
@@ -37,6 +38,7 @@ internal sealed record CharacterHarnessResult(
     ulong AnimationLoopBoundaryFingerprint,
     BlendHarnessResult Blend,
     LayeredHarnessResult Layered,
+    IkAimHarnessResult IkAim,
     int SkeletonLineCount);
 
 internal sealed record BlendHarnessResult(
@@ -68,6 +70,18 @@ internal sealed record LayeredHarnessResult(
     ulong WalkAdvancedFingerprint,
     int MaskRootIndex,
     int MaskedJointCount);
+
+internal sealed record IkAimHarnessResult(
+    FrameAnalysis Base,
+    FrameAnalysis AimOnly,
+    FrameAnalysis IkOnly,
+    FrameAnalysis Combined,
+    ulong BaseFingerprint,
+    ulong AimOnlyFingerprint,
+    ulong IkOnlyFingerprint,
+    ulong CombinedFingerprint,
+    float IkOnlyEndEffectorError,
+    float CombinedEndEffectorError);
 
 internal readonly record struct FrameAnalysis(
     int RenderedPixels,
@@ -424,6 +438,73 @@ internal static class SdlGpuCharacterHarness
             layeredResult.WalkBaseFingerprint != layeredResult.WalkAdvancedFingerprint,
             "Layered evidence walk timestamps produced the same fingerprint.");
 
+        var ikAimPresentation = new SelectedIkAimPresentation(asset.Mesh.Skin.Skeleton);
+        SelectedIkAimPose aimOnlyPose = ikAimPresentation.Apply(
+            actionBodyPose,
+            applyAim: true,
+            applyIk: false);
+        SelectedIkAimPose ikOnlyPose = ikAimPresentation.Apply(
+            actionBodyPose,
+            applyAim: false,
+            applyIk: true);
+        SelectedIkAimPose combinedPose = ikAimPresentation.Apply(
+            actionBodyPose,
+            applyAim: true,
+            applyIk: true);
+        byte[] aimOnlyPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            aimOnlyPose.Pose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "ik-aim-aim-only",
+            out FrameAnalysis aimOnlyAnalysis);
+        byte[] ikOnlyPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            ikOnlyPose.Pose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "ik-aim-ik-only",
+            out FrameAnalysis ikOnlyAnalysis);
+        byte[] combinedPixels = RenderPose(
+            gpu,
+            asset.Mesh.Skin,
+            combinedPose.Pose,
+            DeterministicActionBodyTime,
+            camera.ViewProjection,
+            options,
+            "ik-aim-combined",
+            out FrameAnalysis combinedAnalysis);
+        var ikAimResult = new IkAimHarnessResult(
+            actionBodyAnalysis,
+            aimOnlyAnalysis,
+            ikOnlyAnalysis,
+            combinedAnalysis,
+            Fingerprint(actionBodyPixels),
+            Fingerprint(aimOnlyPixels),
+            Fingerprint(ikOnlyPixels),
+            Fingerprint(combinedPixels),
+            ikOnlyPose.EndEffectorError,
+            combinedPose.EndEffectorError);
+        Require(
+            ikAimResult.IkOnlyEndEffectorError <= 0.002f &&
+            ikAimResult.CombinedEndEffectorError <= 0.002f,
+            $"Selected off-hand IK error exceeded tolerance: " +
+            $"{ikAimResult.IkOnlyEndEffectorError:F6}/{ikAimResult.CombinedEndEffectorError:F6} metres.");
+        Require(
+            ikAimResult.AimOnlyFingerprint != ikAimResult.BaseFingerprint &&
+            ikAimResult.IkOnlyFingerprint != ikAimResult.BaseFingerprint &&
+            ikAimResult.CombinedFingerprint != ikAimResult.BaseFingerprint,
+            "An IK/Aim proof frame reproduced the base fingerprint.");
+        Require(
+            ikAimResult.AimOnlyFingerprint != ikAimResult.IkOnlyFingerprint &&
+            ikAimResult.AimOnlyFingerprint != ikAimResult.CombinedFingerprint &&
+            ikAimResult.IkOnlyFingerprint != ikAimResult.CombinedFingerprint,
+            "IK/Aim proof modes did not produce distinct fingerprints.");
+
         if (!string.IsNullOrWhiteSpace(options.CapturePath))
             WritePpm(options.CapturePath, options.Width, options.Height, bindPixels);
         if (!string.IsNullOrWhiteSpace(options.SkeletonCapturePath))
@@ -468,6 +549,17 @@ internal static class SdlGpuCharacterHarness
                 layerActionReturnPixels,
                 layerWalkAdvancedPixels);
         }
+        if (!string.IsNullOrWhiteSpace(options.IkAimCaptureSuiteDirectory))
+        {
+            WriteIkAimCaptureSuite(
+                options.IkAimCaptureSuiteDirectory,
+                options.Width,
+                options.Height,
+                actionBodyPixels,
+                aimOnlyPixels,
+                ikOnlyPixels,
+                combinedPixels);
+        }
 
         Console.WriteLine(
             $"GPU_HARNESS_PASS bind-pose shader={gpu.ShaderFormat} pixels={bindAnalysis.RenderedPixels} " +
@@ -497,6 +589,11 @@ internal static class SdlGpuCharacterHarness
             $"comparison={layeredResult.WalkBaseFingerprint:x16}/{layeredResult.FullBodyActionFingerprint:x16}/" +
             $"{layeredResult.UpperBodyActionFingerprint:x16} transition={layeredResult.ActionEntryFingerprint:x16}/" +
             $"{layeredResult.ActionReturnFingerprint:x16}/{layeredResult.WalkAdvancedFingerprint:x16}");
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"GPU_HARNESS_PASS ik-aim fingerprints={ikAimResult.BaseFingerprint:x16}/" +
+            $"{ikAimResult.AimOnlyFingerprint:x16}/{ikAimResult.IkOnlyFingerprint:x16}/" +
+            $"{ikAimResult.CombinedFingerprint:x16} error=" +
+            $"{ikAimResult.IkOnlyEndEffectorError:F6}/{ikAimResult.CombinedEndEffectorError:F6}"));
 
         if (options.Visible)
         {
@@ -507,6 +604,7 @@ internal static class SdlGpuCharacterHarness
                 animation,
                 asset.Mesh.Skin,
                 upperBodyMask,
+                ikAimPresentation,
                 skeletonAxisLength);
         }
 
@@ -529,6 +627,7 @@ internal static class SdlGpuCharacterHarness
             animationLoopBoundaryFingerprint,
             blendResult,
             layeredResult,
+            ikAimResult,
             skeletonDebug.LineCount);
     }
 
@@ -831,6 +930,23 @@ internal static class SdlGpuCharacterHarness
         Console.WriteLine($"GPU_HARNESS_LAYERED_CAPTURE_SUITE {fullDirectory}");
     }
 
+    private static void WriteIkAimCaptureSuite(
+        string directory,
+        int width,
+        int height,
+        byte[] basePose,
+        byte[] aimOnly,
+        byte[] ikOnly,
+        byte[] combined)
+    {
+        string fullDirectory = Path.GetFullPath(directory);
+        WritePpm(Path.Combine(fullDirectory, "ik-aim-base.ppm"), width, height, basePose);
+        WritePpm(Path.Combine(fullDirectory, "ik-aim-aim-only.ppm"), width, height, aimOnly);
+        WritePpm(Path.Combine(fullDirectory, "ik-aim-ik-only.ppm"), width, height, ikOnly);
+        WritePpm(Path.Combine(fullDirectory, "ik-aim-combined.ppm"), width, height, combined);
+        Console.WriteLine($"GPU_HARNESS_IK_AIM_CAPTURE_SUITE {fullDirectory}");
+    }
+
     private static byte ToByte(float value) => (byte)MathF.Round(Math.Clamp(value, 0.0f, 1.0f) * byte.MaxValue);
 
     private static void Require(bool condition, string message)
@@ -1044,12 +1160,14 @@ internal static class SdlGpuCharacterHarness
             AnimationClip initialAnimation,
             SkinDefinition skin,
             SkeletonJointMask upperBodyMask,
+            SelectedIkAimPresentation ikAimPresentation,
             float skeletonAxisLength)
         {
             ArgumentNullException.ThrowIfNull(animations);
             ArgumentNullException.ThrowIfNull(initialAnimation);
             ArgumentNullException.ThrowIfNull(skin);
             ArgumentNullException.ThrowIfNull(upperBodyMask);
+            ArgumentNullException.ThrowIfNull(ikAimPresentation);
             if (!ReferenceEquals(skin.Skeleton, upperBodyMask.Skeleton))
                 throw new ArgumentException("The visible action mask must use the skin skeleton.", nameof(upperBodyMask));
             if (!SDL_ShowWindow(window))
@@ -1062,9 +1180,12 @@ internal static class SdlGpuCharacterHarness
             ulong previousCounter = SDL_GetPerformanceCounter();
             ulong lastTitleCounter = 0;
             bool titleDirty = true;
+            bool aimEnabled = false;
+            bool ikEnabled = false;
             Console.WriteLine(
                 "GPU_HARNESS_CONTROLS Left/Right=direct-clip 1=blend-Idle_Loop 2=blend-Walk_Loop " +
                 "3=signal-full-Sword_Attack 4=signal-layered-Sword_Attack " +
+                "5=toggle-aim 6=toggle-off-hand-IK " +
                 "Space=pause/resume R=restart D=skeleton Escape=close");
             Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
             bool running = true;
@@ -1081,10 +1202,17 @@ internal static class SdlGpuCharacterHarness
                     }
 
                     if (sdlEvent.Type == SDL_EventType.SDL_EVENT_KEY_DOWN &&
-                        ApplyControl(playback, upperBodyMask, sdlEvent.key.key))
+                        ApplyControl(
+                            playback,
+                            upperBodyMask,
+                            ref aimEnabled,
+                            ref ikEnabled,
+                            sdlEvent.key.key))
                     {
                         titleDirty = true;
-                        Console.WriteLine(playback.CreateConsoleDiagnostic(jointCount, jointCount));
+                        Console.WriteLine(
+                            $"{playback.CreateConsoleDiagnostic(jointCount, jointCount)} " +
+                            $"aim={(aimEnabled ? "on" : "off")} ik={(ikEnabled ? "on" : "off")}");
                     }
                 }
 
@@ -1100,9 +1228,13 @@ internal static class SdlGpuCharacterHarness
                 float frameSampleTime = playback.SampleTime;
                 ExecuteInteractiveFrame(frameClip, frameSampleTime, jointCount, () =>
                 {
+                    SelectedIkAimPose presentedPose = ikAimPresentation.Apply(
+                        playback.CreatePose(),
+                        aimEnabled,
+                        ikEnabled);
                     CharacterAnimationFrame frame = CreateAnimationFrame(
                         skin,
-                        playback.CreatePose(),
+                        presentedPose.Pose,
                         frameSampleTime);
                     UploadPalette(frame.Palette);
                     if (playback.IsSkeletonVisible)
@@ -1113,7 +1245,10 @@ internal static class SdlGpuCharacterHarness
 
                     if (titleDirty || currentCounter - lastTitleCounter >= frequency / 10)
                     {
-                        SetWindowTitle(playback.CreateWindowTitle(jointCount, frame.Palette.JointMatrices.Count));
+                        SetWindowTitle(
+                            $"{playback.CreateWindowTitle(jointCount, frame.Palette.JointMatrices.Count)} " +
+                            $"| Aim={(aimEnabled ? "on" : "off")} IK={(ikEnabled ? "on" : "off")} " +
+                            $"error={presentedPose.EndEffectorError:F4}m");
                         lastTitleCounter = currentCounter;
                         titleDirty = false;
                     }
@@ -1188,6 +1323,8 @@ internal static class SdlGpuCharacterHarness
         private static bool ApplyControl(
             CharacterPlaybackController playback,
             SkeletonJointMask upperBodyMask,
+            ref bool aimEnabled,
+            ref bool ikEnabled,
             SDL_Keycode key)
         {
             switch (key)
@@ -1209,6 +1346,12 @@ internal static class SdlGpuCharacterHarness
                     return true;
                 case SDL_Keycode.SDLK_4:
                     playback.SignalLayeredAction("Sword_Attack", upperBodyMask);
+                    return true;
+                case SDL_Keycode.SDLK_5:
+                    aimEnabled = !aimEnabled;
+                    return true;
+                case SDL_Keycode.SDLK_6:
+                    ikEnabled = !ikEnabled;
                     return true;
                 case SDL_Keycode.SDLK_SPACE:
                     playback.TogglePlaying();

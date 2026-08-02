@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-01T18:40:58.4517030Z
+modifiedAt: 2026-08-02T06:32:32.9874850Z
 ---
 
 ## Status and ownership
@@ -264,6 +264,29 @@ Debug and Release each pass all 93 solution tests: 51 BCL-only presentation test
 
 The owner exercised the native browser's full-body and 53-of-65-joint layered attacks, repeated layered retriggers, locomotion changes, pause/restart, and existing diagnostics, then confirmed that the layered result looks great. A six-frame review sheet was shown, but the owner deliberately declined permanent project-history preservation because this is an incremental animation capability rather than a lasting checkpoint. No screenshot or raw capture was committed.
 
+## Two-bone IK and aim-offset proof
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0012` extends the provisional host without changing the renderer, shaders or GPU ABI. The proof samples `Sword_Attack` at 0.75 seconds and uses test-only selected-rig mappings: `spine_03` for one-joint Aim application, `upperarm_l -> lowerarm_l -> hand_l` for the two-bone chain and `hand_r` for the primary socket.
+
+The harness constructs synthetic metadata rather than choosing a weapon asset. The primary grip follows the right-hand socket. The source left-hand frame is expressed in that weapon space and shifted 15% of current arm reach toward the primary grip to create a visible reachable off-hand target. The current elbow position supplies the pole side. The Aim reference requests +20 degrees yaw and +10 degrees pitch within symmetric 25/15-degree limits.
+
+Key `5` independently toggles Aim and key `6` independently toggles off-hand IK. They compose after the existing sampled/blended/layered pose. Diagnostics and the fixed window title report both states and current end-effector error. Direct browsing over all 43 clips, locomotion/action controls, pause/restart and key `D` skeleton visualization remain unchanged.
+
+`--ik-aim-capture-suite <directory>` writes four separate deterministic PPM files:
+
+| File | Evidence | GPU fingerprint | SHA-256 |
+| --- | --- | --- | --- |
+| `ik-aim-base.ppm` | unchanged full-body `Sword_Attack` source | `b8ad9c8aa7d18175` | `f9e5d41568b6764baef721743f289153a62a6ba074c890f352092f4951100f47` |
+| `ik-aim-aim-only.ppm` | bounded one-joint Aim application | `9e2df0bd4b37fd65` | `8a02ddabcf55ed1559c24e721b7c807e8f9a076edb0157af109bb82faa5f97c7` |
+| `ik-aim-ik-only.ppm` | left hand solved to the synthetic grip target | `189c992928f1ef01` | `598ed501c1a4da23ef5225bb01562317bd121cd180ac2ba2a17290c0907e15a6` |
+| `ik-aim-combined.ppm` | Aim followed by recomputed grip placement and IK | `11f48674481b3770` | `2bef69d55be07b8953352a8d263f8e48875e7af3ae1dbf11ba5ae4bcba652440` |
+
+The recorded IK-only and combined end-effector errors both round to `0.000000` metres. Two independent suites compare byte-for-byte. Every previously recorded M1, blending and layered fingerprint remains unchanged.
+
+Debug and Release each pass 125 managed tests: 80 BCL-only presentation tests, 29 experiment SDL GPU tests, 10 SimpleMesh adapter tests and 6 SDL GPU presentation tests. All changed projects pass focused formatting verification, both configurations build with zero warnings/errors, and the opt-in native macOS ARM64 Metal integration passes with exact fingerprint assertions.
+
+On 2026-08-02, the owner exercised Aim, IK and their combined mode with and without the skeleton overlay, inspected every one of the 43 animation clips, and confirmed that the controls and deformation work correctly and all animations still look great. A temporary four-frame labeled comparison was shown for review. It was not approved as a permanent history artifact, so neither it nor the raw captures are committed.
+
 ## Explicit exclusions
 
-This experiment does not add a rendered text/UI system, general capture orchestration, blend tree, normalized locomotion parameter, shared transition player, weighted per-joint mask, arbitrary layer stack, additive animation, root motion, retargeting, event marker, IK, general animation graph, textures, material framework, modular equipment, cooking, general camera, production renderer, child integration, child source changes or gitlink updates.
+This experiment does not add a rendered text/UI system, target or pole gizmos, general capture orchestration, blend tree, normalized locomotion parameter, shared transition player, weighted per-joint mask, arbitrary layer stack, additive animation, root motion, retargeting, event marker, weighted aim distribution, joint-limit system, general constraint graph, general animation graph, textures, material framework, modular equipment, cooking, general camera, production renderer, child integration, child source changes or gitlink updates.
