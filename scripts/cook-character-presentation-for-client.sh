@@ -106,6 +106,8 @@ staging_root=$(mktemp -d "${TMPDIR:-/tmp}/chronofall-character-client.XXXXXX")
 trap 'rm -r "$staging_root"' EXIT HUP INT TERM
 mkdir -p "$staging_root/licenses/quaternius-ual1-standard"
 
+dotnet restore "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
+    --disable-build-servers
 dotnet build "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
     -c Release -m:1 --no-restore --disable-build-servers
 dotnet run --project "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \

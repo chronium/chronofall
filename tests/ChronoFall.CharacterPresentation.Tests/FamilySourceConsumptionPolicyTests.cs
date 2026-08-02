@@ -76,6 +76,29 @@ public sealed class FamilySourceConsumptionPolicyTests
         Assert.DoesNotContain("rm -rf", script, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ClientStagingScriptRestoresBeforeItsNoRestoreBuildAndNoBuildRun()
+    {
+        string script = File.ReadAllText(Path.Combine(
+            RepositoryRoot,
+            "scripts",
+            "cook-character-presentation-for-client.sh"));
+
+        int restore = script.IndexOf("dotnet restore", StringComparison.Ordinal);
+        int build = script.IndexOf("dotnet build", StringComparison.Ordinal);
+        int run = script.IndexOf("dotnet run", StringComparison.Ordinal);
+
+        Assert.True(restore >= 0, "The staging workflow must restore the focused cooker project.");
+        Assert.True(build > restore, "The staging workflow must build after restore.");
+        Assert.True(run > build, "The staging workflow must run after build.");
+
+        string buildCommand = script[build..run];
+        string runCommand = script[run..];
+        Assert.Contains("--no-restore", buildCommand, StringComparison.Ordinal);
+        Assert.Contains("--no-restore", runCommand, StringComparison.Ordinal);
+        Assert.Contains("--no-build", runCommand, StringComparison.Ordinal);
+    }
+
     private static string FindRepositoryRoot()
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);

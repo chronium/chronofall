@@ -4,7 +4,7 @@ This directory contains small coordinator-owned documentation and workflow helpe
 
 ## Character Presentation Client Cook
 
-`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, and stages the selected Quaternius UAL1 cook plus portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree.
+`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, restores and builds the focused cooker project, and stages the selected Quaternius UAL1 cook plus portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree. No separate restore step is required.
 
 From the coordinator root:
 
