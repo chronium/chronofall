@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-02T11:44:59.3654720Z
+modifiedAt: 2026-08-02T16:21:35.0669900Z
 ---
 
 ## Decision
@@ -74,6 +74,14 @@ The cook remains the client-only recipe at `assets/recipes/quaternius-ual1-stand
 The deterministic JSON sidecar records schema and audience, portable recipe/source paths and hashes, CC0 identifier and evidence paths, selected clips, cooked filename, byte count, and SHA-256. It contains no timestamp or absolute checkout path.
 
 The established `.cfskel` output is 1,278,301 bytes with SHA-256 `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`. The format remains provisional. Generated output stays ignored and must not be committed or placed in headless artifacts.
+
+## Future exact-selection staging
+
+The Draft 0 coordinator roadmap extends this boundary only through focused acquisition tasks. Each acquisition must consume a completed canonical Starfall selection, verify exact pack-relative paths, hashes and licence evidence, and stage only an approved client output set. It may not accept an alias or arbitrary destination, modify a child, import a whole pack, or add a runtime manifest.
+
+`ASSET-0004` through `ASSET-0007` have known skeletal or static prerequisites. `ASSET-0008` monster acquisition deliberately begins with only the canonical still-todo selection and the established stable-ID staging boundary. Static, rigid, or skeletal prerequisites are attached only after selection evidence identifies the actual representation.
+
+Generated outputs remain ignored and client-only. Package/feed distribution remains deferred.
 
 ## Ownership and next consumers
 

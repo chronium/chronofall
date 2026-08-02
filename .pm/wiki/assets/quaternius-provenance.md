@@ -1,7 +1,7 @@
 ---
 title: Quaternius Asset Provenance and Intake
 createdAt: 2026-08-01T05:44:07.0108550Z
-modifiedAt: 2026-08-01T07:17:24.3227160Z
+modifiedAt: 2026-08-02T16:21:34.9600270Z
 ---
 
 ## Provenance
@@ -18,6 +18,21 @@ Kickoff inventory found these Standard/free collections:
 - Medieval Village MegaKit: 168 MB, 936 files; glTF/external BIN, FBX, OBJ/MTL, and textures.
 
 The inspected male and female base-character glTFs each contain one skin with 65 joints, 69 nodes, three meshes, no animations, external BIN data, and external textures. The animation-library readmes distinguish `_RM` root-motion files from root-motion-disabled files. The outfit readme says the pack works with Universal Base Characters and recommends hiding/removing unseen base-body parts to avoid clipping.
+
+## Draft 0 prospective sources
+
+The Starfall Draft 0 roadmap identifies prospective official CC0 inputs without treating them as supplied or selected:
+
+- Universal Animation Library 2 Full/Source may provide a minimum compatible bow clip set after exact files, hashes, licence evidence, skeleton, rest transforms, and clips are inventoried.
+- Modular Sci-Fi MegaKit is the preferred first inspection for unmistakably temporary small alien, grub, or hovering monster candidates.
+- Ultimate Monsters is the fallback only if inspected sci-fi candidates are unsuitable.
+- Stylized Nature MegaKit may provide a tiny exact subset of rocks, trees, one bush, and grass/flower clumps.
+- Fantasy Props MegaKit may provide a few exact landmark-only inn, workshop, or market/storage props.
+- Ultimate RPG Pack remains deferred and unselected until a physical-item task proves an exact unmet need.
+
+Prospective packs are not dependencies. Starfall selection records exact pack-relative identities; coordinator acquisition consumes only completed selections with hashes and provenance. No whole pack is cooked or staged. Engine-specific vegetation/wind shaders are not assumed portable.
+
+The existing UAL1 recipe remains historical and technical evidence. It must not be rewritten into the archer cook, and `Sword_Attack` is not an acceptable bow placeholder.
 
 ## Intake rule
 

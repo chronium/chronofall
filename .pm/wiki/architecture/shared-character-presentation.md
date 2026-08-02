@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T11:44:59.4708990Z
+modifiedAt: 2026-08-02T16:21:34.8440480Z
 ---
 
 ## Decision
@@ -205,6 +205,18 @@ Version 1 is deliberately provisional. It does not cook textures, production mat
 `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` establishes the first family source-consumption boundary. Approved child clients reference the core, cooking, and SDL GPU projects through the single `ChronoFallFamilyRoot` property in the canonical coordinator checkout. Repository and product ownership remain independent; full client build isolation outside that checkout is not currently required.
 
 The coordinator continues to own its SDL3-CS pin, fetch verification, native runtime, and shadercross workflow. The SDL GPU project compiles that checked-out source directly, and children receive it transitively rather than through a direct reference or package. The stable-ID client staging workflow and generated-content layout are documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/family-source-consumption`.
+
+## Draft 0 static presentation and attachment path
+
+The Starfall Draft 0 roadmap demonstrates a second bounded presentation need without broadening the skeletal foundation into a general engine.
+
+`SHARED-0018` owns the minimum reusable static-mesh SDL GPU boundary under the same caller-owned device, command-buffer, render-pass, target, camera, scheduling, resource-lifetime, and client-only rules. `SHARED-0019` owns a provisional deterministic exact-selection cook that feeds that boundary. Neither task owns a scene, terrain, vegetation, streaming, general material, model-catalogue, or importer framework.
+
+`SHARED-0020` combines the completed model-space socket contract, the narrow static renderer, and the exact selected/acquired bow to prove one rendered socketed attachment. Starfall retains bow identity, content mapping, equipment, combat, aiming, and presentation integration. The proof excludes armour, IK, projectiles, shields, backpacks, and wings.
+
+The broader `SHARED-0007` task remains the owner of representative weapons, shields, backpacks, wings, and later proven attachment categories. It now depends on `SHARED-0020` and must review and reuse the narrow proof rather than independently recreate the same capability. Its existing downstream consumers remain intact.
+
+Coordinator task and acquisition graph: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
 
 ## Deferred contracts
 

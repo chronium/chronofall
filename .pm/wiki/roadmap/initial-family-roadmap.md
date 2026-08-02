@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-02T11:44:59.2588230Z
+modifiedAt: 2026-08-02T16:21:34.6895740Z
 ---
 
 ## M0 — Coordinator foundation
@@ -28,6 +28,17 @@ M1 completed on 2026-08-01. The supplied Quaternius mannequin and compatible ani
 `SHARED-0001` promotes only validated contracts. Follow-ups cover skeletal cooking, canonical-rig armour, slots/body hiding, variants, sockets/attachments, weapons/shields/backpacks/wings, blending/layers, grip/effect/aim points, two-bone IK, debugging, and preview tooling.
 
 Royale owns linked tasks `RENDER-012`, `GAME-018`, `RENDER-013`, and `EDITOR-030`; each uses canonical dependencies on the parent shared tasks. After a child task commit, the coordinator records the Royale gitlink in an automatic pointer-only commit owned by that child task; no separate parent PM task is created.
+
+## Draft 0 coordinator enablers
+
+Starfall's approved M2 Draft 0 requires a small coordinator-owned dependency spine without transferring game ownership to ChronoFall:
+
+- `SHARED-0018` adds the narrow reusable static-mesh renderer;
+- `SHARED-0019` adds deterministic exact-selection static cooking;
+- `SHARED-0020` proves one rendered socketed static bow and becomes a prerequisite of broader deferred `SHARED-0007`;
+- `ASSET-0004` through `ASSET-0008` acquire only completed Starfall selections for the archer, Ranger pieces, bow/arrows, zone, and monsters.
+
+Every acquisition uses a canonical dependency on its owning Starfall selection and remains blocked while that selection is todo. Monster acquisition begins without static or skeletal rendering/cooking dependencies; later selection evidence chooses the smallest correct path. Exact graph and source policy: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
 
 ## M3 — MMO bootstrap
 
