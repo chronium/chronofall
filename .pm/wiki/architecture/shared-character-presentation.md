@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T05:39:33.0217710Z
+modifiedAt: 2026-08-02T05:52:28.6033420Z
 ---
 
 ## Decision
@@ -67,6 +67,26 @@ socketModel = socketLocal * posedJointGlobal
 The unchanged `UAL1_Standard.glb` selected-asset proof maps `primary-hand` to `hand_r` and `back` to `spine_03`, resolves both from sampled `Sword_Attack` poses, proves the exact offset composition, and confirms the hand socket moves during the action. These names and offsets are test evidence only, not canonical game content.
 
 Rendering representative attachments remains `SHARED-0007`; weapon grips and off-hand targets remain `SHARED-0010`; effect and aim reference points remain `SHARED-0011`; socket/equipment/IK visualization remains `SHARED-0013`. Serialization, cooking, child equipment schemas, and gameplay ownership also remain outside this contract.
+
+## Weapon grip alignment and off-hand target boundary
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0010` adds BCL-only weapon-local grip data and deterministic model-space placement without selecting a weapon asset or implementing IK.
+
+`WeaponGripDefinition` contains one required primary grip frame and zero or one off-hand target frame. Both are rigid weapon-local `JointTransform` values with identity scale. They use the shared right-handed, Y-up, metre-based convention; local `+Z` is forward and local `+Y` is up.
+
+The primary frame marks the actual grip location and orientation inside weapon space. It is not a direct placement offset. Given a caller-selected, already-evaluated skeleton socket, `WeaponGripEvaluator.EvaluateModelSpace` resolves:
+
+```text
+weaponModel = inverse(primaryGripLocal) * primarySocketModel
+primaryGripLocal * weaponModel = primarySocketModel
+offHandTargetModel = offHandTargetLocal * weaponModel
+```
+
+The second line is the alignment invariant. `WeaponGripPlacement` retains the finite weapon model transform and the optional finite off-hand target model transform. A one-handed definition produces no target. A two-handed definition produces one target frame for a later presentation IK operation.
+
+The core assigns no right or left hand, anatomical joint, socket name, weapon ID, stance, grip profile, animation, or IK chain. Children select the primary socket and decide which presentation arm consumes the optional target. `SHARED-0012` owns the bounded two-bone IK and aim-offset behavior; Royale integration remains `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-013`.
+
+Grip alignment is client presentation. It never decides equipment ownership, attacks, shots, casts, trajectories, hits, or damage. No asset selection, serialization/cooking format, renderer, protocol event, or gameplay rule is part of this contract. An aligned `WeaponGripPlacement.WeaponModelTransform` may later be passed to attachment rendering and `AttachmentReferencePointEvaluator`, but those integrations remain separately owned.
 
 ## Attachment effect and aim reference frames
 
@@ -144,7 +164,7 @@ The focused shared foundation still does not decide or implement:
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
 - weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
-- socket or reference-point serialization and cooking, modular armour, rendered attachments, equipment schemas, grip data, socket/reference-point debugging or IK;
+- socket, grip, or reference-point serialization and cooking, modular armour, rendered attachments, equipment schemas, multiple grip profiles, socket/grip/reference-point debugging, or IK;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 
