@@ -17,6 +17,7 @@
     <Project Path="tests/ChronoFall.CharacterExperiment.SdlGpu.Tests/ChronoFall.CharacterExperiment.SdlGpu.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj" />
     <Project Path="tests/ChronoFall.CharacterCooker.Tests/ChronoFall.CharacterCooker.Tests.csproj" />
+    <Project Path="tests/ChronoFall.FamilySourceConsumer/ChronoFall.FamilySourceConsumer.csproj" />
   </Folder>
   <Folder Name="/thirdparty/">
     <Project Path="thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj" />

@@ -2,6 +2,19 @@
 
 This directory contains small coordinator-owned documentation and workflow helpers. Scripts here must not become runtime, asset-cooking, or child-repository dependencies.
 
+## Character Presentation Client Cook
+
+`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, and stages the selected Quaternius UAL1 cook plus portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree.
+
+From the coordinator root:
+
+```sh
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
+```
+
+Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink escapes, and unexpected existing files are rejected. The output is client-only generated content; it is not a runtime manifest or a committed package.
+
 ## Contact-Sheet Compositor
 
 `create-contact-sheet.swift` is a macOS AppKit utility for composing equally sized captures into the labeled 2x PNG sheets used by `docs/project-history/`. It preserves source framing, adds a 48-point label strip, and supports an arbitrary number of `--item <path> <label>` pairs.

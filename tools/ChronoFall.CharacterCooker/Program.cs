@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using ChronoFall.CharacterExperiment.SimpleMesh;
 using ChronoFall.CharacterPresentation;
 using ChronoFall.CharacterPresentation.Cooking;
@@ -32,14 +33,27 @@ internal static class CharacterCooker
         string sourceRoot = Path.GetFullPath(options.SourceRoot);
         string recipePath = Path.GetFullPath(options.RecipePath);
         string outputPath = Path.GetFullPath(options.OutputPath);
+        string? provenancePath = options.ProvenanceOutput is null
+            ? null
+            : Path.GetFullPath(options.ProvenanceOutput);
         if (!string.Equals(Path.GetExtension(outputPath), SkeletalAssetCookedFormat.FileExtension, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Character cooker output must use the '{SkeletalAssetCookedFormat.FileExtension}' extension.", nameof(options));
+        if (provenancePath is not null && !string.Equals(Path.GetExtension(provenancePath), ".json", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Character cooker provenance output must use the '.json' extension.", nameof(options));
         RequireDistinctOutput(outputPath, recipePath, "recipe");
+        if (provenancePath is not null)
+        {
+            RequireDistinctOutput(provenancePath, outputPath, "cooked output");
+            RequireDistinctOutput(provenancePath, recipePath, "recipe");
+        }
+        string recipeHash = Sha256(recipePath);
         CharacterCookRecipe recipe = CharacterCookRecipeLoader.Load(recipePath);
         SkeletalAssetCookDescriptor descriptor = recipe.CreateDescriptor();
 
         string sourcePath = ResolveRequiredFile(sourceRoot, descriptor.SourcePath, "source asset");
         RequireDistinctOutput(outputPath, sourcePath, "source asset");
+        if (provenancePath is not null)
+            RequireDistinctOutput(provenancePath, sourcePath, "source asset");
         string sourceHash = Sha256(sourcePath);
         if (!string.Equals(sourceHash, descriptor.SourceSha256, StringComparison.Ordinal))
         {
@@ -51,6 +65,8 @@ internal static class CharacterCooker
         {
             string evidencePath = ResolveRequiredFile(sourceRoot, evidence, "license evidence");
             RequireDistinctOutput(outputPath, evidencePath, "license evidence");
+            if (provenancePath is not null)
+                RequireDistinctOutput(provenancePath, evidencePath, "license evidence");
         }
 
         SimpleMeshSkeletalSourceAsset imported = SimpleMeshSkeletalAssetLoader.LoadSourceFromFile(sourcePath);
@@ -84,6 +100,9 @@ internal static class CharacterCooker
             string afterCookSourceHash = Sha256(sourcePath);
             if (!string.Equals(sourceHash, afterCookSourceHash, StringComparison.Ordinal))
                 throw new IOException($"Source asset '{descriptor.SourcePath}' changed while it was being cooked.");
+            string afterCookRecipeHash = Sha256(recipePath);
+            if (!string.Equals(recipeHash, afterCookRecipeHash, StringComparison.Ordinal))
+                throw new IOException($"Recipe '{recipePath}' changed while it was being cooked.");
             File.Move(temporaryPath, outputPath, overwrite: true);
         }
         finally
@@ -93,12 +112,75 @@ internal static class CharacterCooker
         }
 
         var info = new FileInfo(outputPath);
-        return new CharacterCookResult(
+        var result = new CharacterCookResult(
             descriptor.AssetId,
             selectedClips.Length,
             outputPath,
             info.Length,
             Sha256(outputPath));
+
+        if (provenancePath is not null)
+            WriteProvenance(sourceRoot, recipePath, recipeHash, provenancePath, descriptor, selectedClips, result);
+
+        return result;
+    }
+
+    private static void WriteProvenance(
+        string sourceRoot,
+        string recipePath,
+        string recipeHash,
+        string provenancePath,
+        SkeletalAssetCookDescriptor descriptor,
+        IReadOnlyList<AnimationClip> selectedClips,
+        CharacterCookResult result)
+    {
+        string recipeRelativePath = GetPortableRelativePath(sourceRoot, recipePath, "recipe");
+        var provenance = new CharacterCookProvenance(
+            1,
+            "client",
+            descriptor.AssetId,
+            recipeRelativePath,
+            recipeHash,
+            descriptor.SourcePath,
+            descriptor.SourceSha256,
+            descriptor.LicenseIdentifier,
+            descriptor.LicenseEvidencePaths,
+            selectedClips.Select(static clip => clip.Name).ToArray(),
+            Path.GetFileName(result.OutputPath),
+            result.OutputBytes,
+            result.OutputSha256);
+
+        string? directory = Path.GetDirectoryName(provenancePath);
+        if (string.IsNullOrEmpty(directory))
+            throw new ArgumentException("The provenance output path must include a directory.", nameof(provenancePath));
+        Directory.CreateDirectory(directory);
+
+        byte[] contents = JsonSerializer.SerializeToUtf8Bytes(
+            provenance,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            });
+        string temporaryPath = Path.Combine(directory, $".{Path.GetFileName(provenancePath)}.{Guid.NewGuid():N}.tmp");
+        try
+        {
+            File.WriteAllBytes(temporaryPath, contents);
+            File.Move(temporaryPath, provenancePath, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+        }
+    }
+
+    private static string GetPortableRelativePath(string root, string path, string field)
+    {
+        string relative = Path.GetRelativePath(root, path);
+        if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+            throw new InvalidDataException($"The {field} path '{path}' is outside source root '{root}'.");
+        return relative.Replace(Path.DirectorySeparatorChar, '/');
     }
 
     private static string ResolveRequiredFile(string root, string relativePath, string field)
@@ -135,7 +217,8 @@ internal static class CharacterCooker
 internal sealed record CharacterCookOptions(
     string SourceRoot,
     string RecipePath,
-    string OutputPath)
+    string OutputPath,
+    string? ProvenanceOutput = null)
 {
     internal static CharacterCookOptions Parse(string[] args)
     {
@@ -143,6 +226,7 @@ internal sealed record CharacterCookOptions(
         string? recipe = null;
         string? output = null;
         string? audience = null;
+        string? provenanceOutput = null;
         for (int index = 0; index < args.Length; index++)
         {
             string option = args[index];
@@ -157,6 +241,7 @@ internal sealed record CharacterCookOptions(
                 case "--recipe": recipe = value; break;
                 case "--output": output = value; break;
                 case "--audience": audience = value; break;
+                case "--provenance-output": provenanceOutput = value; break;
                 default: throw new ArgumentException($"Unknown character cooker argument '{option}'.");
             }
         }
@@ -166,7 +251,8 @@ internal sealed record CharacterCookOptions(
         return new CharacterCookOptions(
             sourceRoot ?? throw new ArgumentException("--source-root is required."),
             recipe ?? throw new ArgumentException("--recipe is required."),
-            output ?? throw new ArgumentException("--output is required."));
+            output ?? throw new ArgumentException("--output is required."),
+            provenanceOutput);
     }
 }
 
@@ -176,3 +262,18 @@ internal sealed record CharacterCookResult(
     string OutputPath,
     long OutputBytes,
     string OutputSha256);
+
+internal sealed record CharacterCookProvenance(
+    int SchemaVersion,
+    string Audience,
+    string AssetId,
+    string RecipePath,
+    string RecipeSha256,
+    string SourcePath,
+    string SourceSha256,
+    string LicenseIdentifier,
+    IReadOnlyList<string> LicenseEvidence,
+    IReadOnlyList<string> AnimationClips,
+    string CookedFile,
+    long CookedBytes,
+    string CookedSha256);

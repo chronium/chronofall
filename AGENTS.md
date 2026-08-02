@@ -17,6 +17,7 @@ Inspect the active PM project, linked family, worktrees, relevant wiki pages, so
 - Rendering, animation, IK, particles, audiovisual feedback, cameras, and presentation smoothing are client-owned. Animation never decides attacks, hits, casts, movement transitions, equipment changes, damage, or death.
 - Headless server and simulation projects must not depend on SDL windowing, SDL GPU, ImGui, rendering, editor, or other graphical code.
 - Parent-owned shared modules may be consumed by either child but must not depend on either child.
+- The canonical full-client development environment is the shallow coordinator family checkout. Children may consume explicitly approved parent projects from source through the single `ChronoFallFamilyRoot` property; independent repository ownership does not require every full client build to work without the coordinator checkout.
 - `royale` and `starfall` must never depend directly on one another.
 - Do not extract code merely because it looks reusable. Promote only contracts demonstrated by both a focused experiment and a concrete child need.
 - Do not build a general Unity-like engine, generic runtime component framework, retargeter, animation graph, or general asset framework without an approved task and explicit contract decision.
@@ -105,6 +106,10 @@ Task commits begin with the owning task ID, for example `[RENDER-012] Integrate 
 ## Experiments, Shared Source, And Assets
 
 Keep experimental source explicitly provisional and parent-owned. The skinned-character proof must establish the first real shared contracts before any shared-engine promotion.
+
+Approved child source consumption remains narrow and client-only. Use `ChronoFallFamilyRoot`; never scatter literal parent traversal, absolute checkout paths, arbitrary external roots, or child-to-child references. SDL3-CS remains coordinator-pinned source compiled transitively through the shared SDL GPU project. Do not replace this with packages or feeds without later task-owned evidence.
+
+Generate selected client content only through the coordinator workflow for the consuming child's stable project ID. The workflow must verify reciprocal identity, resolved checkout and gitlink, then refuse to write unless the exact owned output tree is ignored, untracked, and free of symlink escapes or unrelated files. Generated cooks and provenance remain outside source control and never enter server or simulation outputs.
 
 Treat files under `assets/Quaternius/` as authoritative. Do not download substitutes or process the entire collection. Preserve Quaternius CC0 provenance and select only one humanoid, one skeleton, one idle, one locomotion clip, and one compatible attack when evidence supports it.
 

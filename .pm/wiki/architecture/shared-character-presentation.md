@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T07:06:45.2034400Z
+modifiedAt: 2026-08-02T10:27:27.8539530Z
 ---
 
 ## Decision
@@ -202,14 +202,16 @@ Version 1 is deliberately provisional. It does not cook textures, production mat
 
 `ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host. It owns the window, camera, skeleton overlay, controls, offscreen targets, readback and captures while consuming the shared renderer for every character draw. The retained native fingerprints prove the shared path still produces the validated Metal output.
 
-The coordinator continues to own its SDL3-CS pin, fetch verification, native runtime and shadercross workflow. Children retain their independently useful dependency acquisition until an explicit distribution contract is approved.
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` establishes the first family source-consumption boundary. Approved child clients reference the core, cooking, and SDL GPU projects through the single `ChronoFallFamilyRoot` property in the canonical coordinator checkout. Repository and product ownership remain independent; full client build isolation outside that checkout is not currently required.
+
+The coordinator continues to own its SDL3-CS pin, fetch verification, native runtime, and shadercross workflow. The SDL GPU project compiles that checked-out source directly, and children receive it transitively rather than through a direct reference or package. The stable-ID client staging workflow and generated-content layout are documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/family-source-consumption`.
 
 ## Deferred contracts
 
 The focused shared foundation still does not decide or implement:
 
 - stabilization, compatibility guarantees, compression, streaming, or replacement of the provisional `.cfskel` format;
-- package versioning, publication, feed selection or child acquisition;
+- package versioning, publication, feed selection, independent checkout distribution, or a content-package contract;
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
 - weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
@@ -218,4 +220,4 @@ The focused shared foundation still does not decide or implement:
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 
-Child integration remains owned by Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-012` and Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. Their Plan-mode discussions must choose a reproducible distribution mechanism; they must not use a parent-relative project reference that breaks an independent child checkout.
+Child integration remains owned by Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-012` and Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. They consume only the approved source allowlist through `ChronoFallFamilyRoot` and the ignored generated client output through the stable-ID coordinator workflow. Each child still owns its references, runtime mapping, validation, commit, and later parent gitlink advancement.

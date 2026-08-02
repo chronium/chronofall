@@ -18,6 +18,7 @@ Inspect coordinator and child diffs independently, then run `git diff --check`. 
 - Royale code: load Royale's build-validation skill and run its documented solution/focused/native commands.
 - Starfall code: load its repository policy and documented commands once its build lifecycle exists.
 - Shared contracts: build/test the shared module plus every affected child adapter; inspect headless dependency graphs and artifacts.
+- Family source consumption: prove references use only `ChronoFallFamilyRoot`, verify SDL3-CS is compiled from the coordinator checkout, exercise the stable-ID client staging command, and confirm generated output is ignored while both child worktrees and gitlinks remain unchanged.
 
 Do not invent commands that a repository does not configure.
 

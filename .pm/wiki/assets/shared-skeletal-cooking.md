@@ -1,14 +1,16 @@
 ---
 title: Shared Skeletal Asset Cooking
 createdAt: 2026-08-02T07:06:03.6421350Z
-modifiedAt: 2026-08-02T07:10:40.2808100Z
+modifiedAt: 2026-08-02T10:28:01.0250820Z
 ---
 
 ## Status and ownership
 
-`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0002` establishes one coordinator-owned provisional client cook for the proven character-presentation data. It is evidence for the current source envelope, not a permanent file-format, package-distribution, or child-acquisition promise.
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0002` establishes the coordinator-owned provisional client cook for the proven character-presentation data. It remains evidence for the current source envelope rather than a permanent file-format or package promise.
 
-`ChronoFall.CharacterPresentation.Cooking` is BCL-only and depends only on `ChronoFall.CharacterPresentation`. The build-time `ChronoFall.CharacterCooker` is the only new consumer of the provisional SimpleMesh adapter. Neither shared assembly depends on SimpleMesh, SDL, Royale, Starfall, server, editor, or simulation code.
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` adds the canonical family source-consumption and generated client staging workflow. The full destination, identity, safety, and ownership contract is documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/family-source-consumption`.
+
+`ChronoFall.CharacterPresentation.Cooking` is BCL-only and depends only on `ChronoFall.CharacterPresentation`. The build-time `ChronoFall.CharacterCooker` remains the only consumer of the provisional SimpleMesh adapter. Neither shared assembly depends on SimpleMesh, SDL, Royale, Starfall, server, editor, or simulation code.
 
 ## Source recipe and provenance
 
@@ -32,23 +34,31 @@ The cooker accepts only portable repository-relative source and licence paths, v
 
 ## Reproduction
 
-From the coordinator root:
+A coordinator-local cook remains available:
 
 ```sh
 dotnet run --project tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj -c Release -- \
   --source-root . \
   --recipe assets/recipes/quaternius-ual1-standard.json \
   --output artifacts/character-cooking/quaternius-ual1-standard.cfskel \
+  --provenance-output artifacts/character-cooking/quaternius-ual1-standard.provenance.json \
   --audience client
 ```
 
-The generated output remains ignored under `artifacts/`. It is not committed or added to a runtime manifest.
+To stage the selected cook for a linked child in the canonical family checkout, use its stable project ID:
 
-The initial Release cook is 1,278,301 bytes with SHA-256:
+```sh
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
+```
+
+The generated output remains ignored under `artifacts/`. It is not committed or added to a runtime manifest. The staging workflow also copies the supplied Quaternius `License.txt` and `README.txt` into its fixed generated evidence directory. It copies no raw GLB.
+
+The Release cook is 1,278,301 bytes with SHA-256:
 
 `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`
 
-Two independently generated files compared byte-for-byte identical.
+Repeated cooks and provenance sidecars compare byte-for-byte identical. The sidecar contains portable source/recipe paths and hashes, licence identity/evidence, clip selection, and cooked size/hash; it contains no timestamp or absolute checkout path.
 
 ## Provisional binary contract
 
@@ -85,10 +95,10 @@ No project-history artifact is retained because this task proves transport fidel
 Future task-owned evidence must decide:
 
 - whether `.cfskel` is retained, revised, versioned, or replaced;
-- package publication and how independent child repositories acquire shared binaries and cooked content;
-- child content manifests and build integration;
+- package publication, independent-checkout distribution, and content packages;
+- child runtime manifests and build integration;
 - modular armour and shared-rig mesh composition;
 - material, texture, bounds, socket, equipment, grip, reference-point, mask, layer, and IK metadata cooking;
 - compression, quantization, streaming, patching, and content-addressed distribution.
 
-Royale and Starfall remain unchanged. They must not use parent-relative project references, and neither child receives this generated artifact until its own approved integration and distribution task.
+The current staging layout is ignored generated input for an approved child integration task, not a committed package or runtime manifest. Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006` owns its client integration after its remaining dependencies complete. Royale integration remains Royale-owned. Neither child may copy raw source assets, place presentation content in headless artifacts, or treat staging as authority for gameplay.

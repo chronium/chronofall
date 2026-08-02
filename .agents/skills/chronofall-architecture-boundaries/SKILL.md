@@ -13,6 +13,8 @@ description: Place ChronoFall architecture and source in the correct repository.
 
 Never make Royale and Starfall depend directly on each other. Parent shared modules may be consumed by children but must remain child-independent.
 
+The canonical full-client environment is the coordinator family checkout. An approved child client may reference the narrow coordinator source allowlist through `ChronoFallFamilyRoot`; this does not transfer repository, build-policy, gameplay, or release ownership to the parent. Do not require package distribution merely to preserve independent product ownership.
+
 ## Preserve Authority
 
 Servers own gameplay outcomes and persistent state. Clients own rendering, animation, IK, effects, cameras, and smoothing. Animation consumes events/state; it never produces authoritative attacks, hits, movement, equipment, damage, or death.

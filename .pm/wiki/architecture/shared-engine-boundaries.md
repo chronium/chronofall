@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-01T17:05:28.4058140Z
+modifiedAt: 2026-08-02T10:27:03.9885980Z
 ---
 
 ## Focus
@@ -14,9 +14,13 @@ Gameplay simulation, protocol/replication, lifecycle, combat, AI, progression/ec
 
 ## Third-party dependency ownership
 
-ChronoFall acquires a third-party dependency only when a parent-owned experiment or shared module consumes it. The coordinator then owns its pin, fetch workflow, license evidence, and focused patches. Parent source must never reference dependency paths inside Royale or Starfall.
+ChronoFall acquires a third-party dependency only when a parent-owned experiment or shared module consumes it. The coordinator then owns its pin, fetch workflow, licence evidence, and focused patches. Parent source must never reference dependency paths inside Royale or Starfall.
 
-Each child retains the dependency acquisition needed for an independently useful checkout. Repeating an upstream pin across repositories is acceptable until a validated shared module and an explicit distribution contract justify consolidation. Do not bulk-copy child dependency sets or treat a relocated pin as shared-engine promotion.
+The canonical full-client development environment is the shallow coordinator family checkout. Approved child clients may consume a narrow coordinator source allowlist through the single `ChronoFallFamilyRoot` property while retaining independent PM, source, product architecture, build-policy, and release ownership. Full client build isolation outside that family checkout is not currently required.
+
+The shared SDL GPU project continues to compile the checked-out coordinator SDL3-CS pin from source. Children consume that dependency transitively through the approved shared project; they do not directly reference or independently package it for this path.
+
+NuGet packages, feeds, versions, `buildTransitive` targets, source mapping, and content packages remain deferred until real Royale and Starfall integrations or independent CI/release requirements demonstrate the need. The complete source and generated-content contract is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/development/family-source-consumption`.
 
 The M1 loader decision is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-loader-decision`.
 

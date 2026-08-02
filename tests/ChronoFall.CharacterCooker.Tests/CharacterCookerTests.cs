@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using ChronoFall.CharacterExperiment.SimpleMesh;
 
 namespace ChronoFall.CharacterCooker.Tests;
@@ -44,6 +45,43 @@ public sealed class CharacterCookerTests
             imported.Asset.Mesh,
             cooked.Asset.Animations.Select(clip => imported.Asset.Animations.Single(candidate => candidate.Name == clip.Name)));
         AssertEquivalent(expected, cooked.Asset);
+    }
+
+    [Fact]
+    public void ProvenanceIsPortableDeterministicAndMatchesCookedOutput()
+    {
+        string root = FindRepositoryRoot();
+        string recipePath = Path.Combine(root, "assets", "recipes", "quaternius-ual1-standard.json");
+        using var temporary = new TemporaryDirectory();
+        string firstOutput = Path.Combine(temporary.Path, "first", "quaternius-ual1-standard.cfskel");
+        string secondOutput = Path.Combine(temporary.Path, "second", "quaternius-ual1-standard.cfskel");
+        string firstProvenance = Path.Combine(temporary.Path, "first", "quaternius-ual1-standard.provenance.json");
+        string secondProvenance = Path.Combine(temporary.Path, "second", "quaternius-ual1-standard.provenance.json");
+
+        CharacterCookResult first = CharacterCooker.Run(
+            new CharacterCookOptions(root, recipePath, firstOutput, firstProvenance));
+        CharacterCookResult second = CharacterCooker.Run(
+            new CharacterCookOptions(root, recipePath, secondOutput, secondProvenance));
+
+        Assert.Equal(File.ReadAllBytes(firstProvenance), File.ReadAllBytes(secondProvenance));
+        string json = File.ReadAllText(firstProvenance);
+        Assert.DoesNotContain(root, json, StringComparison.Ordinal);
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        JsonElement value = document.RootElement;
+        Assert.Equal(1, value.GetProperty("schemaVersion").GetInt32());
+        Assert.Equal("client", value.GetProperty("audience").GetString());
+        Assert.Equal("quaternius-ual1-standard", value.GetProperty("assetId").GetString());
+        Assert.Equal("assets/recipes/quaternius-ual1-standard.json", value.GetProperty("recipePath").GetString());
+        Assert.Equal(SelectedSource, value.GetProperty("sourcePath").GetString());
+        Assert.Equal(ExpectedSourceHash, value.GetProperty("sourceSha256").GetString());
+        Assert.Equal("CC0-1.0", value.GetProperty("licenseIdentifier").GetString());
+        Assert.Equal(["Idle_Loop", "Walk_Loop", "Sword_Attack"],
+            value.GetProperty("animationClips").EnumerateArray().Select(static item => item.GetString()));
+        Assert.Equal(Path.GetFileName(firstOutput), value.GetProperty("cookedFile").GetString());
+        Assert.Equal(first.OutputBytes, value.GetProperty("cookedBytes").GetInt64());
+        Assert.Equal(first.OutputSha256, value.GetProperty("cookedSha256").GetString());
+        Assert.Equal(first.OutputSha256, second.OutputSha256);
     }
 
     [Fact]

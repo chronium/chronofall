@@ -36,4 +36,6 @@ Choose only one humanoid, one skeleton, one idle, one locomotion clip, and a com
 
 Client output may contain render meshes, materials, textures, skeletons, and animation. Server output receives only content required by authoritative rules/collision. Keep render dependencies and source-authoring files out of headless artifacts.
 
+Stage shared character content into a child only through the coordinator command using that child's stable project ID. Preserve the deterministic provenance sidecar and source licence evidence. Refuse destinations that do not resolve through the committed family declaration and reciprocal identity, are not the exact ignored generated tree, contain tracked or unexpected files, or cross a symlink. Do not copy the raw source GLB or add generated output to a runtime manifest as part of staging.
+
 Treat loader choice, conversion tooling, permanent formats, and new dependencies as Plan-mode owner decisions. Document reproducibility and provenance in the coordinator wiki.
