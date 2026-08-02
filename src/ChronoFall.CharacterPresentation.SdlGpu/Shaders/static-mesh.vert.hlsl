@@ -1,0 +1,24 @@
+struct VertexInput
+{
+    float3 Position : POSITION0;
+    float3 Normal : TEXCOORD0;
+};
+
+struct VertexOutput
+{
+    float4 Position : SV_Position;
+    float3 Normal : TEXCOORD0;
+};
+
+cbuffer CameraConstants : register(b0, space1)
+{
+    float4x4 WorldViewProjection;
+};
+
+VertexOutput main(VertexInput input)
+{
+    VertexOutput output;
+    output.Position = mul(float4(input.Position, 1.0), WorldViewProjection);
+    output.Normal = normalize(input.Normal);
+    return output;
+}

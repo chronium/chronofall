@@ -19,6 +19,20 @@ public static class Program
         {
             ConfigureNativeSdl();
             HarnessArguments options = HarnessArguments.Parse(args);
+            if (options.StaticProof)
+            {
+                StaticMeshHarnessResult staticResult = SdlGpuStaticMeshHarness.Run(
+                    new StaticMeshHarnessOptions(
+                        512,
+                        512,
+                        options.Visible,
+                        options.StaticCapturePath));
+                Console.WriteLine(
+                    $"GPU_STATIC_HARNESS_SUCCESS shader={staticResult.ShaderFormat} " +
+                    $"baseline={staticResult.BaselineFingerprint:x16} " +
+                    $"transformed={staticResult.TransformedFingerprint:x16}");
+                return 0;
+            }
             SkeletalCharacterAsset asset = LoadAsset(options);
             AnimationClip animation = SelectAnimation(asset);
             CharacterHarnessResult result = SdlGpuCharacterHarness.Run(
@@ -119,8 +133,10 @@ public static class Program
 
     private sealed record HarnessArguments(
         bool Visible,
+        bool StaticProof,
         string? AssetPath,
         string? CookedAssetPath,
+        string? StaticCapturePath,
         string? CapturePath,
         string? SkeletonCapturePath,
         string? AnimationCapturePath,
@@ -132,8 +148,10 @@ public static class Program
         internal static HarnessArguments Parse(string[] args)
         {
             bool visible = false;
+            bool staticProof = false;
             string? asset = null;
             string? cookedAsset = null;
+            string? staticCapture = null;
             string? capture = null;
             string? skeletonCapture = null;
             string? animationCapture = null;
@@ -147,6 +165,12 @@ public static class Program
                 {
                     case "--visible":
                         visible = true;
+                        break;
+                    case "--static-proof":
+                        staticProof = true;
+                        break;
+                    case "--static-capture" when index + 1 < args.Length:
+                        staticCapture = Path.GetFullPath(args[++index]);
                         break;
                     case "--asset" when index + 1 < args.Length:
                         asset = Path.GetFullPath(args[++index]);
@@ -179,10 +203,26 @@ public static class Program
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
+            if (staticProof)
+            {
+                if (asset is not null || cookedAsset is not null || capture is not null ||
+                    skeletonCapture is not null || animationCapture is not null ||
+                    captureSuite is not null || blendCaptureSuite is not null ||
+                    layeredCaptureSuite is not null || ikAimCaptureSuite is not null)
+                {
+                    throw new ArgumentException("--static-proof cannot be combined with character asset or capture arguments.");
+                }
+            }
+            else if (staticCapture is not null)
+            {
+                throw new ArgumentException("--static-capture requires --static-proof.");
+            }
             return new HarnessArguments(
                 visible,
+                staticProof,
                 asset,
                 cookedAsset,
+                staticCapture,
                 capture,
                 skeletonCapture,
                 animationCapture,

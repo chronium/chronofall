@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-02T06:32:32.9874850Z
+modifiedAt: 2026-08-02T17:18:58.0365720Z
 ---
 
 ## Status and ownership
@@ -286,6 +286,29 @@ The recorded IK-only and combined end-effector errors both round to `0.000000` m
 Debug and Release each pass 125 managed tests: 80 BCL-only presentation tests, 29 experiment SDL GPU tests, 10 SimpleMesh adapter tests and 6 SDL GPU presentation tests. All changed projects pass focused formatting verification, both configurations build with zero warnings/errors, and the opt-in native macOS ARM64 Metal integration passes with exact fingerprint assertions.
 
 On 2026-08-02, the owner exercised Aim, IK and their combined mode with and without the skeleton overlay, inspected every one of the 43 animation clips, and confirmed that the controls and deformation work correctly and all animations still look great. A temporary four-frame labeled comparison was shown for review. It was not approved as a permanent history artifact, so neither it nor the raw captures are committed.
+
+## Deterministic static-mesh proof
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0018` reuses this native host for an isolated static-only path without changing the character asset, capture suites, animation controls or retained fingerprints.
+
+```sh
+dotnet tests/ChronoFall.CharacterExperiment.GpuHarness/bin/Debug/net10.0/ChronoFall.CharacterExperiment.GpuHarness.dll \
+  --static-proof \
+  --static-capture artifacts/SHARED-0018/static-mesh.ppm
+
+# Owner visual validation
+dotnet tests/ChronoFall.CharacterExperiment.GpuHarness/bin/Debug/net10.0/ChronoFall.CharacterExperiment.GpuHarness.dll \
+  --static-proof \
+  --visible
+```
+
+The source-independent fixture contains two differently proportioned boxes in two contiguous material-name sections. The native MSL run draws them with separate opaque colours and directional lighting, renders a translated/rotated/uniformly-scaled probe, repeats the baseline, and verifies visible section pixels, a significant centroid shift, distinct transformed output and an exact repeated fingerprint. `--static-capture` writes only the baseline PPM; generated captures remain ignored unless the owner separately approves a curated project-history artifact.
+
+This path proves only the shared position/normal static GPU contract and caller-owned SDL lifecycle. It does not load a bow or environment prop, select an asset source, introduce static cooking, or validate UV, texture, PBR, alpha, two-sided, vegetation or wind behavior.
+
+Native macOS ARM64 validation produced baseline `247198b9ff0e2862`, transformed `7d2c37c52e46fb19`, and exact repeated baseline `247198b9ff0e2862`. Debug and Release each passed all 161 managed solution tests, the full opt-in native suite passed both static and unchanged character paths, and Starfall's consuming source build plus 23 architecture tests passed without presentation entering headless outputs.
+
+The owner inspected the fixed native Metal window on 2026-08-02, confirmed that the orange and blue boxes appeared correctly, and approved the baseline as a project-history checkpoint. The curated 512 by 512 PNG is `docs/project-history/2026-08-02-static-mesh-rendering/static-mesh.png` with SHA-256 `6bd6e1be6a75a5fe4c8bda7bb5156a14c0d9e0c0399ba5ef2cf6c8bfc40a1624`. Its dated README records canonical ownership, synthetic-source provenance, generation and limitations.
 
 ## Explicit exclusions
 

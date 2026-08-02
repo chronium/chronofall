@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T16:21:34.8440480Z
+modifiedAt: 2026-08-02T17:14:01.0646120Z
 ---
 
 ## Decision
@@ -208,13 +208,29 @@ The coordinator continues to own its SDL3-CS pin, fetch verification, native run
 
 ## Draft 0 static presentation and attachment path
 
-The Starfall Draft 0 roadmap demonstrates a second bounded presentation need without broadening the skeletal foundation into a general engine.
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0018` adds the first focused static-mesh boundary for the Starfall Draft 0 bow and bounded environment-prop needs without selecting or acquiring any asset.
 
-`SHARED-0018` owns the minimum reusable static-mesh SDL GPU boundary under the same caller-owned device, command-buffer, render-pass, target, camera, scheduling, resource-lifetime, and client-only rules. `SHARED-0019` owns a provisional deterministic exact-selection cook that feeds that boundary. Neither task owns a scene, terrain, vegetation, streaming, general material, model-catalogue, or importer framework.
+`ChronoFall.CharacterPresentation` now owns `StaticVertex`, `StaticMeshSection`, and `StaticMeshDefinition`. The immutable BCL-only definition contains finite positions, non-zero normals, 32-bit indexed triangles, and ordered contiguous sections that exactly cover the index buffer. A section's `MaterialName` preserves an opaque source/cook diagnostic identity; it is not a runtime material object or asset catalogue.
 
-`SHARED-0020` combines the completed model-space socket contract, the narrow static renderer, and the exact selected/acquired bow to prove one rendered socketed attachment. Starfall retains bow identity, content mapping, equipment, combat, aiming, and presentation integration. The proof excludes armour, IK, projectiles, shields, backpacks, and wings.
+`ChronoFall.CharacterPresentation.SdlGpu` owns `SdlGpuStaticMeshRenderer`, `SdlGpuStaticMesh`, `StaticMeshDraw`, and `SdlGpuStaticShaderSet`. The renderer:
 
-The broader `SHARED-0007` task remains the owner of representative weapons, shields, backpacks, wings, and later proven attachment categories. It now depends on `SHARED-0020` and must review and reuse the narrow proof rather than independently recreate the same capability. Its existing downstream consumers remain intact.
+- uses an internal 24-byte vertex ABI: position `float3` at byte 0 and normal `float3` at byte 12;
+- uploads immutable vertex and 32-bit index buffers into caller-owned command buffers;
+- records whole-mesh or section draws into caller-owned render passes;
+- uses caller-supplied opaque RGB colour and directional light as the only material inputs;
+- accepts MSL or SPIR-V bytecode and caller-selected colour/depth formats;
+- retains counter-clockwise back-face culling, single-sample targets, depth testing and depth writes;
+- accepts translation, rotation and positive uniform scale, while rejecting reflection, shear, singular matrices and non-uniform scale.
+
+The caller still owns SDL initialization, device, window, targets, command-buffer acquisition/submission, render-pass lifetime, camera, draw ordering, scheduling and disposal order. Static GPU resources remain client-only and must be disposed before the caller destroys the device. The shared projects remain independent of Starfall, Royale, SimpleMesh and supplied asset packs.
+
+The diagnostic host exposes an isolated `--static-proof` mode over deterministic synthetic two-section box geometry. It renders a baseline, transformed probe and repeated baseline, verifies section colour visibility, world-transform consumption and byte-identical repeatability, and can write `--static-capture <path>` or open the fixed native window with `--visible`. This proof neither imports nor claims compatibility with a selected bow, village, nature prop or other source asset.
+
+`SHARED-0019` remains the owner of a provisional deterministic exact-selection cook that feeds this boundary. UVs, textures, samplers, PBR properties, alpha/blending, two-sided materials, bounds, instancing, engine vegetation/wind shaders and production material policy require later evidence and are not part of this contract.
+
+`SHARED-0020` combines the completed model-space socket contract, this narrow static renderer, and the exact selected/acquired bow to prove one rendered socketed attachment. Starfall retains bow identity, content mapping, equipment, combat, aiming, and presentation integration. The proof excludes armour, IK, projectiles, shields, backpacks, and wings.
+
+The broader `SHARED-0007` task remains the owner of representative weapons, shields, backpacks, wings, and later proven attachment categories. It depends on `SHARED-0020` and must review and reuse the narrow proof rather than independently recreate the same capability. Its existing downstream consumers remain intact.
 
 Coordinator task and acquisition graph: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
 

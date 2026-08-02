@@ -200,6 +200,36 @@ public sealed class SdlGpuIntegrationTests
         AssertDirectoryEqual(ikAimCaptures.Path, cookedIkAimCaptures.Path);
     }
 
+    [Fact]
+    public async Task StandaloneHarnessRendersDeterministicStaticMeshWhenEnabled()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("CHRONOFALL_GPU_TESTS"), "1", StringComparison.Ordinal))
+            return;
+
+        string harnessPath = Path.Combine(AppContext.BaseDirectory, "gpu-harness", "ChronoFall.CharacterExperiment.GpuHarness.dll");
+        Assert.True(File.Exists(harnessPath), $"GPU harness was not packaged at '{harnessPath}'.");
+        using var firstDirectory = new TemporaryDirectory();
+        using var secondDirectory = new TemporaryDirectory();
+        string firstCapture = Path.Combine(firstDirectory.Path, "static-mesh.ppm");
+        string secondCapture = Path.Combine(secondDirectory.Path, "static-mesh.ppm");
+
+        ProcessResult first = await RunStaticHarness(harnessPath, firstCapture, TimeSpan.FromSeconds(30));
+        ProcessResult second = await RunStaticHarness(harnessPath, secondCapture, TimeSpan.FromSeconds(30));
+
+        Assert.True(
+            first.ExitCode == 0,
+            $"Static GPU harness exited with code {first.ExitCode}.\nstdout:\n{first.StandardOutput}\nstderr:\n{first.StandardError}");
+        Assert.True(
+            second.ExitCode == 0,
+            $"Repeated static GPU harness exited with code {second.ExitCode}.\nstdout:\n{second.StandardOutput}\nstderr:\n{second.StandardError}");
+        Assert.Contains("GPU_STATIC_HARNESS_PASS", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_STATIC_HARNESS_SUCCESS shader=SDL_GPU_SHADERFORMAT_MSL", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_STATIC_HARNESS_CAPTURE", first.StandardOutput, StringComparison.Ordinal);
+        AssertPpm(firstCapture);
+        AssertPpm(secondCapture);
+        Assert.Equal(File.ReadAllBytes(firstCapture), File.ReadAllBytes(secondCapture));
+    }
+
     private static async Task<ProcessResult> RunFullHarness(
         string harnessPath,
         string cookedAssetPath,
@@ -248,6 +278,47 @@ public sealed class SdlGpuIntegrationTests
             process.Kill(entireProcessTree: true);
             await process.WaitForExitAsync();
             Assert.Fail("Cooked GPU harness exceeded its timeout.");
+        }
+        return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
+    }
+
+    private static async Task<ProcessResult> RunStaticHarness(
+        string harnessPath,
+        string capturePath,
+        TimeSpan timeout)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                ArgumentList =
+                {
+                    harnessPath,
+                    "--static-proof",
+                    "--static-capture",
+                    capturePath,
+                },
+                WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+        };
+        Assert.True(process.Start(), "Static GPU harness process did not start.");
+        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+        using var cancellation = new CancellationTokenSource(timeout);
+        try
+        {
+            await process.WaitForExitAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync();
+            Assert.Fail("Static GPU harness exceeded its timeout.");
         }
         return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
     }
