@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "assetId": "chronofall-static-two-boxes",
+  "source": {
+    "path": "tests/fixtures/static-cooking/two-boxes.obj",
+    "sha256": "1a78966a39a7abfd296886d9695a5fc566fcd7429011e49b6fea6ff9a2b36412"
+  },
+  "externalResources": [
+    {
+      "path": "tests/fixtures/static-cooking/two-boxes.mtl",
+      "sha256": "33dc1ef7d4931b901e54064534420ce35173d3ba37653f23a7bfa5d00286b7d0"
+    }
+  ],
+  "licenseIdentifier": "CC0-1.0",
+  "licenseEvidence": [
+    {
+      "path": "tests/fixtures/static-cooking/LICENSE.txt",
+      "sha256": "bc21663d0288d7199a568be936e77c9d2f1bccd1fa983a198ab4cdbeb82f958a"
+    }
+  ],
+  "metersPerSourceUnit": 1.0,
+  "materialPolicy": "section-names-only",
+  "expectedMaterials": [
+    "diagnostic-orange",
+    "diagnostic-blue"
+  ]
+}

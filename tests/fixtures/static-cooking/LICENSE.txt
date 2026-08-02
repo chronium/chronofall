@@ -1,0 +1,5 @@
+CC0 1.0 Universal
+
+The ChronoFall project dedicates the synthetic two-box static-cooking fixture in
+this directory to the public domain under CC0 1.0 Universal. It contains no
+third-party artwork and exists only to validate deterministic asset tooling.

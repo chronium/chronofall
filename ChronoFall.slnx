@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" />
+    <Project Path="tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ChronoFall.CharacterPresentation.Tests/ChronoFall.CharacterPresentation.Tests.csproj" />
@@ -17,6 +18,7 @@
     <Project Path="tests/ChronoFall.CharacterExperiment.SdlGpu.Tests/ChronoFall.CharacterExperiment.SdlGpu.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj" />
     <Project Path="tests/ChronoFall.CharacterCooker.Tests/ChronoFall.CharacterCooker.Tests.csproj" />
+    <Project Path="tests/ChronoFall.StaticMeshCooker.Tests/ChronoFall.StaticMeshCooker.Tests.csproj" />
     <Project Path="tests/ChronoFall.FamilySourceConsumer/ChronoFall.FamilySourceConsumer.csproj" />
   </Folder>
   <Folder Name="/thirdparty/">

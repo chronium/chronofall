@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using ChronoFall.CharacterExperiment.SimpleMesh;
 using ChronoFall.CharacterPresentation.Cooking;
@@ -210,11 +211,17 @@ public sealed class SdlGpuIntegrationTests
         Assert.True(File.Exists(harnessPath), $"GPU harness was not packaged at '{harnessPath}'.");
         using var firstDirectory = new TemporaryDirectory();
         using var secondDirectory = new TemporaryDirectory();
+        using var cookedDirectory = new TemporaryDirectory();
         string firstCapture = Path.Combine(firstDirectory.Path, "static-mesh.ppm");
         string secondCapture = Path.Combine(secondDirectory.Path, "static-mesh.ppm");
+        string cookedCapture = Path.Combine(cookedDirectory.Path, "static-mesh.ppm");
+        string cookedAsset = Path.Combine(cookedDirectory.Path, "static-mesh.cfmesh");
+        Directory.CreateDirectory(cookedDirectory.Path);
+        WriteSelectedCookedStaticAsset(cookedAsset);
 
-        ProcessResult first = await RunStaticHarness(harnessPath, firstCapture, TimeSpan.FromSeconds(30));
-        ProcessResult second = await RunStaticHarness(harnessPath, secondCapture, TimeSpan.FromSeconds(30));
+        ProcessResult first = await RunStaticHarness(harnessPath, firstCapture, null, TimeSpan.FromSeconds(30));
+        ProcessResult second = await RunStaticHarness(harnessPath, secondCapture, null, TimeSpan.FromSeconds(30));
+        ProcessResult cooked = await RunStaticHarness(harnessPath, cookedCapture, cookedAsset, TimeSpan.FromSeconds(30));
 
         Assert.True(
             first.ExitCode == 0,
@@ -222,12 +229,18 @@ public sealed class SdlGpuIntegrationTests
         Assert.True(
             second.ExitCode == 0,
             $"Repeated static GPU harness exited with code {second.ExitCode}.\nstdout:\n{second.StandardOutput}\nstderr:\n{second.StandardError}");
+        Assert.True(
+            cooked.ExitCode == 0,
+            $"Cooked static GPU harness exited with code {cooked.ExitCode}.\nstdout:\n{cooked.StandardOutput}\nstderr:\n{cooked.StandardError}");
         Assert.Contains("GPU_STATIC_HARNESS_PASS", first.StandardOutput, StringComparison.Ordinal);
         Assert.Contains("GPU_STATIC_HARNESS_SUCCESS shader=SDL_GPU_SHADERFORMAT_MSL", first.StandardOutput, StringComparison.Ordinal);
         Assert.Contains("GPU_STATIC_HARNESS_CAPTURE", first.StandardOutput, StringComparison.Ordinal);
         AssertPpm(firstCapture);
         AssertPpm(secondCapture);
+        AssertPpm(cookedCapture);
         Assert.Equal(File.ReadAllBytes(firstCapture), File.ReadAllBytes(secondCapture));
+        Assert.Equal(File.ReadAllBytes(firstCapture), File.ReadAllBytes(cookedCapture));
+        Assert.Contains("GPU_STATIC_HARNESS_ASSET cooked id=chronofall-static-two-boxes", cooked.StandardOutput, StringComparison.Ordinal);
     }
 
     private static async Task<ProcessResult> RunFullHarness(
@@ -285,6 +298,7 @@ public sealed class SdlGpuIntegrationTests
     private static async Task<ProcessResult> RunStaticHarness(
         string harnessPath,
         string capturePath,
+        string? cookedStaticAssetPath,
         TimeSpan timeout)
     {
         using var process = new Process
@@ -306,6 +320,11 @@ public sealed class SdlGpuIntegrationTests
                 CreateNoWindow = true,
             },
         };
+        if (cookedStaticAssetPath is not null)
+        {
+            process.StartInfo.ArgumentList.Add("--cooked-static-asset");
+            process.StartInfo.ArgumentList.Add(cookedStaticAssetPath);
+        }
         Assert.True(process.Start(), "Static GPU harness process did not start.");
         Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
         Task<string> stderrTask = process.StandardError.ReadToEndAsync();
@@ -352,6 +371,38 @@ public sealed class SdlGpuIntegrationTests
             imported.SkinName);
         using FileStream stream = File.Create(path);
         SkeletalAssetCookedFormat.Write(stream, new CookedSkeletalCharacterAsset(descriptor, selected));
+    }
+
+    private static void WriteSelectedCookedStaticAsset(string path)
+    {
+        string root = FindRepositoryRoot();
+        const string sourceRelative = "tests/fixtures/static-cooking/two-boxes.obj";
+        const string materialRelative = "tests/fixtures/static-cooking/two-boxes.mtl";
+        const string licenseRelative = "tests/fixtures/static-cooking/LICENSE.txt";
+        string source = Path.Combine(root, sourceRelative.Replace('/', Path.DirectorySeparatorChar));
+        string material = Path.Combine(root, materialRelative.Replace('/', Path.DirectorySeparatorChar));
+        SimpleMeshStaticSourceAsset imported = SimpleMeshStaticAssetLoader.LoadFromFile(
+            "chronofall-static-two-boxes",
+            root,
+            source,
+            new Dictionary<string, string> { [materialRelative] = Sha256(material) },
+            1.0f);
+        var descriptor = new StaticAssetCookDescriptor(
+            "chronofall-static-two-boxes",
+            new StaticAssetFileEvidence(sourceRelative, Sha256(source)),
+            [new StaticAssetFileEvidence(materialRelative, Sha256(material))],
+            "CC0-1.0",
+            [new StaticAssetFileEvidence(licenseRelative, Sha256(Path.Combine(root, licenseRelative.Replace('/', Path.DirectorySeparatorChar))))],
+            1.0f,
+            StaticAssetCookDescriptor.SectionNamesOnlyMaterialPolicy);
+        using FileStream stream = File.Create(path);
+        StaticMeshCookedFormat.Write(stream, new CookedStaticMeshAsset(descriptor, imported.Mesh));
+    }
+
+    private static string Sha256(string path)
+    {
+        using FileStream stream = File.OpenRead(path);
+        return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
     }
 
     private static string FindRepositoryRoot()

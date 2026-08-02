@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T17:14:01.0646120Z
+modifiedAt: 2026-08-02T17:50:22.5843940Z
 ---
 
 ## Decision
@@ -233,6 +233,12 @@ The diagnostic host exposes an isolated `--static-proof` mode over deterministic
 The broader `SHARED-0007` task remains the owner of representative weapons, shields, backpacks, wings, and later proven attachment categories. It depends on `SHARED-0020` and must review and reuse the narrow proof rather than independently recreate the same capability. Its existing downstream consumers remain intact.
 
 Coordinator task and acquisition graph: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0019` now supplies the matching provisional client-only `.cfmesh` version 1 cook. Its BCL-only reader reconstructs the same immutable `StaticMeshDefinition`; the build-time SimpleMesh adapter accepts exact hashed OBJ/glTF/GLB selections, bakes deterministic hierarchy transforms and approved uniform metres conversion, and rejects warnings, generated normals, reflection, skins, animations and undeclared resources.
+
+The runtime payload retains geometry and opaque section identities only. Deterministic provenance records exact source/resource/licence hashes and observed material evidence, but UVs, textures, colours, alpha, two-sided state and PBR behavior are not cooked. Full format, recipe, locale-patch, reproduction and staging evidence: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/shared-static-cooking`.
+
+No real asset recipe or child staging output exists yet. The first such extension remains owned by `ASSET-0006` or `ASSET-0007` after its canonical Starfall selection completes.
 
 ## Deferred contracts
 

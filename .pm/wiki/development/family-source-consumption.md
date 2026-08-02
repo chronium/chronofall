@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-02T16:21:35.0669900Z
+modifiedAt: 2026-08-02T17:51:47.6441760Z
 ---
 
 ## Decision
@@ -82,6 +82,10 @@ The Draft 0 coordinator roadmap extends this boundary only through focused acqui
 `ASSET-0004` through `ASSET-0007` have known skeletal or static prerequisites. `ASSET-0008` monster acquisition deliberately begins with only the canonical still-todo selection and the established stable-ID staging boundary. Static, rigid, or skeletal prerequisites are attached only after selection evidence identifies the actual representation.
 
 Generated outputs remain ignored and client-only. Package/feed distribution remains deferred.
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0019` completes the provisional deterministic static-mesh cooking capability and exact hashed source/resource/licence evidence boundary. It deliberately adds no child allowlist, recipe, generated output or runtime manifest entry.
+
+`ASSET-0006` and `ASSET-0007` remain the owners of the first real bow/monster and zone exact-selection recipes and staged outputs after their canonical Starfall selection dependencies complete. The existing character staging workflow and selected UAL1 cook remain unchanged.
 
 ## Ownership and next consumers
 

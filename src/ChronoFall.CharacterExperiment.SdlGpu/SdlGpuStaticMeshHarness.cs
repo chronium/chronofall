@@ -11,7 +11,8 @@ internal sealed record StaticMeshHarnessOptions(
     int Width = 512,
     int Height = 512,
     bool Visible = false,
-    string? CapturePath = null);
+    string? CapturePath = null,
+    StaticMeshDefinition? Mesh = null);
 
 internal sealed record StaticMeshHarnessResult(
     SDL_GPUShaderFormat ShaderFormat,
@@ -37,7 +38,7 @@ internal static class SdlGpuStaticMeshHarness
         if (options.Width < 64 || options.Height < 64)
             throw new ArgumentOutOfRangeException(nameof(options), "The static GPU harness target must be at least 64x64.");
 
-        StaticMeshDefinition mesh = CreateDiagnosticMesh();
+        StaticMeshDefinition mesh = options.Mesh ?? CreateDiagnosticMesh();
         Matrix4x4 viewProjection = CreateViewProjection(options.Width, options.Height);
         Matrix4x4 baselineWorld = Matrix4x4.CreateRotationY(-0.18f);
         Matrix4x4 transformedWorld =

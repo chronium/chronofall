@@ -21,12 +21,14 @@ public static class Program
             HarnessArguments options = HarnessArguments.Parse(args);
             if (options.StaticProof)
             {
+                StaticMeshDefinition? mesh = LoadStaticAsset(options.CookedStaticAssetPath);
                 StaticMeshHarnessResult staticResult = SdlGpuStaticMeshHarness.Run(
                     new StaticMeshHarnessOptions(
                         512,
                         512,
                         options.Visible,
-                        options.StaticCapturePath));
+                        options.StaticCapturePath,
+                        mesh));
                 Console.WriteLine(
                     $"GPU_STATIC_HARNESS_SUCCESS shader={staticResult.ShaderFormat} " +
                     $"baseline={staticResult.BaselineFingerprint:x16} " +
@@ -85,6 +87,18 @@ public static class Program
         return SimpleMeshSkeletalAssetLoader.LoadFromFile(assetPath);
     }
 
+    private static StaticMeshDefinition? LoadStaticAsset(string? path)
+    {
+        if (path is null)
+            return null;
+        using FileStream stream = File.OpenRead(path);
+        CookedStaticMeshAsset cooked = StaticMeshCookedFormat.Read(stream);
+        Console.WriteLine(
+            $"GPU_STATIC_HARNESS_ASSET cooked id={cooked.Descriptor.AssetId} " +
+            $"source={cooked.Descriptor.PrimarySource.Path} sections={cooked.Mesh.Sections.Count}");
+        return cooked.Mesh;
+    }
+
     private static AnimationClip SelectAnimation(SkeletalCharacterAsset asset)
     {
         AnimationClip? selected = asset.Animations.SingleOrDefault(
@@ -136,6 +150,7 @@ public static class Program
         bool StaticProof,
         string? AssetPath,
         string? CookedAssetPath,
+        string? CookedStaticAssetPath,
         string? StaticCapturePath,
         string? CapturePath,
         string? SkeletonCapturePath,
@@ -151,6 +166,7 @@ public static class Program
             bool staticProof = false;
             string? asset = null;
             string? cookedAsset = null;
+            string? cookedStaticAsset = null;
             string? staticCapture = null;
             string? capture = null;
             string? skeletonCapture = null;
@@ -177,6 +193,9 @@ public static class Program
                         break;
                     case "--cooked-asset" when index + 1 < args.Length:
                         cookedAsset = Path.GetFullPath(args[++index]);
+                        break;
+                    case "--cooked-static-asset" when index + 1 < args.Length:
+                        cookedStaticAsset = Path.GetFullPath(args[++index]);
                         break;
                     case "--capture" when index + 1 < args.Length:
                         capture = Path.GetFullPath(args[++index]);
@@ -217,11 +236,16 @@ public static class Program
             {
                 throw new ArgumentException("--static-capture requires --static-proof.");
             }
+            else if (cookedStaticAsset is not null)
+            {
+                throw new ArgumentException("--cooked-static-asset requires --static-proof.");
+            }
             return new HarnessArguments(
                 visible,
                 staticProof,
                 asset,
                 cookedAsset,
+                cookedStaticAsset,
                 staticCapture,
                 capture,
                 skeletonCapture,

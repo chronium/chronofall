@@ -1,0 +1,7 @@
+newmtl diagnostic-orange
+Kd 0.95 0.28 0.18
+d 1.0
+
+newmtl diagnostic-blue
+Kd 0.16 0.62 0.98
+d 1.0

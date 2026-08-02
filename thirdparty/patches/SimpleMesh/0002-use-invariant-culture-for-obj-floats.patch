@@ -1,0 +1,13 @@
+diff --git a/SimpleMesh/Util/ParseHelpers.cs b/SimpleMesh/Util/ParseHelpers.cs
+index f2ff79f..940d74f 100644
+--- a/SimpleMesh/Util/ParseHelpers.cs
++++ b/SimpleMesh/Util/ParseHelpers.cs
+@@ -95,7 +95,7 @@ namespace SimpleMesh.Util
+                     {
+                         if (elem >= floats.Length)
+                             return int.MaxValue;
+-                        if (!float.TryParse(trimmed, out floats[elem++]))
++                        if (!float.TryParse(trimmed, CultureInfo.InvariantCulture, out floats[elem++]))
+                             return -1;
+                     }
+                     start = end;
