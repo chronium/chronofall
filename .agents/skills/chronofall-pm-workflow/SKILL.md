@@ -28,6 +28,8 @@ In Plan mode, call `get_next_task(readyOnly: true, family: true)` unless the own
 
 Planning does not mutate PM, activate work, grant trust, or choose another task merely because the recommendation is blocked. Return one implementation plan and wait for approval.
 
+For an owner-approved child grooming task whose canonical coordinator dependencies can only be allocated by a planned later coordinator cycle, the same completed grooming task may be reopened for the reviewed wiring continuation. Record the reason and mutation receipts, add only the already-approved canonical dependencies and matching roadmap corrections, validate the family graph, complete and commit the same child task again, perform its mechanical pointer handoff, and stop. Do not use this exception for feature work, independent contracts, unrelated backlog changes, or automatic task selection.
+
 ## Write Canonical Relationships
 
 Use local IDs only for same-project dependencies. Persist cross-project tasks and wiki pages as:

@@ -67,6 +67,8 @@ When the owner enters Plan mode and asks for the next task:
 
 Planning never edits implementation files or `.pm/`, activates a task, grants trust, plans unrelated tasks, or substitutes a different task merely because the selected task is blocked.
 
+An owner-approved child grooming task may be reopened after completion for a tightly related reviewed dependency-wiring continuation when coordinator-owned task IDs could not exist during the original child cycle. Reopen only the original grooming task after the planned coordinator cycle, record the review reason and every canonical dependency receipt, apply only the approved wiring and matching roadmap corrections, validate the complete family graph, complete and commit the same task again, perform its pointer-only handoff, and stop. This exception does not authorize feature implementation, new product or architecture scope, unrelated grooming, silent expansion of a completed feature task, or automatic selection of more work.
+
 ## Execution After Approval
 
 Only after the owner approves the plan:

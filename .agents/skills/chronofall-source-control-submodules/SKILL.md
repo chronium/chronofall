@@ -41,6 +41,8 @@ Stage only the intended gitlink and inspect the complete staged submodule diff. 
 
 If any check fails, stop and report the blocker. Resume this mechanical follow-up after resolution without creating a `SUBMODULE` task. Pushing remains owner-directed and must publish the child before the coordinator.
 
+When an owner-approved child grooming task is reopened solely for reviewed canonical dependency wiring after the planned coordinator cycle, its second child commit and pointer-only handoff use the original grooming task ID. Keep that continuation limited to recorded dependency receipts and matching roadmap corrections; never absorb feature implementation or unrelated grooming.
+
 ## Validate Checkout
 
 Check `.gitmodules`, path hints, `git submodule status`, and the recorded gitlink. Validate a recursive checkout with the repository's documented command or a non-destructive status/sync check. Never treat a matching remote as identity proof.
