@@ -3,8 +3,10 @@ id: COORD-0009
 title: Groom coordinator enablers for Starfall Draft 0
 track: COORD
 milestone: M3
+dependsOn:
+- pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0008
 createdAt: 2026-08-02T16:18:51.1138360Z
-modifiedAt: 2026-08-02T16:22:27.4643490Z
+modifiedAt: 2026-08-02T16:31:22.9357560Z
 ---
 
 Represent only the coordinator-owned shared presentation and exact asset-acquisition work required by Starfall's approved Draft 0 roadmap.
@@ -53,3 +55,14 @@ Acceptance criteria:
   - No source, asset, generated output, child PM, or gitlink changed.
 
   Completion ends Cycle 2. The reviewed Starfall dependency wiring remains the separately bounded Cycle 3 continuation.
+- 2026-08-02 16:31 UTC - ## Reviewed dependency continuation — 2026-08-02
+
+  Reopened COORD-0009 for the three directly attributable Cycle 2 dependency findings.
+
+  Corrections:
+  - Added canonical prerequisite pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0008 so Cycle 1 is the authoritative source of coordinator grooming.
+  - Added completed SHARED-0017 to SHARED-0019 alongside SHARED-0018, making the static cook formally consume the fresh-checkout-safe stable-ID staging contract it intends to extend.
+  - Replaced ASSET-0005's redundant direct SHARED-0002 prerequisite with SHARED-0004. The acquisition now waits for equipment slots/body hiding, which transitively waits for modular armour and skeletal cooking, while retaining SHARED-0017 and canonical Starfall CONTENT-0011.
+  - Updated roadmap/starfall-draft-0-shared-enablers to match the corrected graph.
+
+  Every mutation receipt identified coordinator project prj_E7QP3LUocfY7k3PYM-EQOlqc and changed only the expected coordinator PM/wiki paths. No feature task was activated and no source, asset, child PM, generated output, or gitlink changed.

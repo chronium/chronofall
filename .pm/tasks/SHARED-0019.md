@@ -5,8 +5,9 @@ track: SHARED
 milestone: M2
 dependsOn:
 - SHARED-0018
+- SHARED-0017
 createdAt: 2026-08-02T16:19:37.7738830Z
-modifiedAt: 2026-08-02T16:20:04.8382180Z
+modifiedAt: 2026-08-02T16:30:51.8866330Z
 ---
 
 Add a provisional coordinator-owned client-only cook for exact selected static meshes consumed by the narrow shared static renderer.

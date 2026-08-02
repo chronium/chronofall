@@ -4,11 +4,11 @@ title: Acquire exact Draft 0 Ranger equipment inputs
 track: ASSET
 milestone: M3
 dependsOn:
-- SHARED-0002
+- SHARED-0004
 - SHARED-0017
 - pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011
 createdAt: 2026-08-02T16:19:38.4926290Z
-modifiedAt: 2026-08-02T16:20:04.8677650Z
+modifiedAt: 2026-08-02T16:30:51.8953820Z
 ---
 
 After Starfall completes its archer/equipment selection, acquire and stage only the exact approved Ranger/leather pieces and underlayer evidence.
