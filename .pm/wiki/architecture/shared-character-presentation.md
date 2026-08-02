@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-01T19:00:42.1255760Z
+modifiedAt: 2026-08-02T05:39:33.0217710Z
 ---
 
 ## Decision
@@ -68,6 +68,34 @@ The unchanged `UAL1_Standard.glb` selected-asset proof maps `primary-hand` to `h
 
 Rendering representative attachments remains `SHARED-0007`; weapon grips and off-hand targets remain `SHARED-0010`; effect and aim reference points remain `SHARED-0011`; socket/equipment/IK visualization remains `SHARED-0013`. Serialization, cooking, child equipment schemas, and gameplay ownership also remain outside this contract.
 
+## Attachment effect and aim reference frames
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0011` adds BCL-only attachment-local presentation frames without defining a weapon, projectile, effect, or gameplay model.
+
+`AttachmentReferencePointRole` defines four presentation meanings:
+
+| Role | Presentation meaning |
+| --- | --- |
+| `Muzzle` | Origin and orientation for client muzzle flash, smoke, light, or audio placement |
+| `ProjectileOrigin` | Origin and orientation for a visual projectile or tracer; it is not the authoritative shot origin |
+| `CasingEjection` | Origin and orientation for optional client-owned casing effects |
+| `Aim` | Reference frame for client aim alignment, aim offsets, or IK presentation |
+
+`AttachmentReferencePointDefinition` combines one of those roles with a caller-defined semantic name and an attachment-local rigid `JointTransform`. Local scale must be identity. Frames inherit the shared right-handed, Y-up, metre-based convention; local `+Z` is forward and local `+Y` is up.
+
+`AttachmentReferencePointSet` copies definitions in stable order, permits an empty set, rejects duplicate names using ordinal comparison, and permits multiple points with the same role. The core provides stable name and role lookup but does not reserve names, select a primary point, or decide which points a child uses.
+
+`AttachmentReferencePointEvaluator.EvaluateModelSpace(referencePointSet, attachmentModelTransform)` resolves:
+
+```text
+pointModel = pointLocal * attachmentModel
+pointWorld = pointModel * characterWorld
+```
+
+The evaluator produces only the first line. Character world placement remains caller-owned, matching the socket boundary. Reference points are presentation metadata consumed after a child receives authoritative state or events. They never determine whether an attack, shot, projectile, cast, hit, damage result, or trajectory exists. If visual placement differs from authoritative gameplay, the child must preserve the authoritative outcome.
+
+No weapon asset, serialization/cooking format, renderer, effect implementation, protocol event, or game-specific selection is part of this contract. Shared two-bone IK and aim behavior remains `SHARED-0012`; Royale integration remains `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-013`.
+
 ## SDL GPU host boundary
 
 The shared SDL layer accepts an existing `SDL_GPUDevice*`, target formats and caller-supplied MSL or SPIR-V bytecode. It exposes:
@@ -116,7 +144,7 @@ The focused shared foundation still does not decide or implement:
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;
 - weighted per-joint masks, named anatomical mask policy, arbitrary layer stacks or additive animation;
-- socket serialization or cooking, modular armour, rendered attachments, equipment schemas, grip or effect-point data, socket debugging or IK;
+- socket or reference-point serialization and cooking, modular armour, rendered attachments, equipment schemas, grip data, socket/reference-point debugging or IK;
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 
