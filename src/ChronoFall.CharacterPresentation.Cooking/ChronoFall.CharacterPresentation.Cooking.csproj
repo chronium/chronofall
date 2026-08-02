@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ChronoFall.CharacterCooker" />
+  </ItemGroup>
+</Project>

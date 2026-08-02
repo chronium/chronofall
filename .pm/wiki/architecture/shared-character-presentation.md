@@ -1,19 +1,20 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T06:30:54.3541450Z
+modifiedAt: 2026-08-02T07:06:45.2034400Z
 ---
 
 ## Decision
 
-`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001` promotes the M1-proven character contracts into two focused coordinator-owned libraries:
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001` promotes the M1-proven character contracts into a focused coordinator-owned module family:
 
 | Module | Audience | Responsibility |
 | --- | --- | --- |
 | `ChronoFall.CharacterPresentation` | Client presentation and deterministic tools | Immutable skeleton, skin, mesh, animation, pose and palette data; sampling and pose evaluation |
+| `ChronoFall.CharacterPresentation.Cooking` | Client build/runtime asset boundary | Provisional deterministic `.cfskel` descriptor, writer and reader over the promoted data contract |
 | `ChronoFall.CharacterPresentation.SdlGpu` | SDL GPU clients only | Skinned geometry upload, per-instance palette transport, shaders, pipeline and draw recording |
 
-Neither module depends on Royale or Starfall. The core module is BCL-only and has no SDL, importer, editor, simulation, server or child dependency. The SDL GPU module depends on the coordinator-owned SDL3-CS pin and the core module.
+None of these modules depends on Royale or Starfall. The core and cooking modules are BCL-only; the core has no cooking, SDL, importer, editor, simulation, server or child dependency, and cooking depends only on the core. The SDL GPU module depends on the coordinator-owned SDL3-CS pin and the core module.
 
 ## Core contract
 
@@ -185,9 +186,19 @@ The renderer deliberately hides its first GPU ABI behind public resource objects
 
 The ABI is tested and reviewed for this foundation, but it is not a permanent cooked asset format or public vertex struct. Textures, additional attributes, material policy and animated bounds require later task-owned evidence.
 
+## Provisional skeletal cooking boundary
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0002` adds one narrow client-only cooking boundary. `ChronoFall.CharacterPresentation.Cooking` writes and reads a deterministic version 1 `.cfskel` container containing source provenance plus the promoted mesh, skeleton, skin and animation data. It reconstructs the same immutable core types and preserves every selected single-precision contract value exactly.
+
+The first committed recipe selects `Mannequin`, `Armature`, `Idle_Loop`, `Walk_Loop` and `Sword_Attack` from the unchanged supplied `UAL1_Standard.glb`. The build-time cooker verifies the source hash, CC0 evidence and embedded identifiers, then uses the provisional SimpleMesh adapter. SimpleMesh remains outside all shared runtime assemblies.
+
+Generated cooks remain ignored under `artifacts/`. No cooked binary is committed or placed in a runtime manifest. The CLI accepts only client audience; server and simulation artifacts receive no skeletal presentation content or dependency. The exact recipe, format envelope, reproduction command, output hash and validation evidence are documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/shared-skeletal-cooking`.
+
+Version 1 is deliberately provisional. It does not cook textures, production materials, UV1, animated bounds, sockets, equipment, grips, reference points, IK metadata, masks, layers or animation graphs, and it establishes no package publication or child-acquisition mechanism.
+
 ## Experiment and dependency status
 
-`ChronoFall.CharacterExperiment.SimpleMesh` remains the provisional M1 loader adapter. It maps the selected source GLB into the promoted core but SimpleMesh is not a dependency of either shared module and is not approved as a permanent importer.
+`ChronoFall.CharacterExperiment.SimpleMesh` remains the provisional M1 loader adapter. It maps the selected source GLB into the promoted core and is consumed only by the build-time cooker and experiment validation. SimpleMesh is not a dependency of the core, cooked-format, SDL GPU, or child runtime assemblies and is not approved as a permanent importer.
 
 `ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host. It owns the window, camera, skeleton overlay, controls, offscreen targets, readback and captures while consuming the shared renderer for every character draw. The retained native fingerprints prove the shared path still produces the validated Metal output.
 
@@ -197,7 +208,7 @@ The coordinator continues to own its SDL3-CS pin, fetch verification, native run
 
 The focused shared foundation still does not decide or implement:
 
-- skeletal cooking or a permanent file format;
+- stabilization, compatibility guarantees, compression, streaming, or replacement of the provisional `.cfskel` format;
 - package versioning, publication, feed selection or child acquisition;
 - textures, production materials or animated bounds;
 - blend trees, normalized locomotion parameters, a shared transition player, root motion, retargeting or animation graphs;

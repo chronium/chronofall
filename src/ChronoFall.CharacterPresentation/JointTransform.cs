@@ -18,6 +18,25 @@ public readonly record struct JointTransform
         Scale = scale;
     }
 
+    private JointTransform(Vector3 translation, Quaternion rotation, Vector3 scale, bool preserveRotation)
+    {
+        if (!DataValidation.IsFinite(translation))
+            throw new ArgumentException("Translation must contain only finite values.", nameof(translation));
+        if (!DataValidation.IsFinite(scale))
+            throw new ArgumentException("Scale must contain only finite values.", nameof(scale));
+        DataValidation.RequireNormalizedRotation(rotation, nameof(rotation));
+
+        Translation = translation;
+        Rotation = rotation;
+        Scale = scale;
+    }
+
+    internal static JointTransform FromValidatedComponents(
+        Vector3 translation,
+        Quaternion rotation,
+        Vector3 scale) =>
+        new(translation, rotation, scale, preserveRotation: true);
+
     public Vector3 Translation { get; }
 
     public Quaternion Rotation { get; }
@@ -34,6 +53,6 @@ public readonly record struct JointTransform
         if (!DataValidation.IsFinite(Translation) || !DataValidation.IsFinite(Scale))
             throw new ArgumentException("Joint transform must contain only finite values.", parameterName);
 
-        DataValidation.NormalizeRotation(Rotation, parameterName);
+        DataValidation.RequireNormalizedRotation(Rotation, parameterName);
     }
 }

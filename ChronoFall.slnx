@@ -1,16 +1,22 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
+    <Project Path="src/ChronoFall.CharacterPresentation.Cooking/ChronoFall.CharacterPresentation.Cooking.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ChronoFall.CharacterPresentation.Tests/ChronoFall.CharacterPresentation.Tests.csproj" />
+    <Project Path="tests/ChronoFall.CharacterPresentation.Cooking.Tests/ChronoFall.CharacterPresentation.Cooking.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterPresentation.SdlGpu.Tests/ChronoFall.CharacterPresentation.SdlGpu.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.SimpleMesh.Tests/ChronoFall.CharacterExperiment.SimpleMesh.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.SdlGpu.Tests/ChronoFall.CharacterExperiment.SdlGpu.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterExperiment.GpuHarness/ChronoFall.CharacterExperiment.GpuHarness.csproj" />
+    <Project Path="tests/ChronoFall.CharacterCooker.Tests/ChronoFall.CharacterCooker.Tests.csproj" />
   </Folder>
   <Folder Name="/thirdparty/">
     <Project Path="thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj" />

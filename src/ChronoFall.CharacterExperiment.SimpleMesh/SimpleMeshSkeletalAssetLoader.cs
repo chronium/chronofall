@@ -8,12 +8,15 @@ public static class SimpleMeshSkeletalAssetLoader
     private const float IdentityTolerance = 1e-5f;
 
     public static SkeletalCharacterAsset LoadFromFile(string path)
+        => LoadSourceFromFile(path).Asset;
+
+    public static SimpleMeshSkeletalSourceAsset LoadSourceFromFile(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         try
         {
-            return MapModel(Imported.Model.FromFile(path), path);
+            return MapSourceModel(Imported.Model.FromFile(path), path);
         }
         catch (SkeletalAssetLoadException)
         {
@@ -29,6 +32,9 @@ public static class SimpleMeshSkeletalAssetLoader
     }
 
     internal static SkeletalCharacterAsset MapModel(Imported.Model model, string source)
+        => MapSourceModel(model, source).Asset;
+
+    private static SimpleMeshSkeletalSourceAsset MapSourceModel(Imported.Model model, string source)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentException.ThrowIfNullOrWhiteSpace(source);
@@ -80,7 +86,11 @@ public static class SimpleMeshSkeletalAssetLoader
         AnimationClip[] clips = MapAnimations(model.Animations, skeleton, source);
         try
         {
-            return new SkeletalCharacterAsset(mesh, clips);
+            return new SimpleMeshSkeletalSourceAsset(
+                meshNode.Name,
+                mesh.Name,
+                skin.Name,
+                new SkeletalCharacterAsset(mesh, clips));
         }
         catch (Exception exception)
         {

@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text;
+using ChronoFall.CharacterExperiment.SimpleMesh;
+using ChronoFall.CharacterPresentation.Cooking;
 
 namespace ChronoFall.CharacterExperiment.SdlGpu.Tests;
 
@@ -166,6 +168,140 @@ public sealed class SdlGpuIntegrationTests
                 File.ReadAllBytes(Path.Combine(ikAimCaptures.Path, file)),
                 File.ReadAllBytes(Path.Combine(repeatedIkAimCaptures.Path, file)));
         }
+
+        using var cookedWorkspace = new TemporaryDirectory();
+        Directory.CreateDirectory(cookedWorkspace.Path);
+        string cookedAssetPath = Path.Combine(cookedWorkspace.Path, "quaternius-ual1-standard.cfskel");
+        WriteSelectedCookedAsset(cookedAssetPath);
+        using var cookedCaptures = new TemporaryDirectory();
+        using var cookedBlendCaptures = new TemporaryDirectory();
+        using var cookedLayeredCaptures = new TemporaryDirectory();
+        using var cookedIkAimCaptures = new TemporaryDirectory();
+        ProcessResult cooked = await RunFullHarness(
+            harnessPath,
+            cookedAssetPath,
+            cookedCaptures.Path,
+            cookedBlendCaptures.Path,
+            cookedLayeredCaptures.Path,
+            cookedIkAimCaptures.Path,
+            TimeSpan.FromSeconds(60));
+        Assert.True(
+            cooked.ExitCode == 0,
+            $"Cooked GPU harness exited with code {cooked.ExitCode}.\nstdout:\n{cooked.StandardOutput}\nstderr:\n{cooked.StandardError}");
+        Assert.Contains(
+            "GPU_HARNESS_ASSET cooked id=quaternius-ual1-standard",
+            cooked.StandardOutput,
+            StringComparison.Ordinal);
+        Assert.Contains("clips=3", cooked.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_HARNESS_SUCCESS", cooked.StandardOutput, StringComparison.Ordinal);
+        AssertDirectoryEqual(captures.Path, cookedCaptures.Path);
+        AssertDirectoryEqual(blendCaptures.Path, cookedBlendCaptures.Path);
+        AssertDirectoryEqual(layeredCaptures.Path, cookedLayeredCaptures.Path);
+        AssertDirectoryEqual(ikAimCaptures.Path, cookedIkAimCaptures.Path);
+    }
+
+    private static async Task<ProcessResult> RunFullHarness(
+        string harnessPath,
+        string cookedAssetPath,
+        string captures,
+        string blendCaptures,
+        string layeredCaptures,
+        string ikAimCaptures,
+        TimeSpan timeout)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                ArgumentList =
+                {
+                    harnessPath,
+                    "--cooked-asset",
+                    cookedAssetPath,
+                    "--capture-suite",
+                    captures,
+                    "--blend-capture-suite",
+                    blendCaptures,
+                    "--layered-capture-suite",
+                    layeredCaptures,
+                    "--ik-aim-capture-suite",
+                    ikAimCaptures,
+                },
+                WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+        };
+        Assert.True(process.Start(), "Cooked GPU harness process did not start.");
+        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+        using var cancellation = new CancellationTokenSource(timeout);
+        try
+        {
+            await process.WaitForExitAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync();
+            Assert.Fail("Cooked GPU harness exceeded its timeout.");
+        }
+        return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
+    }
+
+    private static void WriteSelectedCookedAsset(string path)
+    {
+        string root = FindRepositoryRoot();
+        string sourcePath = Path.Combine(
+            root,
+            "assets",
+            "Quaternius",
+            "Universal Animation Library[Standard]",
+            "Unreal-Godot",
+            "UAL1_Standard.glb");
+        SimpleMeshSkeletalSourceAsset imported = SimpleMeshSkeletalAssetLoader.LoadSourceFromFile(sourcePath);
+        string[] selectedNames = ["Idle_Loop", "Walk_Loop", "Sword_Attack"];
+        var selected = new SkeletalCharacterAsset(
+            imported.Asset.Mesh,
+            selectedNames.Select(name => imported.Asset.Animations.Single(clip => clip.Name == name)));
+        var descriptor = new SkeletalAssetCookDescriptor(
+            "quaternius-ual1-standard",
+            "assets/Quaternius/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb",
+            "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997",
+            "CC0-1.0",
+            [
+                "assets/Quaternius/Universal Animation Library[Standard]/License.txt",
+                "assets/Quaternius/Universal Animation Library[Standard]/README.txt",
+            ],
+            imported.MeshNodeName,
+            imported.MeshName,
+            imported.SkinName);
+        using FileStream stream = File.Create(path);
+        SkeletalAssetCookedFormat.Write(stream, new CookedSkeletalCharacterAsset(descriptor, selected));
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "ChronoFall.slnx")))
+                return directory.FullName;
+            directory = directory.Parent;
+        }
+        throw new DirectoryNotFoundException("Could not find the ChronoFall repository root.");
+    }
+
+    private static void AssertDirectoryEqual(string expected, string actual)
+    {
+        string[] expectedFiles = Directory.GetFiles(expected).Select(Path.GetFileName).Order(StringComparer.Ordinal).ToArray()!;
+        string[] actualFiles = Directory.GetFiles(actual).Select(Path.GetFileName).Order(StringComparer.Ordinal).ToArray()!;
+        Assert.Equal(expectedFiles, actualFiles);
+        foreach (string file in expectedFiles)
+            Assert.Equal(File.ReadAllBytes(Path.Combine(expected, file)), File.ReadAllBytes(Path.Combine(actual, file)));
     }
 
     private static async Task<ProcessResult> RunCaptureOnlyHarness(

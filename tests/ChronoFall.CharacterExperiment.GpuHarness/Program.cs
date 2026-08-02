@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using ChronoFall.CharacterExperiment.SdlGpu;
 using ChronoFall.CharacterExperiment.SimpleMesh;
+using ChronoFall.CharacterPresentation.Cooking;
 using SDL;
 
 namespace ChronoFall.CharacterExperiment.GpuHarness;
@@ -18,8 +19,7 @@ public static class Program
         {
             ConfigureNativeSdl();
             HarnessArguments options = HarnessArguments.Parse(args);
-            string assetPath = options.AssetPath ?? Path.Combine(FindRepositoryRoot(), SelectedAsset);
-            SkeletalCharacterAsset asset = SimpleMeshSkeletalAssetLoader.LoadFromFile(assetPath);
+            SkeletalCharacterAsset asset = LoadAsset(options);
             AnimationClip animation = SelectAnimation(asset);
             CharacterHarnessResult result = SdlGpuCharacterHarness.Run(
                 asset,
@@ -49,6 +49,26 @@ public static class Program
             Console.Error.WriteLine($"GPU_HARNESS_FAILURE: {exception}");
             return 1;
         }
+    }
+
+    private static SkeletalCharacterAsset LoadAsset(HarnessArguments options)
+    {
+        if (options.AssetPath is not null && options.CookedAssetPath is not null)
+            throw new ArgumentException("--asset and --cooked-asset cannot be combined.");
+
+        if (options.CookedAssetPath is not null)
+        {
+            using FileStream stream = File.OpenRead(options.CookedAssetPath);
+            CookedSkeletalCharacterAsset cooked = SkeletalAssetCookedFormat.Read(stream);
+            Console.WriteLine(
+                $"GPU_HARNESS_ASSET cooked id={cooked.Descriptor.AssetId} " +
+                $"source={cooked.Descriptor.SourcePath} clips={cooked.Asset.Animations.Count}");
+            return cooked.Asset;
+        }
+
+        string assetPath = options.AssetPath ?? Path.Combine(FindRepositoryRoot(), SelectedAsset);
+        Console.WriteLine($"GPU_HARNESS_ASSET source path={assetPath}");
+        return SimpleMeshSkeletalAssetLoader.LoadFromFile(assetPath);
     }
 
     private static AnimationClip SelectAnimation(SkeletalCharacterAsset asset)
@@ -100,6 +120,7 @@ public static class Program
     private sealed record HarnessArguments(
         bool Visible,
         string? AssetPath,
+        string? CookedAssetPath,
         string? CapturePath,
         string? SkeletonCapturePath,
         string? AnimationCapturePath,
@@ -112,6 +133,7 @@ public static class Program
         {
             bool visible = false;
             string? asset = null;
+            string? cookedAsset = null;
             string? capture = null;
             string? skeletonCapture = null;
             string? animationCapture = null;
@@ -128,6 +150,9 @@ public static class Program
                         break;
                     case "--asset" when index + 1 < args.Length:
                         asset = Path.GetFullPath(args[++index]);
+                        break;
+                    case "--cooked-asset" when index + 1 < args.Length:
+                        cookedAsset = Path.GetFullPath(args[++index]);
                         break;
                     case "--capture" when index + 1 < args.Length:
                         capture = Path.GetFullPath(args[++index]);
@@ -157,6 +182,7 @@ public static class Program
             return new HarnessArguments(
                 visible,
                 asset,
+                cookedAsset,
                 capture,
                 skeletonCapture,
                 animationCapture,

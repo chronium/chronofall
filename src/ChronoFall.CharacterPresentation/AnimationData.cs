@@ -42,6 +42,19 @@ public readonly record struct QuaternionKeyframe
         Value = DataValidation.NormalizeRotation(value, nameof(value));
     }
 
+    private QuaternionKeyframe(float time, Quaternion value, bool preserveRotation)
+    {
+        if (!float.IsFinite(time) || time < 0.0f)
+            throw new ArgumentOutOfRangeException(nameof(time), "Keyframe time must be finite and non-negative.");
+        DataValidation.RequireNormalizedRotation(value, nameof(value));
+
+        Time = time;
+        Value = value;
+    }
+
+    internal static QuaternionKeyframe FromValidatedComponents(float time, Quaternion value) =>
+        new(time, value, preserveRotation: true);
+
     public float Time { get; }
 
     public Quaternion Value { get; }
@@ -102,7 +115,7 @@ public sealed class QuaternionAnimationChannel
             copy.Length,
             nameof(keyframes));
         for (int index = 0; index < copy.Length; index++)
-            DataValidation.NormalizeRotation(copy[index].Value, nameof(keyframes));
+            DataValidation.RequireNormalizedRotation(copy[index].Value, nameof(keyframes));
         Keyframes = Array.AsReadOnly(copy);
         Interpolation = interpolation;
     }

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "assetId": "quaternius-ual1-standard",
+  "source": "assets/Quaternius/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb",
+  "sourceSha256": "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997",
+  "licenseIdentifier": "CC0-1.0",
+  "licenseEvidence": [
+    "assets/Quaternius/Universal Animation Library[Standard]/License.txt",
+    "assets/Quaternius/Universal Animation Library[Standard]/README.txt"
+  ],
+  "meshNodeName": "Mannequin",
+  "meshName": "Mannequin",
+  "skinName": "Armature",
+  "animationClips": [
+    "Idle_Loop",
+    "Walk_Loop",
+    "Sword_Attack"
+  ]
+}

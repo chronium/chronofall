@@ -47,6 +47,16 @@ internal static class DataValidation
         return Quaternion.Normalize(rotation);
     }
 
+    public static void RequireNormalizedRotation(Quaternion rotation, string parameterName)
+    {
+        if (!IsFinite(rotation))
+            throw new ArgumentException("Rotation must contain only finite values.", parameterName);
+
+        float lengthSquared = rotation.LengthSquared();
+        if (!float.IsFinite(lengthSquared) || MathF.Abs(lengthSquared - 1.0f) > 1e-4f)
+            throw new ArgumentException("Rotation must have finite unit length.", parameterName);
+    }
+
     public static void RequireFinite(Matrix4x4 matrix, string parameterName, string label)
     {
         if (!IsFinite(matrix))
