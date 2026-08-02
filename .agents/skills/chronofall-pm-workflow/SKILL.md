@@ -47,4 +47,4 @@ After every mutation, verify the receipt's `projectId` and `changedPaths` belong
 
 ## Execute And Complete
 
-After plan approval, re-read the task, recheck dependencies, move only it to the owning active state, implement, validate, update durable notes/wiki, and complete only when no required work remains. Completion ends the cycle: commit in the owning repository and stop without selecting another task.
+After plan approval, re-read the task, recheck dependencies, move only it to the owning active state, implement, validate, update durable notes/wiki, and complete only when no required work remains. Commit in the owning repository and do not select another task. For a child-owned task, the source-control workflow then performs its automatic pointer-only coordinator commit without creating or mutating a coordinator PM task; that mechanical handoff is still part of the same approved cycle.

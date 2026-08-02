@@ -1,7 +1,7 @@
 ---
 title: Coordinator and Child Project Topology
 createdAt: 2026-08-01T05:44:06.9895610Z
-modifiedAt: 2026-08-01T05:51:04.9307660Z
+modifiedAt: 2026-08-02T11:44:59.1532330Z
 ---
 
 ## Stable family
@@ -34,4 +34,4 @@ Independently committed PM bootstraps selected for the coordinator pointers:
 - Royale: `174fa32600887da2093bcf7cbc9ebf89dc92990f` (`BUILD-025`)
 - Starfall: `ac1b03425da91cadd58e1cc76b1f4850dddbf76d` (`SF-0002`)
 
-A child implementation commit and a coordinator gitlink update remain separate tasks and commits. The parent pointer is advanced only after the child task is complete and committed.
+A child implementation commit and its coordinator gitlink update remain separate focused Git commits, but they share one PM owner and one approved execution cycle. After the child task is complete and committed, the coordinator verifies identity, ancestry, and clean worktrees, then records a pointer-only commit automatically without creating a parent PM task. The pointer commit body preserves the canonical child task URI, stable project ID, and pinned commit.

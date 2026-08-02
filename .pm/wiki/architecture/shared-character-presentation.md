@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T10:27:27.8539530Z
+modifiedAt: 2026-08-02T11:44:59.4708990Z
 ---
 
 ## Decision
@@ -220,4 +220,4 @@ The focused shared foundation still does not decide or implement:
 - a render graph, scene system, ECS or generic component framework;
 - Royale or Starfall adapters, source changes or gitlink advancement.
 
-Child integration remains owned by Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-012` and Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. They consume only the approved source allowlist through `ChronoFallFamilyRoot` and the ignored generated client output through the stable-ID coordinator workflow. Each child still owns its references, runtime mapping, validation, commit, and later parent gitlink advancement.
+Child integration remains owned by Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/RENDER-012` and Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. They consume only the approved source allowlist through `ChronoFallFamilyRoot` and the ignored generated client output through the stable-ID coordinator workflow. Each child owns its references, runtime mapping, validation, and implementation commit. The coordinator then records the reviewed child commit through an automatic pointer-only commit in the same approved cycle, with no separate PM task.

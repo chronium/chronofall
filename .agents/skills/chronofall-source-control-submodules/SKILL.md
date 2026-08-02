@@ -26,18 +26,23 @@ Do not include coordinator source, another child, or a parent pointer in the chi
 
 ## Advance A Gitlink
 
-Use a separate coordinator task after the child commit exists. Confirm:
+After the child task is complete and committed, return to the coordinator in the same approved cycle. Do not create, select, activate, or complete a coordinator PM task for a mechanical pointer advance. Confirm:
 
 - the submodule path is the declared linked project;
-- its stable project ID matches the declaration;
+- its stable project ID and reciprocal parent declaration match;
+- its committed path hint and tracked gitlink identify the checkout;
 - `HEAD` is the intended reviewed child commit;
+- the child commit descends from the recorded pin;
 - the child tree is clean;
-- no sibling or parent source changed accidentally.
+- every sibling tree is clean;
+- the coordinator has no unrelated staged or unstaged changes.
 
-Stage only the intended gitlink and any coordinator task/wiki evidence owned by the pointer task. Commit with the parent task ID.
+Stage only the intended gitlink and inspect the complete staged submodule diff. Commit with the child task ID in the subject. Persist the canonical child task URI, stable child project ID, and pinned commit in the commit body. Do not mutate coordinator PM or wiki data for the pointer.
+
+If any check fails, stop and report the blocker. Resume this mechanical follow-up after resolution without creating a `SUBMODULE` task. Pushing remains owner-directed and must publish the child before the coordinator.
 
 ## Validate Checkout
 
 Check `.gitmodules`, path hints, `git submodule status`, and the recorded gitlink. Validate a recursive checkout with the repository's documented command or a non-destructive status/sync check. Never treat a matching remote as identity proof.
 
-Report child commit, parent commit, old/new gitlink, PM task ownership, and any uncommitted work separately.
+Report child commit, pointer commit, old/new gitlink, canonical child PM ownership, and any uncommitted work separately.

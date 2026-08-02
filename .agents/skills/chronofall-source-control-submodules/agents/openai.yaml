@@ -1,4 +1,4 @@
 interface:
   display_name: "ChronoFall Source Control"
   short_description: "Manage child commits and gitlinks safely"
-  default_prompt: "Use $chronofall-source-control-submodules to complete a child change and advance its coordinator gitlink separately."
+  default_prompt: "Use $chronofall-source-control-submodules to complete a child change and automatically record its pointer-only coordinator gitlink commit."

@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-02T10:26:40.3003240Z
+modifiedAt: 2026-08-02T11:44:59.3654720Z
 ---
 
 ## Decision
@@ -79,6 +79,6 @@ The established `.cfskel` output is 1,278,301 bytes with SHA-256 `37d2ecd2c614a4
 
 Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` owns this source-consumption and staging boundary.
 
-Starfall integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. It owns only Starfall client references, content consumption, and runtime mapping. Royale integration remains child-owned. Neither child integration may redesign coordinator source, add a feed, copy raw source assets, or advance its parent gitlink.
+Starfall integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. It owns only Starfall client references, content consumption, and runtime mapping. Royale integration remains child-owned. Neither child integration may redesign coordinator source, add a feed, copy raw source assets, or edit the parent repository. After the child task is complete and committed, the coordinator automatically records only the reviewed gitlink in a pointer-only commit owned by the canonical child task.
 
 Completing `SHARED-0016` satisfies only the coordinator dependency of Starfall `CLIENT-0006`; Starfall `BUILD-0003` remains independently required.

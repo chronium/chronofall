@@ -1,7 +1,7 @@
 ---
 title: Skinned-Character Proof Findings and Promotion Criteria
 createdAt: 2026-08-01T16:36:40.6943920Z
-modifiedAt: 2026-08-01T17:05:46.5708150Z
+modifiedAt: 2026-08-02T11:44:59.5852120Z
 ---
 
 ## Decision
@@ -77,7 +77,7 @@ The promotion task must:
 5. choose final module names and API shapes deliberately instead of renaming the experiment assemblies mechanically;
 6. treat SimpleMesh, SDL3-CS, vertex packing, shader bindings, and resource ownership as reviewed dependency or ABI decisions;
 7. retain deterministic managed tests and native Metal evidence while avoiding a general renderer, scene system, ECS, or Unity-like engine;
-8. leave cooking, child integration, and gitlink advancement to their existing separately owned tasks.
+8. leave cooking and child integration to their owning tasks; after a child task commit, record gitlink advancement as its automatic pointer-only coordinator follow-up rather than a separate PM task.
 
 Completing this M1 decision makes `SHARED-0001` dependency-ready. It does not activate that task or authorize extraction.
 

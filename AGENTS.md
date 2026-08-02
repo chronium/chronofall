@@ -80,7 +80,8 @@ Only after the owner approves the plan:
 7. Update durable task notes and relevant owning-project wiki pages.
 8. Obtain explicit owner validation when visuals, animation, UI, controls, camera, audio, or gameplay feel are acceptance criteria.
 9. Complete the task only after implementation, validation, documentation, and required owner validation.
-10. Commit the focused change in the owning repository with the task ID and stop.
+10. Commit the focused change in the owning repository with the task ID.
+11. For a child-owned task executed from the verified family checkout, complete the automatic pointer-only coordinator follow-up described below, then stop.
 
 Do not automatically select or begin another task after completion. Every task starts with a new owner-directed Plan-mode pass.
 
@@ -98,10 +99,13 @@ Child source lifecycle:
 
 1. Select, plan, approve, activate, implement, validate, document, complete, and commit the child task in the child.
 2. Return to the coordinator.
-3. Select and plan a separate parent task for the gitlink.
-4. Verify the intended child commit, update only the pointer, validate recursive checkout, and commit the parent task.
+3. Without creating or activating a coordinator PM task, verify the child stable ID, reciprocal declarations, path hint, tracked gitlink, clean child and sibling worktrees, expected child `HEAD`, and ancestry from the recorded pin.
+4. Stage only that child's gitlink, validate the recursive checkout and complete staged diff, then create a pointer-only coordinator commit whose subject begins with the child task ID and whose body records the canonical child task URI, stable project ID, and pinned commit.
+5. Stop. Pushing remains owner-directed; publish the child commit before the coordinator commit.
 
-Task commits begin with the owning task ID, for example `[RENDER-012] Integrate shared character presentation`.
+The pointer commit is a mechanical continuation of the approved child task, not a second PM task or implementation scope. If the coordinator contains unrelated changes, the child is dirty, identity or ancestry is wrong, or the linked project is unavailable, stop and report the blocker. Resume the same mechanical follow-up after resolution; do not create a ceremonial `SUBMODULE` task.
+
+Task commits begin with the owning task ID, for example `[RENDER-012] Integrate shared character presentation`. The corresponding pointer-only commit may use `[RENDER-012] Pin Royale child commit` and persists the canonical child task URI in its body.
 
 ## Experiments, Shared Source, And Assets
 
