@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-02T17:51:47.6441760Z
+modifiedAt: 2026-08-03T08:14:55.0394310Z
 ---
 
 ## Decision
@@ -33,6 +33,14 @@ A child reference uses `$(ChronoFallFamilyRoot)src/...`. The child's conditional
 `ChronoFall.CharacterPresentation` remains deterministic and BCL-only. `ChronoFall.CharacterPresentation.Cooking` remains BCL-only and depends only on the core. `ChronoFall.CharacterPresentation.SdlGpu` owns GPU upload/draw recording and directly references the checked-out coordinator pin at `thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj`. SDL3-CS is compiled from source; children do not acquire or pin it independently for this shared path.
 
 Only a child client may consume this allowlist. Headless simulation, world/server, Balance Lab, protocol, content, and editor projects remain free of SDL/GPU and shared presentation dependencies unless a later approved contract says otherwise.
+
+## Pending headless Box3D source boundary
+
+The current allowlist above remains client-presentation-only. Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0021` is the separately owned prerequisite for extending this model to an explicit headless-safe Box3D source allowlist.
+
+When implemented, that task must expose only coordinator-owned child-independent Box3D projects through the existing `ChronoFallFamilyRoot` property, prove a headless family-source consumer, and keep native runtime artifacts free of SDL, GPU, ImGui and presentation payloads. It must not add literal parent traversal, package/feed machinery, imported coordinator build policy, or direct child references.
+
+No child may consume the pending boundary merely because the task exists. Starfall integration remains blocked until `SHARED-0021` completes and Starfall's reviewed Cycle 3 dependency wiring has been committed.
 
 ## Generated client content
 

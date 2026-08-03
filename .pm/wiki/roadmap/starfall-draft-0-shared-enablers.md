@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-02T16:56:18.8925510Z
+modifiedAt: 2026-08-03T08:14:44.9479350Z
 ---
 
 ## Purpose and ownership
@@ -77,6 +77,23 @@ Every acquisition must resolve the consuming checkout by stable PM project ident
 Raw supplied sources remain coordinator-owned. Generated cooks, provenance sidecars, and copied licence evidence are client-only and ignored. World/server, simulation, Balance Lab, protocol, and content artifacts receive no rendering payload or native dependency.
 
 Package/feed distribution remains deferred. The canonical family checkout and `ChronoFallFamilyRoot` source boundary remain the approved development environment.
+
+## Authoritative walking physics prerequisite
+
+Starfall's provisional graybox and authoritative movement remain game-owned, but the reusable Box3D source/native/managed boundary belongs to ChronoFall:
+
+```text
+parent SHARED-0016 family-source policy
+Royale PHYS-012 proven audited Box3D integration
+  -> parent SHARED-0021 bounded shared Box3D runtime
+  -> future canonical dependency from Starfall SIM-0008
+```
+
+`SHARED-0021` is dependency-ready and todo. It canonically consumes Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/PHYS-012` as evidence, without creating a Starfall-to-Royale dependency or authorizing coordinator changes in Royale. The parent task owns an independent pin, licence evidence, fetch/native-build workflow, minimum child-independent binding/ownership surface, and the explicit headless-safe `ChronoFallFamilyRoot` source boundary.
+
+The initial surface is limited to authoritative ground-plane movement needs: world lifecycle/stepping, bodies, transforms/velocity, boxes/capsules, filtering, and bounded collision/query facts. Starfall continues to own entity identity, fixed-tick simulation policy, content conversion, movement rules and gameplay outcomes. Rendering, debug presentation, maps, collision cooking, generalized physics abstractions and child integration remain outside the coordinator task.
+
+Cycle 2 allocates and documents this parent task only. It does not mutate Starfall. In the separately owner-directed Cycle 3, completed Starfall grooming task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009` may reopen solely to attach the canonical `SHARED-0021` dependency to `SIM-0008` and correct matching Starfall roadmap prose. `SIM-0008` must not activate before that reviewed wiring is complete.
 
 ## Later Starfall wiring
 
