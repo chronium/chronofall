@@ -1,7 +1,7 @@
 ---
 title: Quaternius Asset Provenance and Intake
 createdAt: 2026-08-01T05:44:07.0108550Z
-modifiedAt: 2026-08-03T12:23:29.4102180Z
+modifiedAt: 2026-08-03T12:31:20.6630770Z
 ---
 
 ## Provenance
@@ -21,18 +21,18 @@ Kickoff inventory found these Standard/free collections:
 
 The inspected male and female base-character glTFs each contain one skin with 65 joints, 69 nodes, three meshes, no animations, external BIN data, and external textures. The animation-library readmes distinguish `_RM` root-motion files from root-motion-disabled files. The outfit readme says the pack works with Universal Base Characters and recommends hiding/removing unseen base-body parts to avoid clipping.
 
-## Draft 0 prospective sources
+## Draft 0 external and prospective sources
 
-The Starfall Draft 0 roadmap identifies prospective official CC0 inputs without treating them as supplied or selected:
+The Starfall Draft 0 roadmap distinguishes owner-supplied private source from prospective official CC0 inputs. Neither availability nor inventory is final Starfall selection:
 
-- An owner-supplied private Universal Animation Library 2 Source package may provide a minimum compatible bow clip set after a separate task records its exact files, hashes, licence evidence, skeleton, rest transforms, and clips. Physical availability does not make it selected, public, or dependency-ready.
+- The owner-supplied private Universal Animation Library 2 Source package was inventoried by `ASSET-0010` at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-ual2-source-bow-evaluation`. It remains outside the repository and unselected for production; `EXPERIMENT-0014` owns the bounded technical bow-body visual proof.
 - Modular Sci-Fi MegaKit is the preferred first inspection for unmistakably temporary small alien, grub, or hovering monster candidates.
 - Ultimate Monsters is the fallback only if inspected sci-fi candidates are unsuitable.
 - Stylized Nature MegaKit may provide a tiny exact subset of rocks, trees, one bush, and grass/flower clumps.
 - Fantasy Props MegaKit may provide a few exact landmark-only inn, workshop, or market/storage props.
 - Ultimate RPG Pack remains deferred and unselected until a physical-item task proves an exact unmet need.
 
-Prospective packs are not dependencies. Starfall selection records exact pack-relative identities; coordinator acquisition consumes only completed selections with hashes and provenance. No whole pack is cooked or staged. Engine-specific vegetation/wind shaders are not assumed portable.
+Prospective packs are not dependencies. The inventoried private UAL2 Source package becomes a production input only through completed proof, Starfall selection, and exact coordinator acquisition. Starfall selection records exact pack-relative identities; coordinator acquisition consumes only completed selections with hashes and provenance. No whole pack is cooked or staged. Engine-specific vegetation/wind shaders are not assumed portable.
 
 The existing UAL1 recipe remains historical and technical evidence. It must not be rewritten into the archer cook, and `Sword_Attack` is not an acceptable bow placeholder.
 

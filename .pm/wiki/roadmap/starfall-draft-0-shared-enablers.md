@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-03T12:23:29.6178760Z
+modifiedAt: 2026-08-03T12:31:20.7552310Z
 ---
 
 ## Purpose and ownership
@@ -41,7 +41,7 @@ SHARED-0020 narrow proof
 
 | Coordinator task | Owning selection | Known coordinator prerequisites | Result |
 | --- | --- | --- | --- |
-| `ASSET-0004` archer and bow animations | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0002`, `SHARED-0017` | Exact base/underlayer and minimum compatible bow clips |
+| `ASSET-0004` archer and bow animations | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0002`, `SHARED-0017`, `EXPERIMENT-0014` | Exact base/underlayer and minimum compatible bow clips |
 | `ASSET-0005` Ranger equipment | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0004`, `SHARED-0017` | Exact selected Ranger/leather pieces after modular-armour and body-hiding contracts |
 | `ASSET-0006` bow and arrows | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0019`, `SHARED-0017` | Exact selected static weapon inputs |
 | `ASSET-0007` zone presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0012` | `SHARED-0019`, `SHARED-0017` | Exact village/nature/prop/graybox inputs |
@@ -61,14 +61,27 @@ Established source policy remains:
 
 Prospective Quaternius sources remain evidence-gated:
 
-- the owner-supplied private Universal Animation Library 2 Source package for a minimum compatible bow clip set, after task-owned inventory and visual proof;
+- the owner-supplied private Universal Animation Library 2 Source package, inventoried by `ASSET-0010`, for a minimum compatible bow clip set after the `EXPERIMENT-0014` technical bow-body visual proof;
 - Modular Sci-Fi MegaKit as the preferred first temporary-monster inspection;
 - Ultimate Monsters as fallback;
 - Stylized Nature MegaKit for a tiny exact nature subset;
 - Fantasy Props MegaKit for optional landmark-only dressing;
 - Ultimate RPG Pack as a deferred, unselected pickup-art candidate.
 
-The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. Physical availability alone never establishes compatibility, selection, or dependency readiness: the private UAL2 Source package is supplied but remains outside the repository and awaits task-owned inventory and proof; the other prospective packs remain unverified until physically supplied and reviewed.
+The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. Physical availability alone never establishes compatibility, selection, or dependency readiness: the private UAL2 Source package remains outside the repository, its inventory is complete under `ASSET-0010`, and its technical proof remains todo under `EXPERIMENT-0014`; the other prospective packs remain unverified until physically supplied and reviewed.
+
+## Bow-animation evidence lane
+
+```text
+ASSET-0010 private Source inventory and bounded candidate selection
+  -> EXPERIMENT-0014 technical bow-body-animation sequence proof
+
+Starfall CONTENT-0011 final character/bow/animation selection
+EXPERIMENT-0014 completed proof
+  -> ASSET-0004 exact production acquisition and client staging
+```
+
+`EXPERIMENT-0014` is todo and must not be activated without its own approved plan. Its output is body-animation evidence on the technical mannequin, not an equipped bow proof. A later Starfall-owned selection cycle may add the completed experiment's canonical URI to `CONTENT-0011`; this coordinator task does not mutate Starfall.
 
 ## Staging and audience
 

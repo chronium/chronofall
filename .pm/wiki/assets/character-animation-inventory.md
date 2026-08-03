@@ -1,7 +1,7 @@
 ---
 title: Quaternius Character and Animation Inventory
 createdAt: 2026-08-01T07:17:10.6916090Z
-modifiedAt: 2026-08-03T12:23:29.3051510Z
+modifiedAt: 2026-08-03T12:31:20.5635490Z
 ---
 
 ## Scope and provenance
@@ -43,6 +43,8 @@ Historical UAL2 Standard evidence retained after the source files were removed b
 - `Universal Animation Library 2[Standard]/Female Mannequin/Unreal-Godot/Mannequin_F.glb`: embedded BIN, no animations, 1,442,824 bytes, SHA-256 `2ee6cc3fe888d9b144afa8cc4b2ab7bfc5d13a0d5b7548df777f61f64ad65fa6`. Blender and Unity FBX variants were also inspected.
 
 The retained UAL1 GLBs and the historically inspected UAL2 Standard GLBs each have 67 nodes, one mannequin mesh, one 65-joint skin, and 43 animation clips. No textures are embedded.
+
+The separately owner-supplied private UAL2 Source snapshot is inventoried by `ASSET-0010` at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-ual2-source-bow-evaluation`. It contains 134 animations, including all 43 historical UAL2 Standard clip names, but remains outside the repository and is not a production selection.
 
 ### Modular outfits
 
@@ -138,7 +140,7 @@ jq '{asset,nodes,meshes,skins,animations,buffers,images}' <source.gltf>
 assimp info <source.glb>
 ```
 
-The UAL2 Standard paths and hashes above are historical inspection evidence and are not reproducible from the current checkout after `ASSET-0009`. Do not restore or substitute that snapshot as part of reproduction. The separately owner-supplied private UAL2 Source package requires its own task-owned inventory and must remain outside the public repository.
+The UAL2 Standard paths and hashes above are historical inspection evidence and are not reproducible from the current checkout after `ASSET-0009`. Do not restore or substitute that snapshot as part of reproduction. The separately owner-supplied private UAL2 Source package is inventoried by `ASSET-0010` at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-ual2-source-bow-evaluation` and must remain outside the public repository.
 
 For GLB, read the little-endian JSON chunk length at byte 12, then inspect the JSON chunk beginning at byte 20 with `jq`. Accessor values are reproduced by applying each accessor's component type/count/type and byte offset to its bufferView and buffer, honoring byte stride. Cross-check node/mesh/animation aggregates and hierarchy with `assimp info`.
 
