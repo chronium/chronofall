@@ -6,7 +6,7 @@ milestone: M3
 dependsOn:
 - pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009
 createdAt: 2026-08-03T08:12:46.7111100Z
-modifiedAt: 2026-08-03T08:28:27.1517610Z
+modifiedAt: 2026-08-03T08:47:47.4101010Z
 ---
 
 Groom the coordinator-owned Box3D prerequisite required by Starfall's approved walking-slice roadmap without implementing physics or mutating a child.
@@ -61,3 +61,19 @@ Acceptance criteria:
   - COORD-0010 was the only active task during correction; SHARED-0021 remained dependency-ready and todo with unchanged dependencies.
   - Starfall and Royale worktrees and both gitlinks remained unchanged.
   - No build, native or visual validation was required for this documentation-only correction.
+- 2026-08-03 08:47 UTC - Reopened as a directly attributable Cycle 3 documentation review continuation.
+
+  - Updated the coordinator Box3D roadmap and source-boundary prose to record that Starfall Cycle 3 completed through pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009.
+  - Recorded Starfall commit 84b1c94d3d3413954a20b09ea1d0445dfeb748f7 and coordinator pointer commit 7530f552044b5888d44df7123c66996612c4655e.
+  - Replaced future dependency-wiring language with the completed state: SIM-0008 now has a valid-but-waiting canonical dependency on SHARED-0021.
+  - Preserved the implementation gate: source consumption and SIM-0008 activation remain blocked until SHARED-0021 completes and SIM-0008 receives its own approved implementation plan.
+  - Mutation receipts identified coordinator project prj_E7QP3LUocfY7k3PYM-EQOlqc and only architecture/shared-engine-boundaries, development/family-source-consumption, and roadmap/starfall-draft-0-shared-enablers.
+  - No tasks, dependencies, source, assets, children, gitlinks, or feature states changed beyond the required COORD-0010 reopen/complete lifecycle.
+
+  Validation:
+  - Family readback reports 365 tasks with no missing, invalid, or unavailable dependencies and no cycles.
+  - Exactly COORD-0010 was active during the correction; SHARED-0021 and SIM-0008 remain todo.
+  - SIM-0008 resolves SHARED-0021 as a valid waiting dependency, and linked-family inspection reports no warnings.
+  - Coordinator pm doctor and git diff --check passed.
+  - Starfall and Royale worktrees and both gitlinks remained unchanged.
+  - No build, native, or visual validation was required for this coordinator PM/wiki-only correction.

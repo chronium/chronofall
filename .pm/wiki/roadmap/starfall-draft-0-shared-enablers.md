@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-03T08:27:57.0801290Z
+modifiedAt: 2026-08-03T08:47:13.3907380Z
 ---
 
 ## Purpose and ownership
@@ -86,14 +86,14 @@ Starfall's provisional graybox and authoritative movement remain game-owned, but
 parent SHARED-0016 family-source policy
 Royale PHYS-012 proven audited Box3D integration
   -> parent SHARED-0021 bounded shared Box3D runtime
-  -> future canonical dependency from Starfall SIM-0008
+  -> canonical waiting dependency from Starfall SIM-0008
 ```
 
 `SHARED-0021` is dependency-ready and todo. It canonically consumes Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/PHYS-012` as evidence, without creating a Starfall-to-Royale dependency or authorizing coordinator changes in Royale. The parent task owns an independent pin, licence evidence, fetch/native-build workflow, minimum child-independent binding/ownership surface, and the explicit headless-safe `ChronoFallFamilyRoot` source boundary.
 
 The initial surface is limited to authoritative ground-plane movement needs: world lifecycle/stepping, bodies, transforms/velocity, boxes/capsules, filtering, and bounded collision/query facts. Starfall continues to own entity identity, fixed-tick simulation policy, content conversion, movement rules and gameplay outcomes. Rendering, debug presentation, maps, collision cooking, generalized physics abstractions and child integration remain outside the coordinator task.
 
-Cycle 2 allocates and documents this parent task only. It does not mutate Starfall. In the separately owner-directed Cycle 3, completed Starfall grooming task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009` may reopen solely to attach the canonical `SHARED-0021` dependency to `SIM-0008` and correct matching Starfall roadmap prose. `SIM-0008` must not activate before that reviewed wiring is complete.
+Cycle 2 allocated and documented the parent task without mutating Starfall. The separately owner-directed Starfall Box3D Cycle 3 then completed through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`. Starfall commit `84b1c94d3d3413954a20b09ea1d0445dfeb748f7` attached the canonical `SHARED-0021` dependency to `SIM-0008` and corrected the matching Starfall roadmap prose; coordinator pointer commit `7530f552044b5888d44df7123c66996612c4655e` pins that reviewed child commit. `SIM-0008` now has a valid-but-waiting dependency on `SHARED-0021`. Source consumption and `SIM-0008` activation remain blocked until `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan.
 
 ## Historical asset-enabler wiring (SF-0008)
 
@@ -101,4 +101,4 @@ An earlier asset-enabler Cycle 3 completed through Starfall task `pm://project/p
 
 Coordinator pointer commit `166ec61255addf97da44a4594a810427e9424188` pins that exact Starfall commit and records the canonical task URI and stable Starfall project ID. That earlier COORD-0009/SF-0008 asset-enabler continuation is complete and has no further wiring under its scope.
 
-It is distinct from the pending Box3D Cycle 3 described above. The Box3D continuation remains to reopen `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`, attach the allocated `SHARED-0021` canonical dependency to `SIM-0008`, record that the dependency is waiting until `SHARED-0021` completes, and stop before implementation.
+It is distinct from the now-completed Box3D Cycle 3 described above. Both reviewed wiring continuations are complete; the Box3D implementation and Starfall source-consumption gate remain separately owned by `SHARED-0021` and the later approved `SIM-0008` implementation plan.

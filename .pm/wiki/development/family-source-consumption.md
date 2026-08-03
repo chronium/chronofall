@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-03T08:14:55.0394310Z
+modifiedAt: 2026-08-03T08:47:13.5099160Z
 ---
 
 ## Decision
@@ -40,7 +40,7 @@ The current allowlist above remains client-presentation-only. Coordinator task `
 
 When implemented, that task must expose only coordinator-owned child-independent Box3D projects through the existing `ChronoFallFamilyRoot` property, prove a headless family-source consumer, and keep native runtime artifacts free of SDL, GPU, ImGui and presentation payloads. It must not add literal parent traversal, package/feed machinery, imported coordinator build policy, or direct child references.
 
-No child may consume the pending boundary merely because the task exists. Starfall integration remains blocked until `SHARED-0021` completes and Starfall's reviewed Cycle 3 dependency wiring has been committed.
+No child may consume the pending boundary merely because the task exists. Starfall Box3D Cycle 3 completed through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`: Starfall commit `84b1c94d3d3413954a20b09ea1d0445dfeb748f7` attached the canonical dependency and coordinator pointer commit `7530f552044b5888d44df7123c66996612c4655e` pins it. `SIM-0008` now has a valid-but-waiting dependency on `SHARED-0021`; source consumption and activation remain blocked until `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan.
 
 ## Generated client content
 
