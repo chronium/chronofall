@@ -1,14 +1,14 @@
 ---
 title: Skinned-Character Proof Findings and Promotion Criteria
 createdAt: 2026-08-01T16:36:40.6943920Z
-modifiedAt: 2026-08-02T11:44:59.5852120Z
+modifiedAt: 2026-08-03T15:42:11.3115720Z
 ---
 
 ## Decision
 
 M1 proves that the supplied Quaternius humanoid and compatible same-file animation data can be loaded, sampled deterministically, inspected, and rendered correctly through native SDL GPU skinning. That proof authorized the focused promotion in `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0001`.
 
-The promotion preserves the demonstrated semantics and boundaries in `ChronoFall.CharacterPresentation` and `ChronoFall.CharacterPresentation.SdlGpu`. `ChronoFall.CharacterExperiment.SimpleMesh`, `ChronoFall.CharacterExperiment.SdlGpu`, and the GPU harness remain provisional validation consumers rather than shared loader, window, camera, capture or scene APIs.
+The promotion preserves the demonstrated semantics and boundaries in `ChronoFall.CharacterPresentation` and `ChronoFall.CharacterPresentation.SdlGpu`. `ChronoFall.CharacterExperiment.SimpleMesh`, `ChronoFall.CharacterExperiment.SdlGpu`, and the GPU harness remain provisional validation consumers rather than shared loader, window, camera or scene APIs. `SHARED-0022` later promoted only their proven one-shot texture-readback and PNG boundary.
 
 ## M1 acceptance evidence
 
@@ -50,7 +50,7 @@ The loader deterministically rejects unsupported interpolation, unresolved or du
 | Pose and palette evaluation | Ready for shared-module design | Preserve `Scale * Rotation * Translation`, parent-first globals, `inverseBind * posedGlobal`, finite matrices, and no CPU transposition. |
 | Debug-pose boundary | Ready for shared-module design | Debug hierarchy and axes consume evaluated global transforms; skinning palettes remain a separate vertex-deformation representation. |
 | GPU skinning behavior | Proven, exact ABI not frozen | Retain joint/weight-driven position and normal deformation, palette-buffer delivery, and exactly one transpose at the GPU boundary. Re-evaluate vertex stride, attributes, storage slots, shader entry points, and material inputs. |
-| SDL GPU lifecycle and readback | Proven implementation evidence | The parent-owned SDL3-CS acquisition, explicit resource ownership, offscreen targets, readback, and native harness are useful inputs. They are not yet a permanent public wrapper or render framework. |
+| SDL GPU lifecycle and readback | Bounded helper promoted | The parent-owned SDL3-CS acquisition, explicit resource ownership, offscreen targets, readback, and native harness supplied the evidence for `SHARED-0022`. Only one-shot texture readback and PNG encoding are promoted; no window, target, scene or render framework is implied. |
 | SimpleMesh adapter and patch | Experiment-only | The selected input loads reproducibly, but SimpleMesh is not approved as a permanent dependency or shared loader API. Its focused interpolation/scale patch remains evidence for required importer behavior. |
 | Source loading and cooked format | Deferred | `SHARED-0002` must decide client-only cooking and output boundaries without committing to a permanent format before evidence. |
 | Harness, fixed camera, captures, and browser controls | Experiment-only | Preserve as validation evidence and possible tooling patterns, not runtime shared APIs. |

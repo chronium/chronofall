@@ -1099,59 +1099,25 @@ internal static partial class SdlGpuCharacterHarness
 
         internal byte[] RenderOffscreen(Matrix4x4 viewProjection, bool includeSkeleton)
         {
-            uint byteCount = checked((uint)(width * height * 4));
-            SDL_GPUTransferBuffer* transfer = CreateTransfer(SDL_GPUTransferBufferUsage.SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD, byteCount);
-            SDL_GPUFence* fence = null;
+            SDL_GPUCommandBuffer* command = AcquireCommand();
             try
             {
-                SDL_GPUCommandBuffer* command = AcquireCommand();
                 Render(command, offscreenColor, offscreenDepth, (uint)width, (uint)height, viewProjection, includeSkeleton);
-                SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(command);
-                if (copy is null)
-                    throw new InvalidOperationException($"SDL GPU readback copy pass failed: {SDL_GetError()}");
-                var source = new SDL_GPUTextureRegion
-                {
-                    texture = offscreenColor,
-                    w = (uint)width,
-                    h = (uint)height,
-                    d = 1,
-                };
-                var destination = new SDL_GPUTextureTransferInfo
-                {
-                    transfer_buffer = transfer,
-                    pixels_per_row = (uint)width,
-                    rows_per_layer = (uint)height,
-                };
-                SDL_DownloadFromGPUTexture(copy, &source, &destination);
-                SDL_EndGPUCopyPass(copy);
-                fence = SDL_SubmitGPUCommandBufferAndAcquireFence(command);
-                if (fence is null)
-                    throw new InvalidOperationException($"SDL GPU readback submission failed: {SDL_GetError()}");
-                SDL_GPUFence* fenceValue = fence;
-                if (!SDL_WaitForGPUFences(device, wait_all: true, &fenceValue, 1))
-                    throw new InvalidOperationException($"SDL GPU fence wait failed: {SDL_GetError()}");
-                IntPtr mapped = SDL_MapGPUTransferBuffer(device, transfer, cycle: false);
-                if (mapped == IntPtr.Zero)
-                    throw new InvalidOperationException($"SDL GPU readback mapping failed: {SDL_GetError()}");
-                try
-                {
-                    byte[] pixels = new byte[byteCount];
-                    Marshal.Copy(mapped, pixels, 0, pixels.Length);
-                    SDL_GPUTextureFormat format = SDL_GetGPUSwapchainTextureFormat(device, window);
-                    NormalizeToRgba(pixels, format);
-                    return pixels;
-                }
-                finally
-                {
-                    SDL_UnmapGPUTransferBuffer(device, transfer);
-                }
             }
-            finally
+            catch
             {
-                if (fence is not null)
-                    SDL_ReleaseGPUFence(device, fence);
-                SDL_ReleaseGPUTransferBuffer(device, transfer);
+                _ = SDL_CancelGPUCommandBuffer(command);
+                throw;
             }
+
+            using SdlGpuReadbackRequest request = SdlGpuTextureReadback.Submit(
+                device,
+                command,
+                offscreenColor,
+                width,
+                height,
+                SDL_GetGPUSwapchainTextureFormat(device, window));
+            return request.Wait().Pixels.ToArray();
         }
 
         internal void RunVisible(
@@ -1674,16 +1640,5 @@ internal static partial class SdlGpuCharacterHarness
             texture = null;
         }
 
-        private static void NormalizeToRgba(byte[] pixels, SDL_GPUTextureFormat format)
-        {
-            if (format is SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM or
-                SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM_SRGB)
-                return;
-            if (format is not (SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM or
-                SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM_SRGB))
-                throw new NotSupportedException($"GPU readback format {format} is not supported by this experiment.");
-            for (int offset = 0; offset < pixels.Length; offset += 4)
-                (pixels[offset], pixels[offset + 2]) = (pixels[offset + 2], pixels[offset]);
-        }
     }
 }

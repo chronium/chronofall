@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-02T17:50:22.5843940Z
+modifiedAt: 2026-08-03T15:40:47.9023790Z
 ---
 
 ## Decision
@@ -200,7 +200,7 @@ Version 1 is deliberately provisional. It does not cook textures, production mat
 
 `ChronoFall.CharacterExperiment.SimpleMesh` remains the provisional M1 loader adapter. It maps the selected source GLB into the promoted core and is consumed only by the build-time cooker and experiment validation. SimpleMesh is not a dependency of the core, cooked-format, SDL GPU, or child runtime assemblies and is not approved as a permanent importer.
 
-`ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host. It owns the window, camera, skeleton overlay, controls, offscreen targets, readback and captures while consuming the shared renderer for every character draw. The retained native fingerprints prove the shared path still produces the validated Metal output.
+`ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host. It owns the window, camera, skeleton overlay, controls, offscreen targets, capture scheduling and output selection while consuming the shared renderer for every character draw and the bounded shared texture-readback helper. The retained native fingerprints prove the shared path still produces the validated Metal output.
 
 `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` establishes the first family source-consumption boundary. Approved child clients reference the core, cooking, and SDL GPU projects through the single `ChronoFallFamilyRoot` property in the canonical coordinator checkout. Repository and product ownership remain independent; full client build isolation outside that checkout is not currently required.
 

@@ -42,7 +42,7 @@ public sealed class FamilySourceConsumptionPolicyTests
     }
 
     [Fact]
-    public void SdlGpuBuildsTheCheckedOutSdlSourceWithoutAPackageReference()
+    public void SdlGpuBuildsCheckedOutSdlSourceAndUsesOnlyTheApprovedPngPackage()
     {
         XDocument project = XDocument.Load(Path.Combine(
             RepositoryRoot,
@@ -56,7 +56,23 @@ public sealed class FamilySourceConsumptionPolicyTests
             .ToArray();
 
         Assert.Contains("../../thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj", references);
-        Assert.Empty(project.Descendants("PackageReference"));
+        XElement package = Assert.Single(project.Descendants("PackageReference"));
+        Assert.Equal("StbImageWriteSharp", package.Attribute("Include")?.Value);
+
+        XDocument packages = XDocument.Load(Path.Combine(RepositoryRoot, "Directory.Packages.props"));
+        XElement version = Assert.Single(
+            packages.Descendants("PackageVersion"),
+            static candidate => candidate.Attribute("Include")?.Value == "StbImageWriteSharp");
+        Assert.Equal("1.16.7", version.Attribute("Version")?.Value);
+
+        string provenance = File.ReadAllText(Path.Combine(
+            RepositoryRoot,
+            "thirdparty",
+            "licenses",
+            "StbImageWriteSharp",
+            "PROVENANCE.md"));
+        Assert.Contains("Public Domain", provenance, StringComparison.Ordinal);
+        Assert.Contains("13d0103bab5c5e7783a38af0712696fdc361a850eff3cd68ef8c2a0767d31b46", provenance, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -20,8 +20,8 @@ Usage:
     --output <sheet.png> [--columns <count>] \\
     --item <image> <label> [--item <image> <label> ...]
 
-The macOS AppKit compositor preserves each source image without cropping, adds a
-48-point label strip, and writes a 2x PNG suitable for project-history review.
+The macOS AppKit compositor preserves each source image pixel-for-pixel without
+cropping, adds a 48-pixel label strip, and writes a PNG suitable for review.
 All input images in one sheet must have the same dimensions.
 """
 
@@ -60,33 +60,53 @@ guard !items.isEmpty else {
     fail("at least one --item is required\n\n\(usage)")
 }
 
-let loadedItems: [(image: NSImage, label: String)] = items.map { item in
-    guard let image = NSImage(contentsOfFile: item.path) else {
+let loadedItems: [(image: NSImage, pixelWidth: Int, pixelHeight: Int, label: String)] = items.map { item in
+    guard let data = FileManager.default.contents(atPath: item.path),
+          let representation = NSBitmapImageRep(data: data),
+          representation.pixelsWide > 0,
+          representation.pixelsHigh > 0 else {
         fail("could not load '\(item.path)'")
     }
-    return (image, item.label)
+    let pixelSize = NSSize(width: representation.pixelsWide, height: representation.pixelsHigh)
+    let image = NSImage(size: pixelSize)
+    image.addRepresentation(representation)
+    return (image, representation.pixelsWide, representation.pixelsHigh, item.label)
 }
 
-let sourceSize = loadedItems[0].image.size
-guard sourceSize.width > 0, sourceSize.height > 0 else {
-    fail("the first input image has invalid dimensions")
-}
-for (index, item) in loadedItems.enumerated() where item.image.size != sourceSize {
-    fail("input image \(index + 1) is \(item.image.size), expected \(sourceSize)")
+let sourceWidth = loadedItems[0].pixelWidth
+let sourceHeight = loadedItems[0].pixelHeight
+for (index, item) in loadedItems.enumerated()
+    where item.pixelWidth != sourceWidth || item.pixelHeight != sourceHeight {
+    fail("input image \(index + 1) is \(item.pixelWidth)x\(item.pixelHeight), expected \(sourceWidth)x\(sourceHeight)")
 }
 
-let labelHeight: CGFloat = 48
-let cellWidth = sourceSize.width
-let cellHeight = sourceSize.height + labelHeight
+let labelHeight = 48
+let cellWidth = sourceWidth
+let cellHeight = sourceHeight + labelHeight
 let rowCount = (loadedItems.count + columnCount - 1) / columnCount
-let canvasSize = NSSize(
-    width: cellWidth * CGFloat(columnCount),
-    height: cellHeight * CGFloat(rowCount))
-let canvas = NSImage(size: canvasSize)
-canvas.lockFocus()
+let canvasWidth = cellWidth * columnCount
+let canvasHeight = cellHeight * rowCount
+guard let bitmap = NSBitmapImageRep(
+    bitmapDataPlanes: nil,
+    pixelsWide: canvasWidth,
+    pixelsHigh: canvasHeight,
+    bitsPerSample: 8,
+    samplesPerPixel: 4,
+    hasAlpha: true,
+    isPlanar: false,
+    colorSpaceName: .deviceRGB,
+    bytesPerRow: 0,
+    bitsPerPixel: 0),
+    let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
+    fail("could not allocate the contact-sheet pixel canvas")
+}
+
+NSGraphicsContext.saveGraphicsState()
+NSGraphicsContext.current = context
+context.imageInterpolation = .none
 
 NSColor(calibratedWhite: 0.035, alpha: 1.0).setFill()
-NSRect(origin: .zero, size: canvasSize).fill()
+NSRect(x: 0, y: 0, width: CGFloat(canvasWidth), height: CGFloat(canvasHeight)).fill()
 
 let labelStyle: [NSAttributedString.Key: Any] = [
     .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .medium),
@@ -96,10 +116,14 @@ let labelStyle: [NSAttributedString.Key: Any] = [
 for (index, item) in loadedItems.enumerated() {
     let column = index % columnCount
     let rowFromTop = index / columnCount
-    let cellX = CGFloat(column) * cellWidth
-    let cellY = CGFloat(rowCount - rowFromTop - 1) * cellHeight
+    let cellX = CGFloat(column * cellWidth)
+    let cellY = CGFloat((rowCount - rowFromTop - 1) * cellHeight)
     item.image.draw(
-        in: NSRect(x: cellX, y: cellY + labelHeight, width: cellWidth, height: sourceSize.height),
+        in: NSRect(
+            x: cellX,
+            y: cellY + CGFloat(labelHeight),
+            width: CGFloat(cellWidth),
+            height: CGFloat(sourceHeight)),
         from: .zero,
         operation: .copy,
         fraction: 1.0)
@@ -108,10 +132,8 @@ for (index, item) in loadedItems.enumerated() {
         withAttributes: labelStyle)
 }
 
-canvas.unlockFocus()
-guard let tiff = canvas.tiffRepresentation,
-      let bitmap = NSBitmapImageRep(data: tiff),
-      let png = bitmap.representation(using: .png, properties: [:]) else {
+NSGraphicsContext.restoreGraphicsState()
+guard let png = bitmap.representation(using: .png, properties: [:]) else {
     fail("could not encode the contact sheet")
 }
 

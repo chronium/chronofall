@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-03T08:47:13.5099160Z
+modifiedAt: 2026-08-03T15:40:16.5253530Z
 ---
 
 ## Decision
@@ -33,6 +33,8 @@ A child reference uses `$(ChronoFallFamilyRoot)src/...`. The child's conditional
 `ChronoFall.CharacterPresentation` remains deterministic and BCL-only. `ChronoFall.CharacterPresentation.Cooking` remains BCL-only and depends only on the core. `ChronoFall.CharacterPresentation.SdlGpu` owns GPU upload/draw recording and directly references the checked-out coordinator pin at `thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj`. SDL3-CS is compiled from source; children do not acquire or pin it independently for this shared path.
 
 Only a child client may consume this allowlist. Headless simulation, world/server, Balance Lab, protocol, content, and editor projects remain free of SDL/GPU and shared presentation dependencies unless a later approved contract says otherwise.
+
+`ChronoFall.CharacterPresentation.SdlGpu` also exposes the bounded screenshot readback and PNG-writing contract recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-capture`. This is part of the existing client-only allowlisted project, not an additional reference. A child must still own its capture scheduling, camera, scene, output policy and task approval; the shared capability does not authorize automatic child adoption.
 
 ## Pending headless Box3D source boundary
 

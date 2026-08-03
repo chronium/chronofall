@@ -1,7 +1,7 @@
 ---
 title: SDL GPU Bind-Pose Experiment
 createdAt: 2026-08-01T14:24:15.9309170Z
-modifiedAt: 2026-08-02T17:18:58.0365720Z
+modifiedAt: 2026-08-03T15:40:47.7907340Z
 ---
 
 ## Status and ownership
@@ -10,7 +10,7 @@ This page records the coordinator-owned SDL GPU proof begun by `pm://project/prj
 
 `ChronoFall.CharacterPresentation.SdlGpu` now owns the hidden 48-byte vertex ABI, palette transport, skinned shaders, graphics pipeline, mesh resources, per-instance palette resources and draw recording. It consumes the BCL-only `ChronoFall.CharacterPresentation` contract.
 
-`ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host and owns bounds framing, its window and SDL device, skeleton overlay, offscreen targets, readback, captures, interactive controls and error context. `ChronoFall.CharacterExperiment.GpuHarness` composes that host with the provisional `ChronoFall.CharacterExperiment.SimpleMesh` adapter.
+`ChronoFall.CharacterExperiment.SdlGpu` remains the diagnostic host and owns bounds framing, its window and SDL device, skeleton overlay, offscreen targets, capture scheduling and output selection, interactive controls and error context. Its one-shot texture readback now consumes the bounded shared helper recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-capture`. `ChronoFall.CharacterExperiment.GpuHarness` composes that host with the provisional `ChronoFall.CharacterExperiment.SimpleMesh` adapter.
 
 Neither child references these projects yet. No SDL, GPU, shader, SimpleMesh, asset or presentation dependency enters headless code. The promoted ownership boundary is documented at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-character-presentation`.
 

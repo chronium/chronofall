@@ -42,3 +42,14 @@ sh thirdparty/verify-sdl3-cs.sh
 ```
 
 The resulting source is placed at `thirdparty/repos/SDL3-CS`. ChronoFall pins SDL3-CS independently for a demonstrated coordinator consumer and never references Royale's dependency checkout. This experiment pin does not itself establish a permanent shared native-loading or SDL abstraction.
+
+## StbImageWriteSharp
+
+| Property | Value |
+| --- | --- |
+| Official source | `https://github.com/StbSharp/StbImageWriteSharp` |
+| Pinned NuGet version | `1.16.7` |
+| License | Public Domain, as stated by the official project README |
+| Purpose | PNG encoding for the bounded client/tooling screenshot contract |
+
+The package is centrally pinned and referenced only by `ChronoFall.CharacterPresentation.SdlGpu`. SDL3-CS remains compiled from its checked-out source; the PNG dependency does not enter the BCL-only character data or cooking projects. The inspected package and licence/provenance evidence are recorded at `licenses/StbImageWriteSharp/PROVENANCE.md`.

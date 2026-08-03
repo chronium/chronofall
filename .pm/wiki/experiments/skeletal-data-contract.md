@@ -1,7 +1,7 @@
 ---
 title: Skeletal Experiment Data Contract
 createdAt: 2026-08-01T09:27:13.9177630Z
-modifiedAt: 2026-08-01T17:09:05.7238440Z
+modifiedAt: 2026-08-03T15:40:47.6862760Z
 ---
 
 ## Status and ownership
@@ -58,7 +58,7 @@ palette[j]        = inverseBind[j] * posedGlobal[j]
 
 The provisional loader preserves glTF's right-handed, Y-up, metre-based model space. It does not flatten the skeleton or bake a coordinate conversion. For the selected M1 input, the loader asserts that the mesh and skeleton share the documented identity `Armature` space. A different relationship remains an unsupported input requiring a reviewed contract rather than silent normalization.
 
-CPU matrices remain untransposed in `ChronoFall.CharacterPresentation`. `ChronoFall.CharacterPresentation.SdlGpu` owns its internal 48-byte vertex packing, palette transport, shader matrix layout and the single upload transpose. Camera framing, windows, targets, submission and captures remain host concerns. The exact native ABI and retained validation are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/sdl-gpu-bind-pose`.
+CPU matrices remain untransposed in `ChronoFall.CharacterPresentation`. `ChronoFall.CharacterPresentation.SdlGpu` owns its internal 48-byte vertex packing, palette transport, shader matrix layout and the single upload transpose. Camera framing, windows, targets, render scheduling and capture policy remain host concerns. The bounded one-shot texture-readback and PNG boundary promoted later by `SHARED-0022` is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-capture`. The exact native ABI and retained validation are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/sdl-gpu-bind-pose`.
 
 ## Debug visualization boundary
 
