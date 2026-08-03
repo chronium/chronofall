@@ -6,7 +6,7 @@ milestone: M3
 dependsOn:
 - pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009
 createdAt: 2026-08-03T08:12:46.7111100Z
-modifiedAt: 2026-08-03T08:15:46.5987010Z
+modifiedAt: 2026-08-03T08:28:27.1517610Z
 ---
 
 Groom the coordinator-owned Box3D prerequisite required by Starfall's approved walking-slice roadmap without implementing physics or mutating a child.
@@ -47,3 +47,17 @@ Acceptance criteria:
   - Starfall and Royale worktrees are clean; both gitlinks are unchanged.
   - No source, third-party files, pins, patches, builds, assets, generated content, child PM/wiki, or feature implementation changed.
   - No build, native or visual validation was required for this task/wiki-only grooming cycle.
+- 2026-08-03 08:28 UTC - Reopened as a directly attributable Cycle 2 documentation review continuation.
+
+  - Corrected architecture/shared-engine-boundaries to distinguish canonical dependency wiring from implementation readiness: Cycle 3 attaches allocated SHARED-0021 to Starfall SIM-0008, producing a valid waiting dependency; SIM-0008 cannot activate or consume shared Box3D source until SHARED-0021 completes.
+  - Reframed roadmap/starfall-draft-0-shared-enablers so the completed SF-0008 Cycle 3 is explicitly historical asset-enabler wiring under COORD-0009, distinct from the pending Box3D SF-0009 Cycle 3.
+  - Qualified the historical no-further-wiring statement to its original asset-enabler scope and preserved the pending Box3D continuation.
+  - Mutation receipts identified coordinator project prj_E7QP3LUocfY7k3PYM-EQOlqc and only the two intended wiki paths.
+  - No tasks, dependencies, source, assets, children, gitlinks or feature states changed beyond the required COORD-0010 reopen/complete lifecycle.
+
+  Validation:
+  - Coordinator pm doctor and git diff --check passed.
+  - Family readback reports 365 tasks with no missing, invalid or unavailable dependencies and zero warnings.
+  - COORD-0010 was the only active task during correction; SHARED-0021 remained dependency-ready and todo with unchanged dependencies.
+  - Starfall and Royale worktrees and both gitlinks remained unchanged.
+  - No build, native or visual validation was required for this documentation-only correction.

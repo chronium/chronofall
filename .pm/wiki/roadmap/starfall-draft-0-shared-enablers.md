@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-03T08:14:44.9479350Z
+modifiedAt: 2026-08-03T08:27:57.0801290Z
 ---
 
 ## Purpose and ownership
@@ -95,8 +95,10 @@ The initial surface is limited to authoritative ground-plane movement needs: wor
 
 Cycle 2 allocates and documents this parent task only. It does not mutate Starfall. In the separately owner-directed Cycle 3, completed Starfall grooming task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009` may reopen solely to attach the canonical `SHARED-0021` dependency to `SIM-0008` and correct matching Starfall roadmap prose. `SIM-0008` must not activate before that reviewed wiring is complete.
 
-## Later Starfall wiring
+## Historical asset-enabler wiring (SF-0008)
 
-Cycle 3 completed through Starfall task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0008`. Starfall commit `d88ab2e8e6bf9757bda8c37a1d10cf71724ff7d8` added the reviewed canonical coordinator dependencies and matching roadmap corrections while leaving every feature task todo.
+An earlier asset-enabler Cycle 3 completed through Starfall task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0008`. Starfall commit `d88ab2e8e6bf9757bda8c37a1d10cf71724ff7d8` added the reviewed canonical asset, cooking and presentation dependencies plus matching roadmap corrections while leaving every feature task todo.
 
-Coordinator pointer commit `166ec61255addf97da44a4594a810427e9424188` pins that exact Starfall commit and records the canonical task URI and stable Starfall project ID. Cycle 3 is complete; no further dependency-wiring continuation remains under this grooming scope.
+Coordinator pointer commit `166ec61255addf97da44a4594a810427e9424188` pins that exact Starfall commit and records the canonical task URI and stable Starfall project ID. That earlier COORD-0009/SF-0008 asset-enabler continuation is complete and has no further wiring under its scope.
+
+It is distinct from the pending Box3D Cycle 3 described above. The Box3D continuation remains to reopen `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`, attach the allocated `SHARED-0021` canonical dependency to `SIM-0008`, record that the dependency is waiting until `SHARED-0021` completes, and stop before implementation.

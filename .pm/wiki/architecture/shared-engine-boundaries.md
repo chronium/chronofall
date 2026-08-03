@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-03T08:14:30.7001890Z
+modifiedAt: 2026-08-03T08:27:43.8367850Z
 ---
 
 ## Focus
@@ -32,7 +32,7 @@ The task begins from Royale's audited upstream commit `3fc20f5b453ba9e14cdf54eca
 
 The initial promotable surface is intentionally small: Box3D-native finite single-precision metre values, world lifecycle and fixed stepping, body/shape ownership, transforms and velocity, boxes/capsules, collision filtering, and only the bounded query/contact facts needed by authoritative ground-plane movement. Stable game identity, creation/application order, fixed-tick scheduling and sorting of unordered query results remain caller responsibilities. The shared boundary does not promise cross-platform bitwise physics determinism.
 
-`SHARED-0021` remains todo. Until it is implemented, the approved family-source allowlist remains client-presentation-only and Starfall has no canonical Box3D dependency. A later reviewed Starfall continuation will attach the completed coordinator task to `SIM-0008`; that wiring does not transfer gameplay or simulation ownership to the coordinator.
+`SHARED-0021` remains allocated and todo. Cycle 3 will attach the allocated coordinator task's canonical URI to Starfall `SIM-0008` before implementation; that dependency will be valid but waiting while `SHARED-0021` remains incomplete. `SIM-0008` must not activate or consume the shared Box3D source until `SHARED-0021` completes. The approved family-source allowlist remains client-presentation-only until that implementation establishes its headless boundary, and the later dependency wiring does not transfer gameplay or simulation ownership to the coordinator.
 
 The task excludes debug rendering, character controllers, gameplay, map formats, collision cooking, editor integration, generalized physics abstractions, package feeds and child migration.
 
