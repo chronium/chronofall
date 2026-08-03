@@ -67,6 +67,23 @@ public sealed class BowBodySequenceControllerTests
     }
 
     [Fact]
+    public void RapidShootInspectorRetainsItsFinalSampleInsteadOfLoopingToFrameZero()
+    {
+        SkeletonDefinition skeleton = CreateSkeleton();
+        BowBodyPlaybackController controller = CreateController(skeleton);
+
+        controller.SelectMode(BowBodyViewMode.RapidShootFrames);
+        controller.StepFrames(13);
+
+        BowBodyFrame frame = controller.CreateFrame();
+        Assert.False(controller.IsPlaying);
+        Assert.Equal("Bow_RapidShoot_Loop", frame.Clip.Name);
+        Assert.Equal(13, frame.SampleFrame);
+        Assert.Equal(13.0f / 30.0f, frame.SampleTime, precision: 5);
+        Assert.Contains("frame=13", controller.CreateDiagnostic(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ExactRebindAcceptsOnlyIdenticalSkeletonAndInverseBindContracts()
     {
         SkeletonDefinition sourceSkeleton = CreateSkeleton();

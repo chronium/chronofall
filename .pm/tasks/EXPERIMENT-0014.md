@@ -7,7 +7,7 @@ priority: medium
 dependsOn:
 - ASSET-0010
 createdAt: 2026-08-03T12:29:27.1809660Z
-modifiedAt: 2026-08-03T13:11:53.3006170Z
+modifiedAt: 2026-08-03T13:27:26.3544210Z
 ---
 
 Cook and visually prove a technical Universal Animation Library 2 bow-body-animation sequence on the established Quaternius technical humanoid.
@@ -39,3 +39,4 @@ Acceptance criteria:
   - Owner approved the curated contact sheet, preserved under `docs/project-history/2026-08-03-ual2-bow-body-sequence/` with canonical task/wiki ownership, CC0 provenance, generation details, dimensions and SHA-256.
   - Validation: Debug and Release builds succeeded with zero warnings; all 190 solution tests passed in both configurations; all 36 opt-in native GPU tests passed in Release; formatter verification passed for all five touched coordinator-owned projects. The solution-wide formatter reports only pre-existing pinned SimpleMesh/SDL3-CS source formatting.
   - No private absolute path, source-equivalent UAL2 asset, cooked output or raw capture is tracked. Royale and Starfall remained untouched with unchanged gitlinks.
+- 2026-08-03 13:27 UTC - Review continuation: corrected the interactive rapid-shot frame inspector so both frame-inspection modes clamp at their clip endpoints instead of looping. The final `Bow_RapidShoot_Loop` sample now remains visible as frame 13; the existing offline capture path was already clamped and its preserved evidence is unchanged. Added an exact regression for frame 13. Validation passed: focused Debug tests 37/37, Release solution build with zero warnings/errors, full Release tests 191/191, touched-project format checks, and opt-in native GPU tests 37/37. Royale, Starfall, and both gitlinks remained unchanged.

@@ -186,12 +186,8 @@ internal sealed class BowBodyPlaybackController
             return sequence.Evaluate(time);
 
         AnimationClip clip = ViewMode == BowBodyViewMode.ShootFrames ? shoot : rapidShoot;
-        AnimationPlaybackMode playback = ViewMode == BowBodyViewMode.RapidShootFrames
-            ? AnimationPlaybackMode.Loop
-            : AnimationPlaybackMode.Clamp;
-        float sampleTime = playback == AnimationPlaybackMode.Loop
-            ? BowBodySequence.ResolveLoopTime(time, clip.Duration)
-            : Math.Clamp(time, 0.0f, clip.Duration);
+        const AnimationPlaybackMode playback = AnimationPlaybackMode.Clamp;
+        float sampleTime = Math.Clamp(time, 0.0f, clip.Duration);
         return new BowBodyFrame(
             ViewMode,
             null,
@@ -251,9 +247,9 @@ internal sealed class BowBodyPlaybackController
 
     private void NormalizeTime()
     {
-        float duration = ViewMode == BowBodyViewMode.FullSequence
-            ? sequence.Duration
-            : CurrentInspectionClip.Duration;
-        time = BowBodySequence.ResolveLoopTime(time, duration);
+        if (ViewMode == BowBodyViewMode.FullSequence)
+            time = BowBodySequence.ResolveLoopTime(time, sequence.Duration);
+        else
+            time = Math.Clamp(time, 0.0f, CurrentInspectionClip.Duration);
     }
 }
