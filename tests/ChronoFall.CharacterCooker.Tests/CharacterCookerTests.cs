@@ -85,6 +85,72 @@ public sealed class CharacterCookerTests
     }
 
     [Fact]
+    public void RecipeAndLicenseEvidenceCanUseASeparateRootFromPrivateSource()
+    {
+        string root = FindRepositoryRoot();
+        string sourceRoot = Path.Combine(
+            root,
+            "assets",
+            "Quaternius",
+            "Universal Animation Library[Standard]");
+        string originalRecipe = Path.Combine(root, "assets", "recipes", "quaternius-ual1-standard.json");
+        using var temporary = new TemporaryDirectory();
+        string recipePath = Path.Combine(temporary.Path, "recipe.json");
+        string outputPath = Path.Combine(temporary.Path, "output", "character.cfskel");
+        string provenancePath = Path.Combine(temporary.Path, "output", "character.provenance.json");
+        string recipe = File.ReadAllText(originalRecipe)
+            .Replace(SelectedSource, "Unreal-Godot/UAL1_Standard.glb", StringComparison.Ordinal)
+            .Replace(
+                "assets/Quaternius/Universal Animation Library[Standard]/License.txt",
+                "License.txt",
+                StringComparison.Ordinal)
+            .Replace(
+                "assets/Quaternius/Universal Animation Library[Standard]/README.txt",
+                "README.txt",
+                StringComparison.Ordinal);
+        File.WriteAllText(recipePath, recipe);
+        File.Copy(Path.Combine(sourceRoot, "License.txt"), Path.Combine(temporary.Path, "License.txt"));
+        File.Copy(Path.Combine(sourceRoot, "README.txt"), Path.Combine(temporary.Path, "README.txt"));
+
+        CharacterCookResult result = CharacterCooker.Run(
+            new CharacterCookOptions(
+                sourceRoot,
+                recipePath,
+                outputPath,
+                provenancePath,
+                temporary.Path));
+
+        Assert.Equal(3, result.ClipCount);
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(provenancePath));
+        JsonElement value = document.RootElement;
+        Assert.Equal("recipe.json", value.GetProperty("recipePath").GetString());
+        Assert.Equal("Unreal-Godot/UAL1_Standard.glb", value.GetProperty("sourcePath").GetString());
+        Assert.DoesNotContain(root, value.GetRawText(), StringComparison.Ordinal);
+        Assert.DoesNotContain(temporary.Path, value.GetRawText(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CommandLineDefaultsRecipeRootToSourceRootAndAcceptsAnExplicitRoot()
+    {
+        CharacterCookOptions compatible = CharacterCookOptions.Parse([
+            "--source-root", "source",
+            "--recipe", "recipe.json",
+            "--output", "output.cfskel",
+            "--audience", "client",
+        ]);
+        CharacterCookOptions separated = CharacterCookOptions.Parse([
+            "--source-root", "private-source",
+            "--recipe-root", "coordinator",
+            "--recipe", "recipe.json",
+            "--output", "output.cfskel",
+            "--audience", "client",
+        ]);
+
+        Assert.Null(compatible.RecipeRoot);
+        Assert.Equal("coordinator", separated.RecipeRoot);
+    }
+
+    [Fact]
     public void ServerAudienceIsRejectedExplicitly()
     {
         Assert.Throws<ArgumentException>(() => CharacterCookOptions.Parse([
@@ -165,10 +231,21 @@ public sealed class CharacterCookerTests
         using var temporary = new TemporaryDirectory();
         string recipe = Path.Combine(temporary.Path, "recipe.json");
         string output = Path.Combine(temporary.Path, "output.cfskel");
-        File.WriteAllText(recipe, mutate(File.ReadAllText(originalRecipe)));
+        string recipeJson = mutate(File.ReadAllText(originalRecipe)).Replace(
+            "assets/Quaternius/Universal Animation Library[Standard]/",
+            string.Empty,
+            StringComparison.Ordinal);
+        File.WriteAllText(recipe, recipeJson);
+        string sourceDirectory = Path.Combine(
+            root,
+            "assets",
+            "Quaternius",
+            "Universal Animation Library[Standard]");
+        File.Copy(Path.Combine(sourceDirectory, "License.txt"), Path.Combine(temporary.Path, "License.txt"));
+        File.Copy(Path.Combine(sourceDirectory, "README.txt"), Path.Combine(temporary.Path, "README.txt"));
 
         Exception exception = Assert.ThrowsAny<Exception>(() =>
-            CharacterCooker.Run(new CharacterCookOptions(root, recipe, output)));
+            CharacterCooker.Run(new CharacterCookOptions(sourceDirectory, recipe, output, RecipeRoot: temporary.Path)));
 
         Assert.Contains(expectedMessage, exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.False(File.Exists(output));

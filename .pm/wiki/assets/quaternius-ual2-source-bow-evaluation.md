@@ -1,7 +1,7 @@
 ---
 title: Quaternius UAL2 Source Bow-Body Evaluation
 createdAt: 2026-08-03T12:30:37.9130990Z
-modifiedAt: 2026-08-03T12:34:14.6837770Z
+modifiedAt: 2026-08-03T13:11:18.4110380Z
 ---
 
 ## Status and ownership
@@ -100,13 +100,14 @@ The six bow clips happen to have identical sampled payloads between RM and non-R
 | `Bow_RapidShoot_Loop` | 0.433333 s | 14 | explicitly named repeated-shot loop and Arrow Rain candidate |
 | `Bow_Shoot` | 0.666667 s | 21 | one-shot release/body recovery |
 
-The Source package does not provide a distinct bow-ready idle, bow-specific walk/run, or separately named recovery. Relevant neutral/locomotion candidates are:
+The Source package does not provide a distinct bow-ready idle, bow-specific walk/run, or separately named recovery. Relevant neutral/locomotion evidence is:
 
-- proven UAL1 `Idle_Loop`: 2.5 seconds, 76 samples, already validated as an authored neutral loop;
-- UAL2 `Idle_No_Loop`: 2.5 seconds, 76 samples, general neutral one-shot candidate;
-- UAL2 `Walk_Fwd_Loop`: 1.333333 seconds, 41 samples, generic locomotion rather than bow-aware locomotion.
+- proven UAL1 `Idle_Loop`: 2.5 seconds, 76 samples, already validated as an authored neutral loop and selected for the technical bow proof;
+- UAL2 `Walk_Fwd_Loop`: 1.333333 seconds, 41 samples, generic locomotion rather than bow-aware locomotion;
+- UAL2 `Idle_No_Loop`: 2.5 seconds, 76 samples, visually confirmed as a one-shot head-shake “no” gesture that keeps an idle-like body pose, not a non-looping neutral idle;
+- UAL2 `Yes`: a separately named head-nod interaction candidate.
 
-The technical proof must compare both idle candidates before freezing its recipe. `OverhandThrow` exists but is not a bow animation and is not selected.
+The `Idle_No_Loop` comparison resolved the naming ambiguity. It and `Yes` may be useful later for NPC acceptance/decline presentation, but neither belongs in the bounded archer cook. `OverhandThrow` exists but is not a bow animation and is not selected.
 
 ## Compatibility findings
 
@@ -124,9 +125,8 @@ The result does not resolve the Universal Base Character/Ranger contract. Existi
 
 ## Bounded proof candidates
 
-Carry these UAL2 clips into `EXPERIMENT-0014`:
+`EXPERIMENT-0014` completed the bounded technical proof and froze the six-clip UAL2 recipe at `assets/recipes/quaternius-ual2-source-bow-body.json`:
 
-- `Idle_No_Loop`, only for comparison against UAL1 `Idle_Loop`;
 - `Walk_Fwd_Loop`;
 - `Bow_Notch`;
 - `Bow_Aim_Neutral`;
@@ -134,14 +134,26 @@ Carry these UAL2 clips into `EXPERIMENT-0014`:
 - `Bow_Aim_Up`;
 - `Bow_RapidShoot_Loop`.
 
-The proof must freeze one owner-validated outcome:
+Neutral and recovery use the established UAL1 `Idle_Loop` through an experiment-only exact-skeleton rebind. The rebind requires identical ordered joint names, parent indices, local bind transforms and inverse-bind matrices; it is not retargeting. The private UAL2 source and coordinator-owned recipe/licence evidence use distinct explicit roots, and generated provenance retains only portable recipe/source identities.
 
-1. a seven-clip UAL2 evaluation recipe if `Idle_No_Loop` is preferred; or
-2. a six-clip UAL2 bow-body recipe paired with the established UAL1 idle for the technical proof.
+The owner validated this continuous sequence in the native 1920 by 1080 Metal viewer:
 
-Basic Arrow and Fire Arrow should share `Bow_Notch -> Bow_Aim_Neutral -> Bow_Shoot`; their distinction belongs to arrow/effect presentation. `Bow_Aim_Up` and `Bow_RapidShoot_Loop` remain two Arrow Rain body candidates. If neither reads well, reuse the normal body shot later and distinguish Arrow Rain through client-owned falling-arrow and impact presentation.
+`Idle_Loop -> Bow_Notch -> Bow_Aim_Neutral -> Bow_Shoot -> recovery -> repeated shot -> Walk_Fwd_Loop -> Bow_Aim_Up -> Bow_RapidShoot_Loop -> recovery`.
 
-The proof must inspect each 30 Hz frame of `Bow_Shoot` and `Bow_RapidShoot_Loop`, recording owner-confirmed **visual body-release** frame/time markers and uncertainty. Those markers are presentation evidence only: the equipped bow/string task must revalidate nocking and contact, and Starfall's fixed-tick simulation remains the sole owner of authoritative action resolution.
+Basic Arrow and Fire Arrow can share `Bow_Notch -> Bow_Aim_Neutral -> Bow_Shoot`; their distinction belongs to arrow/effect presentation. `Bow_Aim_Up` and `Bow_RapidShoot_Loop` remain viable bounded Arrow Rain body candidates, but final selection belongs to Starfall.
+
+Frame-by-frame owner review of `Bow_Shoot` established:
+
+- frame 0 / 0 ms: fingers remain at the implied string contact;
+- frame 1 / 33 ms: partial release;
+- frame 3 / 100 ms: first fully released body pose and the selected provisional presentation trigger;
+- later frames: body recovery, with the right hand already near the chest by frame 9 / 300 ms.
+
+`Bow_RapidShoot_Loop` has 14 samples across 433 ms, but the body-only proof does not expose a defensible exact release contact. Its per-shot marker remains unresolved until a socketed bow/string/arrow is present. Neither marker is authoritative gameplay timing; the equipped presentation task must revalidate contact and Starfall fixed-tick simulation remains the sole owner of action resolution.
+
+Two independent six-clip cooks were byte-identical: 1,636,937 bytes, SHA-256 `9b8daaf2ed481bcb14e553be8159f7be908a70fcd441bfd58a3e5e5dab9f7484`. Their generated provenance was also byte-identical. Two native capture suites were byte-identical across 11 key-stage images, all 21 `Bow_Shoot` samples and all 14 `Bow_RapidShoot_Loop` samples.
+
+The owner approved the curated sequence sheet for coordinator history at `docs/project-history/2026-08-03-ual2-bow-body-sequence/`. This proof does not validate bow grip, string contact, nocking, projectile presentation, final character compatibility, combat rules or authoritative timing.
 
 ## Reproduction without private-path persistence
 

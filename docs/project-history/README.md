@@ -33,6 +33,7 @@ Artifacts belong to the repository that produced the milestone. Child output sho
 
 ## Timeline
 
+- [2026-08-03 — First UAL2 bow-body sequence](2026-08-03-ual2-bow-body-sequence/README.md)
 - [2026-08-02 — First shared static-mesh rendering](2026-08-02-static-mesh-rendering/README.md)
 - [2026-08-01 — First locomotion and action crossfades](2026-08-01-animation-crossfades/README.md)
 - [2026-08-01 — First deterministic skinned-character capture suite](2026-08-01-skinned-character-proof/README.md)

@@ -31,6 +31,7 @@ internal static class CharacterCooker
     internal static CharacterCookResult Run(CharacterCookOptions options)
     {
         string sourceRoot = Path.GetFullPath(options.SourceRoot);
+        string recipeRoot = Path.GetFullPath(options.RecipeRoot ?? options.SourceRoot);
         string recipePath = Path.GetFullPath(options.RecipePath);
         string outputPath = Path.GetFullPath(options.OutputPath);
         string? provenancePath = options.ProvenanceOutput is null
@@ -46,6 +47,7 @@ internal static class CharacterCooker
             RequireDistinctOutput(provenancePath, outputPath, "cooked output");
             RequireDistinctOutput(provenancePath, recipePath, "recipe");
         }
+        _ = GetPortableRelativePath(recipeRoot, recipePath, "recipe");
         string recipeHash = Sha256(recipePath);
         CharacterCookRecipe recipe = CharacterCookRecipeLoader.Load(recipePath);
         SkeletalAssetCookDescriptor descriptor = recipe.CreateDescriptor();
@@ -63,7 +65,7 @@ internal static class CharacterCooker
 
         foreach (string evidence in descriptor.LicenseEvidencePaths)
         {
-            string evidencePath = ResolveRequiredFile(sourceRoot, evidence, "license evidence");
+            string evidencePath = ResolveRequiredFile(recipeRoot, evidence, "license evidence");
             RequireDistinctOutput(outputPath, evidencePath, "license evidence");
             if (provenancePath is not null)
                 RequireDistinctOutput(provenancePath, evidencePath, "license evidence");
@@ -120,13 +122,13 @@ internal static class CharacterCooker
             Sha256(outputPath));
 
         if (provenancePath is not null)
-            WriteProvenance(sourceRoot, recipePath, recipeHash, provenancePath, descriptor, selectedClips, result);
+            WriteProvenance(recipeRoot, recipePath, recipeHash, provenancePath, descriptor, selectedClips, result);
 
         return result;
     }
 
     private static void WriteProvenance(
-        string sourceRoot,
+        string recipeRoot,
         string recipePath,
         string recipeHash,
         string provenancePath,
@@ -134,7 +136,7 @@ internal static class CharacterCooker
         IReadOnlyList<AnimationClip> selectedClips,
         CharacterCookResult result)
     {
-        string recipeRelativePath = GetPortableRelativePath(sourceRoot, recipePath, "recipe");
+        string recipeRelativePath = GetPortableRelativePath(recipeRoot, recipePath, "recipe");
         var provenance = new CharacterCookProvenance(
             1,
             "client",
@@ -218,11 +220,13 @@ internal sealed record CharacterCookOptions(
     string SourceRoot,
     string RecipePath,
     string OutputPath,
-    string? ProvenanceOutput = null)
+    string? ProvenanceOutput = null,
+    string? RecipeRoot = null)
 {
     internal static CharacterCookOptions Parse(string[] args)
     {
         string? sourceRoot = null;
+        string? recipeRoot = null;
         string? recipe = null;
         string? output = null;
         string? audience = null;
@@ -238,6 +242,7 @@ internal sealed record CharacterCookOptions(
             switch (option)
             {
                 case "--source-root": sourceRoot = value; break;
+                case "--recipe-root": recipeRoot = value; break;
                 case "--recipe": recipe = value; break;
                 case "--output": output = value; break;
                 case "--audience": audience = value; break;
@@ -252,7 +257,8 @@ internal sealed record CharacterCookOptions(
             sourceRoot ?? throw new ArgumentException("--source-root is required."),
             recipe ?? throw new ArgumentException("--recipe is required."),
             output ?? throw new ArgumentException("--output is required."),
-            provenanceOutput);
+            provenanceOutput,
+            recipeRoot);
     }
 }
 

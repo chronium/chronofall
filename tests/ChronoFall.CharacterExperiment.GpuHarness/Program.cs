@@ -11,6 +11,7 @@ public static class Program
 {
     private const string SelectedAsset = "assets/Quaternius/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb";
     private const string SelectedAnimation = "Walk_Loop";
+    private const string ReferenceIdleAnimation = "Idle_Loop";
 
     public static int Main(string[] args)
     {
@@ -36,6 +37,21 @@ public static class Program
                 return 0;
             }
             SkeletalCharacterAsset asset = LoadAsset(options);
+            if (options.BowBodyProof)
+            {
+                AnimationClip referenceIdle = LoadExactReferenceIdle(asset.Mesh.Skin);
+                BowBodyHarnessResult bowResult = SdlGpuCharacterHarness.RunBowBodyProof(
+                    asset,
+                    referenceIdle,
+                    new BowBodyHarnessOptions(
+                        Visible: options.Visible,
+                        CaptureSuiteDirectory: options.BowBodyCaptureSuiteDirectory,
+                        ReleaseFrameDirectory: options.BowReleaseFrameDirectory));
+                Console.WriteLine(
+                    $"GPU_BOW_BODY_SUCCESS shader={bowResult.ShaderFormat} captures={bowResult.Captures.Count} " +
+                    $"shoot-frames={bowResult.ShootFrameCount} rapid-frames={bowResult.RapidShootFrameCount}");
+                return 0;
+            }
             AnimationClip animation = SelectAnimation(asset);
             CharacterHarnessResult result = SdlGpuCharacterHarness.Run(
                 asset,
@@ -111,6 +127,19 @@ public static class Program
             $"Required animation '{SelectedAnimation}' was not found by ordinal name. Available clips: {available}");
     }
 
+    private static AnimationClip LoadExactReferenceIdle(SkinDefinition targetSkin)
+    {
+        string path = Path.Combine(FindRepositoryRoot(), SelectedAsset);
+        SkeletalCharacterAsset reference = SimpleMeshSkeletalAssetLoader.LoadFromFile(path);
+        AnimationClip idle = reference.Animations.Single(
+            candidate => string.Equals(candidate.Name, ReferenceIdleAnimation, StringComparison.Ordinal));
+        AnimationClip rebound = ExactSkeletonAnimationRebinder.Rebind(reference.Mesh.Skin, idle, targetSkin);
+        Console.WriteLine(
+            $"GPU_BOW_BODY_REFERENCE source={SelectedAsset} clip={ReferenceIdleAnimation} " +
+            $"joints={targetSkin.Skeleton.JointCount} contract=bit-exact");
+        return rebound;
+    }
+
     private static void ConfigureNativeSdl()
     {
         NativeLibrary.SetDllImportResolver(typeof(SDL3).Assembly, ResolveNativeLibrary);
@@ -148,6 +177,7 @@ public static class Program
     private sealed record HarnessArguments(
         bool Visible,
         bool StaticProof,
+        bool BowBodyProof,
         string? AssetPath,
         string? CookedAssetPath,
         string? CookedStaticAssetPath,
@@ -158,12 +188,15 @@ public static class Program
         string? CaptureSuiteDirectory,
         string? BlendCaptureSuiteDirectory,
         string? LayeredCaptureSuiteDirectory,
-        string? IkAimCaptureSuiteDirectory)
+        string? IkAimCaptureSuiteDirectory,
+        string? BowBodyCaptureSuiteDirectory,
+        string? BowReleaseFrameDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
             bool visible = false;
             bool staticProof = false;
+            bool bowBodyProof = false;
             string? asset = null;
             string? cookedAsset = null;
             string? cookedStaticAsset = null;
@@ -175,6 +208,8 @@ public static class Program
             string? blendCaptureSuite = null;
             string? layeredCaptureSuite = null;
             string? ikAimCaptureSuite = null;
+            string? bowBodyCaptureSuite = null;
+            string? bowReleaseFrames = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -184,6 +219,9 @@ public static class Program
                         break;
                     case "--static-proof":
                         staticProof = true;
+                        break;
+                    case "--bow-body-proof":
+                        bowBodyProof = true;
                         break;
                     case "--static-capture" when index + 1 < args.Length:
                         staticCapture = Path.GetFullPath(args[++index]);
@@ -218,18 +256,36 @@ public static class Program
                     case "--ik-aim-capture-suite" when index + 1 < args.Length:
                         ikAimCaptureSuite = Path.GetFullPath(args[++index]);
                         break;
+                    case "--bow-body-capture-suite" when index + 1 < args.Length:
+                        bowBodyCaptureSuite = Path.GetFullPath(args[++index]);
+                        break;
+                    case "--bow-release-frames" when index + 1 < args.Length:
+                        bowReleaseFrames = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
             if (staticProof)
             {
-                if (asset is not null || cookedAsset is not null || capture is not null ||
+                if (bowBodyProof || asset is not null || cookedAsset is not null || capture is not null ||
                     skeletonCapture is not null || animationCapture is not null ||
                     captureSuite is not null || blendCaptureSuite is not null ||
-                    layeredCaptureSuite is not null || ikAimCaptureSuite is not null)
+                    layeredCaptureSuite is not null || ikAimCaptureSuite is not null ||
+                    bowBodyCaptureSuite is not null || bowReleaseFrames is not null)
                 {
                     throw new ArgumentException("--static-proof cannot be combined with character asset or capture arguments.");
+                }
+            }
+            else if (bowBodyProof)
+            {
+                if (asset is not null || cookedAsset is null || cookedStaticAsset is not null ||
+                    staticCapture is not null || capture is not null || skeletonCapture is not null ||
+                    animationCapture is not null || captureSuite is not null || blendCaptureSuite is not null ||
+                    layeredCaptureSuite is not null || ikAimCaptureSuite is not null)
+                {
+                    throw new ArgumentException(
+                        "--bow-body-proof requires --cooked-asset and cannot be combined with existing character/static capture modes.");
                 }
             }
             else if (staticCapture is not null)
@@ -240,9 +296,14 @@ public static class Program
             {
                 throw new ArgumentException("--cooked-static-asset requires --static-proof.");
             }
+            else if (bowBodyCaptureSuite is not null || bowReleaseFrames is not null)
+            {
+                throw new ArgumentException("Bow-body capture arguments require --bow-body-proof.");
+            }
             return new HarnessArguments(
                 visible,
                 staticProof,
+                bowBodyProof,
                 asset,
                 cookedAsset,
                 cookedStaticAsset,
@@ -253,7 +314,9 @@ public static class Program
                 captureSuite,
                 blendCaptureSuite,
                 layeredCaptureSuite,
-                ikAimCaptureSuite);
+                ikAimCaptureSuite,
+                bowBodyCaptureSuite,
+                bowReleaseFrames);
         }
     }
 }

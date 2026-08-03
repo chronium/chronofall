@@ -104,7 +104,7 @@ internal readonly record struct CharacterAnimationFrame(
     SkeletonGlobalPose GlobalPose,
     SkinningPalette Palette);
 
-internal static class SdlGpuCharacterHarness
+internal static partial class SdlGpuCharacterHarness
 {
     private static readonly SDL_FColor ClearColor = new() { r = 0.035f, g = 0.045f, b = 0.070f, a = 1.0f };
     private const float DeterministicAnimationSampleTime = 0.5f;
@@ -982,7 +982,7 @@ internal static class SdlGpuCharacterHarness
         }
     }
 
-    private sealed unsafe class CharacterGpuSession : IDisposable
+    private sealed unsafe partial class CharacterGpuSession : IDisposable
     {
         private const SDL_GPUTextureFormat DepthFormat = SDL_GPUTextureFormat.SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
         private readonly int width;

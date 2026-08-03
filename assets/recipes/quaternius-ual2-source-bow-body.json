@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "assetId": "quaternius-ual2-source-bow-body",
+  "source": "Unreal-Godot/UAL2.glb",
+  "sourceSha256": "866c2ee822d30f0ceed521f50a5e84316d58ee4487d0b02158370bb988452416",
+  "licenseIdentifier": "CC0-1.0",
+  "licenseEvidence": [
+    "assets/provenance/Quaternius/Universal Animation Library 2 Source/License.txt",
+    "assets/provenance/Quaternius/Universal Animation Library 2 Source/README.txt"
+  ],
+  "meshNodeName": "Mannequin",
+  "meshName": "Mannequin",
+  "skinName": "Armature",
+  "animationClips": [
+    "Walk_Fwd_Loop",
+    "Bow_Notch",
+    "Bow_Aim_Neutral",
+    "Bow_Shoot",
+    "Bow_Aim_Up",
+    "Bow_RapidShoot_Loop"
+  ]
+}
