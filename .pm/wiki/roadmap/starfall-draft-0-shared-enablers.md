@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-03T08:47:13.3907380Z
+modifiedAt: 2026-08-03T12:23:29.6178760Z
 ---
 
 ## Purpose and ownership
@@ -61,14 +61,14 @@ Established source policy remains:
 
 Prospective Quaternius sources remain evidence-gated:
 
-- Universal Animation Library 2 Full/Source for a minimum compatible bow clip set;
+- the owner-supplied private Universal Animation Library 2 Source package for a minimum compatible bow clip set, after task-owned inventory and visual proof;
 - Modular Sci-Fi MegaKit as the preferred first temporary-monster inspection;
 - Ultimate Monsters as fallback;
 - Stylized Nature MegaKit for a tiny exact nature subset;
 - Fantasy Props MegaKit for optional landmark-only dressing;
 - Ultimate RPG Pack as a deferred, unselected pickup-art candidate.
 
-The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. No prospective source is considered supplied, compatible, selected, or dependency-ready merely because an official pack exists.
+The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. Physical availability alone never establishes compatibility, selection, or dependency readiness: the private UAL2 Source package is supplied but remains outside the repository and awaits task-owned inventory and proof; the other prospective packs remain unverified until physically supplied and reviewed.
 
 ## Staging and audience
 

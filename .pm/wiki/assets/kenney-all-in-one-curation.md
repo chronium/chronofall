@@ -1,7 +1,7 @@
 ---
 title: Kenney All-in-One Curation and Source Policy
 createdAt: 2026-08-01T08:34:07.8619950Z
-modifiedAt: 2026-08-01T08:34:07.8619950Z
+modifiedAt: 2026-08-03T12:23:29.5206990Z
 ---
 
 # Kenney All-in-One curation
@@ -68,7 +68,7 @@ Other packs remain available through the complete pack catalogue. â€œAvailableâ€
 Quaternius remains selected for current character and initial Starfall presentation work:
 
 - `Universal Base Characters[Standard]`: humanoid base character and canonical/reference skeleton.
-- `Universal Animation Library[Standard]` and `Universal Animation Library 2[Standard]`: animation sources.
+- `Universal Animation Library[Standard]`: the retained proven animation source. The former `Universal Animation Library 2[Standard]` snapshot is historical evidence only after `ASSET-0009`; an owner-supplied private UAL2 Source package remains task-gated and outside the repository.
 - `Modular Character Outfits - Fantasy[Standard]`: modular armour and clothing.
 - `Medieval Village MegaKit[Standard]`: initial village/environment source.
 

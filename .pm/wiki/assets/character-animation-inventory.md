@@ -1,7 +1,7 @@
 ---
 title: Quaternius Character and Animation Inventory
 createdAt: 2026-08-01T07:17:10.6916090Z
-modifiedAt: 2026-08-01T07:59:39.5125070Z
+modifiedAt: 2026-08-03T12:23:29.3051510Z
 ---
 
 ## Scope and provenance
@@ -10,10 +10,10 @@ This inventory covers only the supplied character and animation inputs under `as
 
 - `Universal Base Characters[Standard]`: Standard/free subset, CC0 1.0, 112 payload files plus two `.DS_Store` files, 127 MB. Formats: 18 glTF + 18 external BIN, 26 FBX, 48 PNG, two TXT.
 - `Universal Animation Library[Standard]`: CC0 1.0, nine payload files plus one `.DS_Store`, 61 MB. Formats: two GLB, two FBX, three PNG, two TXT.
-- `Universal Animation Library 2[Standard]`: CC0 1.0, 13 files, 69 MB. Formats: three GLB, three FBX, one Blender source, three PNG, three TXT.
+- `Universal Animation Library 2[Standard]` (historical inspection; removed from the repository by `ASSET-0009`): CC0 1.0, 13 files, 69 MB. Formats: three GLB, three FBX, one Blender source, three PNG, three TXT.
 - `Modular Character Outfits - Fantasy[Standard]`: Standard/free subset, CC0 1.0, 121 files, 292 MB. Formats: 24 glTF + 24 external BIN, 24 FBX, 46 PNG, one JPG, two TXT.
 
-The included license files identify the models as by Quaternius and dedicate them to the public domain under CC0 1.0. The files present in the repository are authoritative; no substitutes were downloaded. Medieval Weapons and Medieval Village MegaKit are supplied but are outside this task.
+The included license files identify the models as by Quaternius and dedicate them to the public domain under CC0 1.0. Files presently retained in the repository are authoritative; no substitutes were downloaded. The UAL2 Standard measurements below are preserved historical evidence from the formerly retained snapshot, not evidence that those files remain available in the checkout. Medieval Weapons and Medieval Village MegaKit are supplied but are outside this task.
 
 The Base Characters readme recommends glTF for rigged exports because of an FBX scaling issue in its target workflow. The animation readmes define `_RM` as root motion baked into every animation and the unsuffixed files as root motion disabled. The outfit readme states that the outfits work with Universal Base Characters and recommends omitting hidden body regions to prevent clipping.
 
@@ -35,12 +35,14 @@ Both glTFs use external BIN and PNG resources, contain 69 nodes, three meshes, o
 
 - `Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb`: embedded BIN, 7,618,436 bytes, SHA-256 `69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997`.
 - `Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb`: embedded BIN, 7,620,504 bytes, SHA-256 `be684571ed655a1b892c2c07e6e2aeca053b606c442d34004adaf1d944090d01`.
+Historical UAL2 Standard evidence retained after the source files were removed by `ASSET-0009`:
+
 - `Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard.glb`: embedded BIN, 8,091,444 bytes, SHA-256 `8cee20ab1bc55130092447e810e26df22dd2803eccc54f52137a7d54d7ab88a8`.
 - `Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb`: embedded BIN, 8,095,936 bytes, SHA-256 `814eee878f82934992d3ea746c539df25e981487109c591f5efbb8dd03286f99`.
-- Unity equivalents are `UAL1_Standard[ _RM].fbx` and `UAL2_Standard[ _RM].fbx`.
-- `Universal Animation Library 2[Standard]/Female Mannequin/Unreal-Godot/Mannequin_F.glb`: embedded BIN, no animations, 1,442,824 bytes, SHA-256 `2ee6cc3fe888d9b144afa8cc4b2ab7bfc5d13a0d5b7548df777f61f64ad65fa6`. Blender and Unity FBX variants are also present.
+- The historical Unity equivalents were `UAL2_Standard[ _RM].fbx`.
+- `Universal Animation Library 2[Standard]/Female Mannequin/Unreal-Godot/Mannequin_F.glb`: embedded BIN, no animations, 1,442,824 bytes, SHA-256 `2ee6cc3fe888d9b144afa8cc4b2ab7bfc5d13a0d5b7548df777f61f64ad65fa6`. Blender and Unity FBX variants were also inspected.
 
-Each UAL GLB has 67 nodes, one mannequin mesh, one 65-joint skin, and 43 animation clips. No textures are embedded.
+The retained UAL1 GLBs and the historically inspected UAL2 Standard GLBs each have 67 nodes, one mannequin mesh, one 65-joint skin, and 43 animation clips. No textures are embedded.
 
 ### Modular outfits
 
@@ -75,7 +77,7 @@ Each skin references 65 finite inverse-bind matrices through a `MAT4`, float (`c
 
 ## Animation channels and timing
 
-Both UAL1 variants contain the same 43 clip names and both UAL2 variants contain the same 43 clip names. Every clip has 195 channels/samplers: translation, rotation, and scale for all 65 joints. All samplers declare `LINEAR` interpolation. Key spacing is approximately 0.0333333 seconds (30 Hz).
+Both retained UAL1 variants contain the same 43 clip names, and both historically inspected UAL2 Standard variants contained the same 43 clip names. Every clip has 195 channels/samplers: translation, rotation, and scale for all 65 joints. All samplers declare `LINEAR` interpolation. Key spacing is approximately 0.0333333 seconds (30 Hz).
 
 Evidence-bearing candidate clips in UAL1 are:
 
@@ -86,7 +88,7 @@ Evidence-bearing candidate clips in UAL1 are:
 | `Walk_Loop` | 1.333333 s | 41 | 0 | 1.3 |
 | `Sword_Attack` | 1.533333 s | 47 | 0 | 1.500506 |
 
-UAL1 clip durations range from 0.166667 to 5.200000 seconds. UAL2 durations range from 0.433333 to 4.333333 seconds; examples include `Idle_FoldArms_Loop` (2.5 s), `Walk_Carry_Loop` (2.0 s), and `Sword_Regular_A` (0.433333 s). The non-RM forms keep measured root displacement at zero for these candidates; the RM forms carry translation as the readmes describe.
+UAL1 clip durations range from 0.166667 to 5.200000 seconds. The historical UAL2 Standard clip durations range from 0.433333 to 4.333333 seconds; examples include `Idle_FoldArms_Loop` (2.5 s), `Walk_Carry_Loop` (2.0 s), and `Sword_Regular_A` (0.433333 s). The non-RM forms keep measured root displacement at zero for these candidates; the RM forms carry translation as the readmes describe.
 
 ## Coordinate system and scale
 
@@ -130,12 +132,13 @@ Run from the coordinator root:
 ```sh
 find 'assets/Quaternius/Universal Base Characters[Standard]' -type f
 find 'assets/Quaternius/Universal Animation Library[Standard]' -type f
-find 'assets/Quaternius/Universal Animation Library 2[Standard]' -type f
 find 'assets/Quaternius/Modular Character Outfits - Fantasy[Standard]' -type f
 shasum -a 256 <source-file>
 jq '{asset,nodes,meshes,skins,animations,buffers,images}' <source.gltf>
 assimp info <source.glb>
 ```
+
+The UAL2 Standard paths and hashes above are historical inspection evidence and are not reproducible from the current checkout after `ASSET-0009`. Do not restore or substitute that snapshot as part of reproduction. The separately owner-supplied private UAL2 Source package requires its own task-owned inventory and must remain outside the public repository.
 
 For GLB, read the little-endian JSON chunk length at byte 12, then inspect the JSON chunk beginning at byte 20 with `jq`. Accessor values are reproduced by applying each accessor's component type/count/type and byte offset to its bufferView and buffer, honoring byte stride. Cross-check node/mesh/animation aggregates and hierarchy with `assimp info`.
 
