@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-03T12:31:20.7552310Z
+modifiedAt: 2026-08-04T06:47:32.1597040Z
 ---
 
 ## Purpose and ownership
@@ -36,6 +36,18 @@ SHARED-0020 narrow proof
 `SHARED-0018` and `SHARED-0019` remain narrow client presentation contracts. They do not authorize a scene graph, render graph, terrain, vegetation, streaming, general material system, asset catalogue, importer framework, or child integration.
 
 `SHARED-0020` proves exactly one selected bow through the existing caller-owned SDL GPU lifecycle. It excludes armour, IK, projectile behavior, combat, shields, backpacks, and wings. The later broad `SHARED-0007` task must review and reuse this proof instead of recreating it independently. Existing `SHARED-0007` consumers remain unchanged.
+
+Modular-armour work is deliberately evidence-gated:
+
+```text
+SHARED-0002 completed shared skeletal cooking
+Starfall CONTENT-0011 exact archer/underlayer/Ranger selection
+  -> SHARED-0003 one canonical-rig modular-armour presentation proof
+  -> SHARED-0004 equipment slots and body-region hiding
+  -> ASSET-0005 exact Ranger acquisition and stable-ID staging
+```
+
+The canonical `CONTENT-0011` dependency makes `SHARED-0003` wait until Starfall identifies the exact concrete need and compatibility evidence. It does not transfer Starfall asset, item, equipment or composition ownership into the parent, and it does not make parent source depend on Starfall. Once the selection completes, `SHARED-0003` retains its inherited M2 priority and can be planned from evidence rather than speculation.
 
 ## Exact acquisition graph
 
