@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-04T12:20:53.0390100Z
+modifiedAt: 2026-08-04T15:55:41.0089860Z
 ---
 
 ## Focus
@@ -33,6 +33,14 @@ The promoted surface is finite Box3D-native single-precision metre values, world
 The approved headless direct-reference allowlist contains only `src/ChronoFall.Box3D/ChronoFall.Box3D.csproj`; raw bindings are transitive. macOS ARM64 and Linux x64 native layouts are explicit. SDL, GPU, ImGui, debug rendering, character controllers, gameplay, maps, collision cooking, generalized physics abstractions, packages/feeds and child migration remain excluded.
 
 The complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-box3d-runtime`. Starfall `SIM-0008` has a valid dependency on this task but still requires its own approved plan before it may activate or consume the source.
+
+## Shared low-level network transport
+
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0023` promotes the proven opaque-packet boundary from Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/NET-001` into child-independent source. `ChronoFall.Network.Transport` is BCL-only; `ChronoFall.Network.Transport.LiteNetLib` is the sole consumer of the independently pinned LiteNetLib source.
+
+The boundary owns endpoints, ephemeral peer IDs, five delivery modes, channels, connection/disconnection/error/latency events, copied packet memory and optional peer statistics. Children retain framing, protocol, admission, sessions, gameplay, connection policy and runtime composition. Transport acceptance is not player admission.
+
+The approved future direct reference is only the LiteNetLib adapter through `ChronoFallFamilyRoot`, and only from product process/composition roots that perform network I/O. Starfall Client/World adoption and Royale Client/Server migration require separate child-owned tasks. The complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-network-transport`.
 
 ## Authority
 

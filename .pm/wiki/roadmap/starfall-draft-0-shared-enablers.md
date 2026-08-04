@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-04T12:20:53.2824520Z
+modifiedAt: 2026-08-04T15:56:01.9824430Z
 ---
 
 ## Purpose and ownership
@@ -121,6 +121,22 @@ The coordinator runtime is deliberately limited to world stepping, body/shape ow
 The headless direct-reference allowlist contains only `$(ChronoFallFamilyRoot)src/ChronoFall.Box3D/ChronoFall.Box3D.csproj`; bindings are transitive. Source consumption adds no SDL/GPU payload and no package/feed machinery.
 
 Starfall Cycle 3 already attached the canonical dependency through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`. Once `SHARED-0021` completes, `SIM-0008` becomes dependency-ready, but it must remain todo until its own owner-approved plan. This coordinator task does not implement or activate Starfall simulation.
+
+## Connected walking transport prerequisite
+
+Starfall `SERVER-0005` proves the connected-walking exchange in-process, while `CLIENT-0009` deliberately requires a real transport before activation. ChronoFall `SHARED-0023` now owns the bounded shared opaque-packet transport, independently pinned from the audited Royale `NET-001` evidence.
+
+```text
+parent SHARED-0016 family-source policy
+Royale NET-001 audited transport evidence
+  -> parent SHARED-0023 shared low-level network transport
+  -> future Starfall Client/World adoption task
+  -> Starfall CLIENT-0009 connected walking implementation
+```
+
+The shared boundary owns only source-built LiteNetLib transport contracts and copied packet delivery. Starfall retains admission framing, join tickets, gameplay sessions, command/snapshot codecs, channel use, connection policy and Client/World composition.
+
+`SHARED-0023` does not mutate Starfall or make `CLIENT-0009` executable by itself. A later owner-directed Starfall cycle must allocate the focused adoption task, attach the canonical coordinator dependency, update the exact Client/World family-source allowlist, and wire `CLIENT-0009` behind that completed adoption.
 
 ## Historical asset-enabler wiring (SF-0008)
 

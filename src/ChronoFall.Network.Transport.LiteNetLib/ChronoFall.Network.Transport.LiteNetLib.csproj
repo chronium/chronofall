@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <InternalsVisibleTo Include="ChronoFall.Network.Transport.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ChronoFall.Network.Transport/ChronoFall.Network.Transport.csproj" />
+    <ProjectReference Include="../../thirdparty/repos/LiteNetLib/LiteNetLib/LiteNetLib.csproj"
+                      AdditionalProperties="GeneratePackageOnBuild=false" />
+  </ItemGroup>
+</Project>

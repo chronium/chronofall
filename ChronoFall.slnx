@@ -7,6 +7,8 @@
     <Project Path="src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
+    <Project Path="src/ChronoFall.Network.Transport/ChronoFall.Network.Transport.csproj" />
+    <Project Path="src/ChronoFall.Network.Transport.LiteNetLib/ChronoFall.Network.Transport.LiteNetLib.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" />
@@ -24,9 +26,12 @@
     <Project Path="tests/ChronoFall.CharacterCooker.Tests/ChronoFall.CharacterCooker.Tests.csproj" />
     <Project Path="tests/ChronoFall.StaticMeshCooker.Tests/ChronoFall.StaticMeshCooker.Tests.csproj" />
     <Project Path="tests/ChronoFall.FamilySourceConsumer/ChronoFall.FamilySourceConsumer.csproj" />
+    <Project Path="tests/ChronoFall.Network.Transport.Tests/ChronoFall.Network.Transport.Tests.csproj" />
+    <Project Path="tests/ChronoFall.NetworkTransport.FamilySourceConsumer/ChronoFall.NetworkTransport.FamilySourceConsumer.csproj" />
   </Folder>
   <Folder Name="/thirdparty/">
     <Project Path="thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj" />
     <Project Path="thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj" />
+    <Project Path="thirdparty/repos/LiteNetLib/LiteNetLib/LiteNetLib.csproj" />
   </Folder>
 </Solution>

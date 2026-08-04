@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-04T12:20:53.1598810Z
+modifiedAt: 2026-08-04T15:55:52.8674900Z
 ---
 
 ## Decision
@@ -49,6 +49,20 @@ $(ChronoFallFamilyRoot)src/ChronoFall.Box3D/ChronoFall.Box3D.csproj
 The boundary uses the same single `ChronoFallFamilyRoot` property and adds no literal parent traversal, arbitrary root, package/feed machinery, imported coordinator build policy or child reference. Its full runtime contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-box3d-runtime`.
 
 Starfall `SIM-0008` may adopt this reference only after `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan. Dependency completion permits planning; it does not activate child work or transfer gameplay ownership.
+
+## Network transport source boundary
+
+Low-level network I/O has a separate process-host allowlist. A child process that actually owns socket composition may directly reference only:
+
+```text
+$(ChronoFallFamilyRoot)src/ChronoFall.Network.Transport.LiteNetLib/ChronoFall.Network.Transport.LiteNetLib.csproj
+```
+
+`ChronoFall.Network.Transport` and the checked-out LiteNetLib source are transitive; a child must not directly reference either one. The permitted future consumers are Starfall Client/World and Royale Client/Server, each only after a separately planned child adoption or migration task.
+
+Content, Protocol, Simulation, Editor and Balance Lab remain outside this allowlist. Protocol codecs remain transport-independent. The shared adapter supplies opaque copied packets and connection facts; each child owns framing, admission, sessions, gameplay exchange, connection policy and runtime wiring.
+
+The source boundary uses the existing `ChronoFallFamilyRoot` property and adds no package/feed machinery. Its complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-network-transport`. Completion of `SHARED-0023` permits a Starfall adoption plan but does not activate `CLIENT-0009` or mutate either child.
 
 ## Generated client content
 

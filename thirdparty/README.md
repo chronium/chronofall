@@ -75,3 +75,23 @@ sh thirdparty/build-box3d-macos.sh
 Release native artifacts are installed at `thirdparty/artifacts/box3d/<rid>/lib/` and copied by `ChronoFall.Box3D` to `runtimes/<rid>/native/`. Supported development/server targets are macOS ARM64 (`libbox3d.dylib`) and Linux x64 (`libbox3d.so`); unsupported or missing runtime libraries fail explicitly. Windows and package/feed distribution remain deferred.
 
 The managed contract deliberately excludes debug rendering, joints, meshes, height fields, general overlap/raycast APIs, character controllers, map/collision cooking and game-specific policy. Native query traversal order is not a gameplay ordering contract, and cross-platform bitwise determinism is not promised.
+
+## LiteNetLib
+
+| Property | Value |
+| --- | --- |
+| Official source | `https://github.com/RevenantX/LiteNetLib` |
+| Pinned revision | `37cbf5ab608a4dbd0e491c528a0c14c1e09f1cba` |
+| License | MIT |
+| Purpose | Source-built UDP transport adapter behind the shared opaque-packet contract |
+
+The upstream licence is preserved at `licenses/LiteNetLib/LICENSE.txt`. No patch is required at this revision; `patches/LiteNetLib/README.md` records that evidence and remains the only approved patch location.
+
+Fetch and verify the ignored source checkout:
+
+```sh
+sh thirdparty/fetch-litenetlib.sh
+sh thirdparty/verify-litenetlib.sh
+```
+
+The resulting source is placed at `thirdparty/repos/LiteNetLib` and compiled directly by `ChronoFall.Network.Transport.LiteNetLib`. No NuGet package, feed, protocol framing, game handshake, retry policy or product runtime is supplied by this dependency boundary.
