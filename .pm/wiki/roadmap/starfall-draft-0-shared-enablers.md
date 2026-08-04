@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-04T07:16:52.6925130Z
+modifiedAt: 2026-08-04T12:20:53.2824520Z
 ---
 
 ## Purpose and ownership
@@ -107,20 +107,20 @@ Package/feed distribution remains deferred. The canonical family checkout and `C
 
 ## Authoritative walking physics prerequisite
 
-Starfall's provisional graybox and authoritative movement remain game-owned, but the reusable Box3D source/native/managed boundary belongs to ChronoFall:
+Starfall's provisional graybox and authoritative movement remain game-owned. ChronoFall `SHARED-0021` now establishes the reusable Box3D source/native/managed boundary from the independent coordinator pin and the audited Royale `PHYS-012` evidence.
 
 ```text
 parent SHARED-0016 family-source policy
-Royale PHYS-012 proven audited Box3D integration
+Royale PHYS-012 audited evidence
   -> parent SHARED-0021 bounded shared Box3D runtime
-  -> canonical waiting dependency from Starfall SIM-0008
+  -> Starfall SIM-0008 approved integration plan
 ```
 
-`SHARED-0021` is dependency-ready and todo. It canonically consumes Royale `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/PHYS-012` as evidence, without creating a Starfall-to-Royale dependency or authorizing coordinator changes in Royale. The parent task owns an independent pin, licence evidence, fetch/native-build workflow, minimum child-independent binding/ownership surface, and the explicit headless-safe `ChronoFallFamilyRoot` source boundary.
+The coordinator runtime is deliberately limited to world stepping, body/shape ownership, transforms/velocity, boxes/capsules, filtering, mover casts and immutable sorted collision-plane facts. Starfall continues to own entity identity, fixed-tick scheduling, content conversion, movement rules, collision layers and gameplay outcomes.
 
-The initial surface is limited to authoritative ground-plane movement needs: world lifecycle/stepping, bodies, transforms/velocity, boxes/capsules, filtering, and bounded collision/query facts. Starfall continues to own entity identity, fixed-tick simulation policy, content conversion, movement rules and gameplay outcomes. Rendering, debug presentation, maps, collision cooking, generalized physics abstractions and child integration remain outside the coordinator task.
+The headless direct-reference allowlist contains only `$(ChronoFallFamilyRoot)src/ChronoFall.Box3D/ChronoFall.Box3D.csproj`; bindings are transitive. Source consumption adds no SDL/GPU payload and no package/feed machinery.
 
-Cycle 2 allocated and documented the parent task without mutating Starfall. The separately owner-directed Starfall Box3D Cycle 3 then completed through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`. Starfall commit `84b1c94d3d3413954a20b09ea1d0445dfeb748f7` attached the canonical `SHARED-0021` dependency to `SIM-0008` and corrected the matching Starfall roadmap prose; coordinator pointer commit `7530f552044b5888d44df7123c66996612c4655e` pins that reviewed child commit. `SIM-0008` now has a valid-but-waiting dependency on `SHARED-0021`. Source consumption and `SIM-0008` activation remain blocked until `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan.
+Starfall Cycle 3 already attached the canonical dependency through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`. Once `SHARED-0021` completes, `SIM-0008` becomes dependency-ready, but it must remain todo until its own owner-approved plan. This coordinator task does not implement or activate Starfall simulation.
 
 ## Historical asset-enabler wiring (SF-0008)
 

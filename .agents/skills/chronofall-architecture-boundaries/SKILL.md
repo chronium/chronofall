@@ -13,13 +13,13 @@ description: Place ChronoFall architecture and source in the correct repository.
 
 Never make Royale and Starfall depend directly on each other. Parent shared modules may be consumed by children but must remain child-independent.
 
-The canonical full-client environment is the coordinator family checkout. An approved child client may reference the narrow coordinator source allowlist through `ChronoFallFamilyRoot`; this does not transfer repository, build-policy, gameplay, or release ownership to the parent. Do not require package distribution merely to preserve independent product ownership.
+The canonical full-client environment is the coordinator family checkout. An approved child may reference an audience-specific coordinator source allowlist through `ChronoFallFamilyRoot`: character-presentation projects are client-only, while the headless-safe `ChronoFall.Box3D` project may be consumed by simulation with bindings only transitively. This does not transfer repository, build-policy, gameplay, or release ownership to the parent. Do not require package distribution merely to preserve independent product ownership.
 
 ## Preserve Authority
 
 Servers own gameplay outcomes and persistent state. Clients own rendering, animation, IK, effects, cameras, and smoothing. Animation consumes events/state; it never produces authoritative attacks, hits, movement, equipment, damage, or death.
 
-Keep headless projects free of SDL, GPU, ImGui, renderer, editor, and presentation assets.
+Keep headless projects free of SDL, GPU, ImGui, renderer, editor, and presentation assets. A headless child may consume the bounded shared Box3D world/body/shape/mover-query contract, but retains fixed-tick scheduling, stable entity identity, gameplay ordering, and all game-specific collision policy.
 
 ## Promote Only Proven Contracts
 

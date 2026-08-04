@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/ChronoFall.Box3D.Bindings/ChronoFall.Box3D.Bindings.csproj" />
+    <Project Path="src/ChronoFall.Box3D/ChronoFall.Box3D.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation.Cooking/ChronoFall.CharacterPresentation.Cooking.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
@@ -11,6 +13,8 @@
     <Project Path="tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ChronoFall.Box3D.Tests/ChronoFall.Box3D.Tests.csproj" />
+    <Project Path="tests/ChronoFall.Box3D.FamilySourceConsumer/ChronoFall.Box3D.FamilySourceConsumer.csproj" />
     <Project Path="tests/ChronoFall.CharacterPresentation.Tests/ChronoFall.CharacterPresentation.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterPresentation.Cooking.Tests/ChronoFall.CharacterPresentation.Cooking.Tests.csproj" />
     <Project Path="tests/ChronoFall.CharacterPresentation.SdlGpu.Tests/ChronoFall.CharacterPresentation.SdlGpu.Tests.csproj" />

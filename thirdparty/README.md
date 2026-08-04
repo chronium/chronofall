@@ -53,3 +53,25 @@ The resulting source is placed at `thirdparty/repos/SDL3-CS`. ChronoFall pins SD
 | Purpose | PNG encoding for the bounded client/tooling screenshot contract |
 
 The package is centrally pinned and referenced only by `ChronoFall.CharacterPresentation.SdlGpu`. SDL3-CS remains compiled from its checked-out source; the PNG dependency does not enter the BCL-only character data or cooking projects. The inspected package and licence/provenance evidence are recorded at `licenses/StbImageWriteSharp/PROVENANCE.md`.
+
+## Box3D
+
+| Property | Value |
+| --- | --- |
+| Official source | `https://github.com/erincatto/box3d` |
+| Pinned revision | `3fc20f5b453ba9e14cdf54ecafa87a2a4bcdf53c` |
+| License | MIT |
+| Purpose | Headless world, body, box/capsule, filtering and bounded mover-query runtime for family simulations |
+
+The upstream licence is preserved at `licenses/Box3D/LICENSE`. No patch is required at this revision; `patches/Box3D/README.md` records that evidence and remains the only approved patch location. Fetching, native build products and installed artifacts stay ignored:
+
+```sh
+sh thirdparty/fetch-box3d.sh
+sh thirdparty/verify-box3d.sh
+sh thirdparty/build-box3d-macos.sh
+# Run build-box3d-linux.sh from Linux x64.
+```
+
+Release native artifacts are installed at `thirdparty/artifacts/box3d/<rid>/lib/` and copied by `ChronoFall.Box3D` to `runtimes/<rid>/native/`. Supported development/server targets are macOS ARM64 (`libbox3d.dylib`) and Linux x64 (`libbox3d.so`); unsupported or missing runtime libraries fail explicitly. Windows and package/feed distribution remain deferred.
+
+The managed contract deliberately excludes debug rendering, joints, meshes, height fields, general overlap/raycast APIs, character controllers, map/collision cooking and game-specific policy. Native query traversal order is not a gameplay ordering contract, and cross-platform bitwise determinism is not promised.

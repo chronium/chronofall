@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-03T15:40:16.5253530Z
+modifiedAt: 2026-08-04T12:20:53.1598810Z
 ---
 
 ## Decision
@@ -36,13 +36,19 @@ Only a child client may consume this allowlist. Headless simulation, world/serve
 
 `ChronoFall.CharacterPresentation.SdlGpu` also exposes the bounded screenshot readback and PNG-writing contract recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-capture`. This is part of the existing client-only allowlisted project, not an additional reference. A child must still own its capture scheduling, camera, scene, output policy and task approval; the shared capability does not authorize automatic child adoption.
 
-## Pending headless Box3D source boundary
+## Headless Box3D source boundary
 
-The current allowlist above remains client-presentation-only. Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0021` is the separately owned prerequisite for extending this model to an explicit headless-safe Box3D source allowlist.
+The source model now has separate audience allowlists. Client presentation retains the three character-presentation projects above. Headless simulation may directly reference only:
 
-When implemented, that task must expose only coordinator-owned child-independent Box3D projects through the existing `ChronoFallFamilyRoot` property, prove a headless family-source consumer, and keep native runtime artifacts free of SDL, GPU, ImGui and presentation payloads. It must not add literal parent traversal, package/feed machinery, imported coordinator build policy, or direct child references.
+```text
+$(ChronoFallFamilyRoot)src/ChronoFall.Box3D/ChronoFall.Box3D.csproj
+```
 
-No child may consume the pending boundary merely because the task exists. Starfall Box3D Cycle 3 completed through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`: Starfall commit `84b1c94d3d3413954a20b09ea1d0445dfeb748f7` attached the canonical dependency and coordinator pointer commit `7530f552044b5888d44df7123c66996612c4655e` pins it. `SIM-0008` now has a valid-but-waiting dependency on `SHARED-0021`; source consumption and activation remain blocked until `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan.
+`ChronoFall.Box3D.Bindings` is a transitive implementation dependency and must not be directly referenced by a child. The coordinator family-source consumer proves the managed source reference, native runtime copy and absence of SDL, GPU, ImGui and presentation payloads.
+
+The boundary uses the same single `ChronoFallFamilyRoot` property and adds no literal parent traversal, arbitrary root, package/feed machinery, imported coordinator build policy or child reference. Its full runtime contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-box3d-runtime`.
+
+Starfall `SIM-0008` may adopt this reference only after `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan. Dependency completion permits planning; it does not activate child work or transfer gameplay ownership.
 
 ## Generated client content
 

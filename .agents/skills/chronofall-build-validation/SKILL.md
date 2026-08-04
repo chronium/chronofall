@@ -18,7 +18,7 @@ Inspect coordinator and child diffs independently, then run `git diff --check`. 
 - Royale code: load Royale's build-validation skill and run its documented solution/focused/native commands.
 - Starfall code: load its repository policy and documented commands once its build lifecycle exists.
 - Shared contracts: build/test the shared module plus every affected child adapter; inspect headless dependency graphs and artifacts.
-- Family source consumption: prove references use only `ChronoFallFamilyRoot`, verify SDL3-CS is compiled from the coordinator checkout, exercise the stable-ID client staging command, and confirm generated output is ignored while both child worktrees and gitlinks remain unchanged.
+- Family source consumption: prove references use only `ChronoFallFamilyRoot`; validate the client presentation and headless Box3D allowlists independently; verify SDL3-CS and Box3D are compiled from coordinator-pinned source; exercise the stable-ID client staging command where relevant; and confirm generated output is ignored while both child worktrees and gitlinks remain unchanged.
 
 Do not invent commands that a repository does not configure.
 
@@ -41,5 +41,7 @@ For Royale or Starfall output, notify the owner but preserve the artifact throug
 ## Protect Headless Outputs
 
 Inspect server/simulation project references and packaged output. They must exclude SDL windowing/GPU, ImGui, shaders, textures, presentation code, and editor-only assets.
+
+For shared Box3D changes, run ABI/layout tests, the pinned upstream native tests with validation enabled, wrapper ownership and collision/query tests, and the coordinator family-source consumer on every supported platform. Inspect the consumer output: it may contain only the managed Box3D projects, the matching native library under `runtimes/<rid>/native/`, and ordinary .NET host files. Do not claim cross-platform bitwise physics determinism.
 
 Report exact commands, outcomes, skipped platforms, sandbox limitations, human validation, PM status, commits, and remaining risk.

@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-03T08:47:13.2675400Z
+modifiedAt: 2026-08-04T12:20:53.0390100Z
 ---
 
 ## Focus
@@ -24,17 +24,15 @@ NuGet packages, feeds, versions, `buildTransitive` targets, source mapping, and 
 
 The M1 loader decision is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/experiments/skeletal-loader-decision`.
 
-## Pending shared Box3D promotion
+## Shared Box3D runtime
 
-Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0021` owns the first bounded shared Box3D acquisition and managed-runtime boundary. It exists because two independent facts now meet: Royale has proven and updated its focused Box3D integration through `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/PHYS-012`, and Starfall's approved walking slice needs authoritative ground-plane physics.
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0021` implements the first bounded shared Box3D source, native-build and managed-runtime boundary. It begins from Royale's audited evidence at `pm://project/prj__-jXLQgm6GuD2gCKZ_bTa1m-/task/PHYS-012` but owns an independent official pin, MIT licence snapshot, fetch/build workflow, namespaces and child-independent source.
 
-The task begins from Royale's audited upstream commit `3fc20f5b453ba9e14cdf54ecafa87a2a4bcdf53c` as evidence, but ChronoFall must own its own pin, licence record, fetch/build workflow, native artifacts, namespaces and child-independent source. Parent code must never reference Royale paths or absorb Royale gameplay.
+The promoted surface is finite Box3D-native single-precision metre values, world lifecycle and fixed stepping, body/shape ownership, transforms and velocity, boxes/capsules, collision filtering, mover casts and copied collision-plane facts. Callback facts are immutable and explicitly sorted; stable game identity, creation/application order, fixed-tick scheduling and final gameplay ordering remain caller-owned. Cross-platform bitwise physics determinism is not promised.
 
-The initial promotable surface is intentionally small: Box3D-native finite single-precision metre values, world lifecycle and fixed stepping, body/shape ownership, transforms and velocity, boxes/capsules, collision filtering, and only the bounded query/contact facts needed by authoritative ground-plane movement. Stable game identity, creation/application order, fixed-tick scheduling and sorting of unordered query results remain caller responsibilities. The shared boundary does not promise cross-platform bitwise physics determinism.
+The approved headless direct-reference allowlist contains only `src/ChronoFall.Box3D/ChronoFall.Box3D.csproj`; raw bindings are transitive. macOS ARM64 and Linux x64 native layouts are explicit. SDL, GPU, ImGui, debug rendering, character controllers, gameplay, maps, collision cooking, generalized physics abstractions, packages/feeds and child migration remain excluded.
 
-`SHARED-0021` remains allocated and todo. Starfall Box3D Cycle 3 completed through `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0009`: Starfall commit `84b1c94d3d3413954a20b09ea1d0445dfeb748f7` attached the canonical `SHARED-0021` URI to `SIM-0008`, and coordinator pointer commit `7530f552044b5888d44df7123c66996612c4655e` pins that reviewed child commit. `SIM-0008` now has a valid-but-waiting dependency on `SHARED-0021`. Source consumption and `SIM-0008` activation remain blocked until `SHARED-0021` completes and `SIM-0008` receives its own approved implementation plan. The approved family-source allowlist remains client-presentation-only until that implementation establishes its headless boundary, and the completed dependency wiring does not transfer gameplay or simulation ownership to the coordinator.
-
-The task excludes debug rendering, character controllers, gameplay, map formats, collision cooking, editor integration, generalized physics abstractions, package feeds and child migration.
+The complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-box3d-runtime`. Starfall `SIM-0008` has a valid dependency on this task but still requires its own approved plan before it may activate or consume the source.
 
 ## Authority
 
