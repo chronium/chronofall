@@ -20,8 +20,9 @@ Usage:
     --output <sheet.png> [--columns <count>] \\
     --item <image> <label> [--item <image> <label> ...]
 
-The macOS AppKit compositor preserves each source image pixel-for-pixel without
-cropping, adds a 48-pixel label strip, and writes a PNG suitable for review.
+The macOS AppKit compositor preserves each source image's exact pixel dimensions
+and framing without cropping or scaling, adds a 48-pixel label strip, and writes
+a PNG suitable for review. Decoded RGB samples are not promised byte-identical.
 All input images in one sheet must have the same dimensions.
 """
 

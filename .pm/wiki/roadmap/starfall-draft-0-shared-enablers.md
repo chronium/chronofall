@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-04T06:47:32.1597040Z
+modifiedAt: 2026-08-04T07:16:52.6925130Z
 ---
 
 ## Purpose and ownership
@@ -48,6 +48,8 @@ Starfall CONTENT-0011 exact archer/underlayer/Ranger selection
 ```
 
 The canonical `CONTENT-0011` dependency makes `SHARED-0003` wait until Starfall identifies the exact concrete need and compatibility evidence. It does not transfer Starfall asset, item, equipment or composition ownership into the parent, and it does not make parent source depend on Starfall. Once the selection completes, `SHARED-0003` retains its inherited M2 priority and can be planned from evidence rather than speculation.
+
+Coordinator `COORD-0011` subsequently reviewed and ratified the already-pushed `00c9224` dependency change under an active grooming/review lifecycle. The review preserved history, confirmed the canonical edge is valid and cycle-free, and left `SHARED-0003` todo and waiting; it did not activate or implement modular armour.
 
 ## Exact acquisition graph
 

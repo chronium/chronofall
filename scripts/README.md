@@ -17,7 +17,7 @@ Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink esc
 
 ## Contact-Sheet Compositor
 
-`create-contact-sheet.swift` is a macOS AppKit utility for composing equally sized captures into the labeled 2x PNG sheets used by `docs/project-history/`. It preserves source framing, adds a 48-point label strip, and supports an arbitrary number of `--item <path> <label>` pairs.
+`create-contact-sheet.swift` is a macOS AppKit utility for composing equally sized captures into the labeled 2x PNG sheets used by `docs/project-history/`. It preserves each source image's exact pixel dimensions and framing without cropping or scaling, adds a 48-pixel label strip, and supports an arbitrary number of `--item <path> <label>` pairs. AppKit decoding and redraw do not promise byte-identical decoded RGB samples.
 
 Run `scripts/create-contact-sheet.swift --help` for the complete syntax. For example:
 
