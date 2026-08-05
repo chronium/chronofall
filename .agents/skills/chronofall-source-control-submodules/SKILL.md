@@ -41,6 +41,8 @@ Stage only the intended gitlink and inspect the complete staged submodule diff. 
 
 If any check fails, stop and report the blocker. Resume this mechanical follow-up after resolution without creating a `SUBMODULE` task. Pushing remains owner-directed and must publish the child before the coordinator.
 
+For an explicitly owner-approved taskless child backlog-grooming commit, use a `[PM]` pointer subject instead of inventing a task ID. Record the stable child project ID, pinned commit, and concise grooming purpose in the body; do not fabricate a canonical task URI. Preserve every other pointer-only identity, ancestry, cleanliness, validation, and publish-order rule.
+
 When an owner-approved child grooming task is reopened solely for reviewed canonical dependency wiring after the planned coordinator cycle, its second child commit and pointer-only handoff use the original grooming task ID. Keep that continuation limited to recorded dependency receipts and matching roadmap corrections; never absorb feature implementation or unrelated grooming.
 
 ## Validate Checkout

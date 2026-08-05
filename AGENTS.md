@@ -51,6 +51,8 @@ Linked writes require unique resolution, matching stable identity, local write t
 
 The PM wiki is the durable source of truth for architecture, ownership, formats, setup, experiments, provenance, and workflow. Update it in the owning project with the same task that changes a contract.
 
+An explicitly owner-approved Plan-mode backlog-grooming session may create or revise tasks, dependencies, priorities, ordering, milestones, and matching roadmap/wiki text directly without manufacturing a task whose only output is more PM work. The approved plan must enumerate the intended mutations. Such a session activates no feature task, changes no implementation source or assets, and commits the validated administrative result with a `[PM]` subject. This exception is for backlog representation only; it does not bypass task ownership or approval for implementation, architecture expansion, dependency decisions outside the approved grooming scope, or review continuation.
+
 ## Plan-Mode Approval Gate
 
 When the owner enters Plan mode and asks for the next task:
@@ -85,6 +87,8 @@ Only after the owner approves the plan:
 10. Commit the focused change in the owning repository with the task ID.
 11. For a child-owned task executed from the verified family checkout, complete the automatic pointer-only coordinator follow-up described below, then stop.
 
+For an approved direct backlog-grooming session, apply only the enumerated PM/wiki/policy mutations, inspect every receipt, validate the graph, commit with `[PM]`, perform the corresponding taskless pointer handoff when the owning project is a child, and stop. Do not activate a feature task or begin implementation.
+
 Do not automatically select or begin another task after completion. Every task starts with a new owner-directed Plan-mode pass.
 
 ## Git And Submodules
@@ -106,6 +110,8 @@ Child source lifecycle:
 5. Stop. Pushing remains owner-directed; publish the child commit before the coordinator commit.
 
 The pointer commit is a mechanical continuation of the approved child task, not a second PM task or implementation scope. If the coordinator contains unrelated changes, the child is dirty, identity or ancestry is wrong, or the linked project is unavailable, stop and report the blocker. Resume the same mechanical follow-up after resolution; do not create a ceremonial `SUBMODULE` task.
+
+For an explicitly approved taskless child backlog-grooming commit, use a `[PM]` pointer subject. Its body records the stable child project ID, pinned child commit, and concise grooming purpose; no canonical task URI is fabricated. The same identity, ancestry, cleanliness, pointer-only staging, validation, and publish-order requirements apply.
 
 Task commits begin with the owning task ID, for example `[RENDER-012] Integrate shared character presentation`. The corresponding pointer-only commit may use `[RENDER-012] Pin Royale child commit` and persists the canonical child task URI in its body.
 

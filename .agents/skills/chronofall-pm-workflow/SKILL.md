@@ -28,6 +28,8 @@ In Plan mode, call `get_next_task(readyOnly: true, family: true)` unless the own
 
 Planning does not mutate PM, activate work, grant trust, or choose another task merely because the recommendation is blocked. Return one implementation plan and wait for approval.
 
+When the owner explicitly approves a direct backlog-grooming plan, do not create a meta-task whose only result is more tasks. Apply only the enumerated task, dependency, priority, ordering, milestone, and matching wiki mutations; activate no feature task; change no implementation source or assets; validate every receipt and the complete graph; commit the administrative result with `[PM]`; and stop. This does not authorize implementation or unplanned contract changes.
+
 For an owner-approved child grooming task whose canonical coordinator dependencies can only be allocated by a planned later coordinator cycle, the same completed grooming task may be reopened for the reviewed wiring continuation. Record the reason and mutation receipts, add only the already-approved canonical dependencies and matching roadmap corrections, validate the family graph, complete and commit the same child task again, perform its mechanical pointer handoff, and stop. Do not use this exception for feature work, independent contracts, unrelated backlog changes, or automatic task selection.
 
 ## Write Canonical Relationships
@@ -50,3 +52,5 @@ After every mutation, verify the receipt's `projectId` and `changedPaths` belong
 ## Execute And Complete
 
 After plan approval, re-read the task, recheck dependencies, move only it to the owning active state, implement, validate, update durable notes/wiki, and complete only when no required work remains. Commit in the owning repository and do not select another task. For a child-owned task, the source-control workflow then performs its automatic pointer-only coordinator commit without creating or mutating a coordinator PM task; that mechanical handoff is still part of the same approved cycle.
+
+An approved direct backlog-grooming cycle has no active task to move or complete. It ends after validated PM/wiki changes, its `[PM]` commit, and any required taskless child-pointer handoff.
