@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-04T15:55:41.0089860Z
+modifiedAt: 2026-08-05T07:29:47.0149630Z
 ---
 
 ## Focus
@@ -57,3 +57,13 @@ The promotion does not make SimpleMesh permanent, freeze a cooked format, establ
 ## Later authoring exploration
 
 Typed authoring objects may eventually register serialization, inspector controls, validation, gizmos, icons/labels, debug drawing, and content cooking. They compile to product-specific runtime data: a Royale waypoint can compile to a compact navigation graph; a Starfall spawn object can compile to server-owned spawn data. Authoring structure must not force a reflective runtime ECS.
+
+## Planned shared editor UI backend
+
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` is the allocated, still-todo prerequisite for Starfall's editor UI foundation. It is deliberately narrower than a shared editor application: ChronoFall owns only the independent ImGui.Net/cimgui and ImGuizmo pin/build, native SDL3/SDL_GPU backend, context/event/draw lifetime, docking opt-in, font injection, DPI hooks and future exact editor source allowlist.
+
+Starfall retains its application loop, window/device scheduling, dock layout, design language, UI primitives, selection, documents, inspectors and workflows. Royale remains unchanged unless a later Royale-owned task adopts the backend. Completed Royale editor and Starfall native-presentation tasks are evidence recorded in SHARED-0024, not dependency edges.
+
+SHARED-0024 depends only on completed SHARED-0016. It requires macOS ARM64 native and visual validation. Linux x64 native validation is not currently required, and Windows validation begins only when Windows becomes a supported family target.
+
+Roadmap: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-editor-ui-foundation`
