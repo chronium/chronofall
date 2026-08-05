@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-04T15:55:52.8674900Z
+modifiedAt: 2026-08-05T10:14:23.0701240Z
 ---
 
 ## Decision
@@ -63,6 +63,20 @@ $(ChronoFallFamilyRoot)src/ChronoFall.Network.Transport.LiteNetLib/ChronoFall.Ne
 Content, Protocol, Simulation, Editor and Balance Lab remain outside this allowlist. Protocol codecs remain transport-independent. The shared adapter supplies opaque copied packets and connection facts; each child owns framing, admission, sessions, gameplay exchange, connection policy and runtime wiring.
 
 The source boundary uses the existing `ChronoFallFamilyRoot` property and adds no package/feed machinery. Its complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-network-transport`. Completion of `SHARED-0023` permits a Starfall adoption plan but does not activate `CLIENT-0009` or mutate either child.
+
+## Native editor UI source boundary
+
+Editor-host presentation has its own audience-specific allowlist. `SHARED-0024` establishes this boundary. A child may use it only after its own adoption task receives owner approval; the only permitted direct reference is:
+
+~~~text
+$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj
+~~~
+
+The first planned consumer is the native `Starfall.Editor` host. SDL3-CS, ImGui.Net, Evergine.Mathematics and the coordinator-built native libraries are transitive implementation details; a child must not reference their coordinator project or checkout paths directly.
+
+Starfall's World, Simulation, Protocol, Content, Balance Lab and headless editor document/compiler are excluded. A native editor host may compose this UI backend with separately approved client-side presentation projects, but its authoritative document model must remain presentation-free.
+
+The source boundary uses only `ChronoFallFamilyRoot`. It adds no package/feed distribution, imported coordinator build policy, product theme, docking layout or editor framework. Royale remains unchanged unless a later Royale-owned task adopts the backend. The complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-imgui-backend`.
 
 ## Generated client content
 

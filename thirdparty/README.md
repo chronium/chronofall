@@ -95,3 +95,38 @@ sh thirdparty/verify-litenetlib.sh
 ```
 
 The resulting source is placed at `thirdparty/repos/LiteNetLib` and compiled directly by `ChronoFall.Network.Transport.LiteNetLib`. No NuGet package, feed, protocol framing, game handshake, retry policy or product runtime is supplied by this dependency boundary.
+
+## ImGui.Net, Dear ImGui and ImGuizmo
+
+| Property | Value |
+| --- | --- |
+| Official binding source | `https://github.com/EvergineTeam/ImGui.Net` |
+| Pinned binding revision | `1f97beecfc9b83e1549e9782757cf85b1777cb9d` |
+| Native components | cimgui, Dear ImGui, cimguizmo and ImGuizmo at the exact submodule revisions in `versions.env` |
+| Licences | MIT for the bindings and native components; upstream Evergine licence for `Evergine.Mathematics` |
+| Purpose | Caller-controlled SDL3/SDL_GPU immediate-mode editor backend and raw transform gizmo binding |
+
+The ignored checkout is fetched and patched independently of Royale:
+
+```sh
+sh thirdparty/fetch-imgui-net.sh
+sh thirdparty/verify-imgui-net.sh
+sh thirdparty/build-imgui-macos.sh
+```
+
+The macOS ARM64 build compiles only Dear ImGui core/tables/widgets/draw,
+cimgui, the SDL3 and SDL_GPU backends, cimguizmo and ImGuizmo. ImPlot,
+imnodes, demos, graph editors, curves, gradients and sequencers are excluded.
+It uses the official SDL headers pinned transitively by SDL3-CS at
+`External/SDL`; no machine-installed SDL headers participate.
+
+The generated managed binding retains upstream `Evergine.Mathematics`
+version `2025.10.21.3204` for ABI vectors. Its exact package and licence
+hashes are recorded under `licenses/Evergine.Mathematics/`. The patch removes
+unneeded managed binding surfaces and upstream prebuilt native binaries so
+the single coordinator-built `libchronofall_imgui.dylib` satisfies both the
+`cimgui` binding imports and the ChronoFall SDL backend bridge.
+
+Generated checkouts, build directories and native artifacts remain ignored.
+ChronoFall source owns no application shell, docking layout, theme, font,
+editor document, inspector or product workflow through this dependency.

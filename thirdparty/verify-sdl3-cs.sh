@@ -16,6 +16,9 @@ diff -B "$DEST/LICENCE" "$LICENSE_DIR/LICENCE"
 diff -B "$DEST/SDL3-CS/SDL-license-header.txt" "$LICENSE_DIR/SDL-license-header.txt"
 test "$(shasum -a 256 "$NATIVE" | awk '{print $1}')" = "$SDL3_CS_OSX_ARM64_SHA256"
 test "$(file -b "$NATIVE")" = "Mach-O 64-bit dynamically linked shared library arm64"
+test "$(git -C "$DEST/External/SDL" rev-parse HEAD)" = "$SDL_SOURCE_COMMIT"
+test "$(git -C "$DEST" ls-tree HEAD External/SDL | awk '{print $3}')" = "$SDL_SOURCE_COMMIT"
+git -C "$DEST/External/SDL" diff --check
 
 for patch in "$SCRIPT_DIR/patches/SDL3-CS"/*.patch; do
     [ -e "$patch" ] || continue

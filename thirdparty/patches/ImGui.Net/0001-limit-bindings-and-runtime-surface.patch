@@ -1,0 +1,25 @@
+diff --git a/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj b/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj
+index 10bc494..eb54791 100644
+--- a/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj
++++ b/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj
+@@ -15,15 +15,18 @@
+ 
+ 	<ItemGroup>
+ 		<PackageReference Include="Evergine.Mathematics" Version="2025.10.21.3204" />
+-		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+ 	</ItemGroup>
+ 
++	<ItemGroup>
++		<Compile Remove="Implot/**/*.cs" />
++		<Compile Remove="Imnodes/**/*.cs" />
++	</ItemGroup>
++
+ 	<ItemGroup>
+ 		<None Include="..\..\icon.png" Pack="true" PackagePath="\" Visible="false" />
+ 		<None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+ 	</ItemGroup>
+ 
+ 	<ItemGroup>
+ 		<Content Include="buildTransitive\Evergine.Bindings.Imgui.targets" PackagePath="buildTransitive" Visible="true" />
+-		<Content Include="runtimes\**" PackagePath="runtimes" Visible="true" CopyToOutputDirectory="PreserveNewest" />
+ 	</ItemGroup>

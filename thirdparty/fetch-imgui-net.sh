@@ -4,8 +4,8 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/versions.env"
 
-DEST="$SCRIPT_DIR/repos/SDL3-CS"
-PATCH_DIR="$SCRIPT_DIR/patches/SDL3-CS"
+DEST="$SCRIPT_DIR/repos/ImGui.Net"
+PATCH_DIR="$SCRIPT_DIR/patches/ImGui.Net"
 
 if [ ! -d "$DEST/.git" ]; then
     mkdir -p "$DEST"
@@ -13,23 +13,21 @@ if [ ! -d "$DEST/.git" ]; then
 fi
 
 if git -C "$DEST" remote get-url origin >/dev/null 2>&1; then
-    git -C "$DEST" remote set-url origin "$SDL3_CS_REPO"
+    git -C "$DEST" remote set-url origin "$IMGUI_NET_REPO"
 else
-    git -C "$DEST" remote add origin "$SDL3_CS_REPO"
+    git -C "$DEST" remote add origin "$IMGUI_NET_REPO"
 fi
 
-git -C "$DEST" fetch --depth 1 origin "$SDL3_CS_COMMIT"
+git -C "$DEST" fetch --depth 1 origin "$IMGUI_NET_COMMIT"
 git -C "$DEST" checkout --detach FETCH_HEAD
 git -C "$DEST" reset --hard FETCH_HEAD
 git -C "$DEST" clean -xfd
+git -C "$DEST" submodule update --init --depth 1 NativeLibraries/cimgui NativeLibraries/cimguizmo
+git -C "$DEST/NativeLibraries/cimgui" submodule update --init --depth 1 imgui
+git -C "$DEST/NativeLibraries/cimguizmo" submodule update --init --depth 1 ImGuizmo
 
 for patch in "$PATCH_DIR"/*.patch; do
     [ -e "$patch" ] || continue
     git -C "$DEST" apply --check "$patch"
     git -C "$DEST" apply "$patch"
 done
-
-# The caller-controlled ImGui backend compiles against the exact SDL headers
-# recorded by the SDL3-CS pin instead of whichever headers happen to be
-# installed on the development machine.
-git -C "$DEST" submodule update --init --depth 1 External/SDL

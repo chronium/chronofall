@@ -5,6 +5,7 @@
     <Project Path="src/ChronoFall.CharacterPresentation/ChronoFall.CharacterPresentation.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation.Cooking/ChronoFall.CharacterPresentation.Cooking.csproj" />
     <Project Path="src/ChronoFall.CharacterPresentation.SdlGpu/ChronoFall.CharacterPresentation.SdlGpu.csproj" />
+    <Project Path="src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SimpleMesh/ChronoFall.CharacterExperiment.SimpleMesh.csproj" />
     <Project Path="src/ChronoFall.CharacterExperiment.SdlGpu/ChronoFall.CharacterExperiment.SdlGpu.csproj" />
     <Project Path="src/ChronoFall.Network.Transport/ChronoFall.Network.Transport.csproj" />
@@ -26,6 +27,9 @@
     <Project Path="tests/ChronoFall.CharacterCooker.Tests/ChronoFall.CharacterCooker.Tests.csproj" />
     <Project Path="tests/ChronoFall.StaticMeshCooker.Tests/ChronoFall.StaticMeshCooker.Tests.csproj" />
     <Project Path="tests/ChronoFall.FamilySourceConsumer/ChronoFall.FamilySourceConsumer.csproj" />
+    <Project Path="tests/ChronoFall.EditorUi.FamilySourceConsumer/ChronoFall.EditorUi.FamilySourceConsumer.csproj" />
+    <Project Path="tests/ChronoFall.EditorUi.GpuHarness/ChronoFall.EditorUi.GpuHarness.csproj" />
+    <Project Path="tests/ChronoFall.EditorUi.SdlGpu.Tests/ChronoFall.EditorUi.SdlGpu.Tests.csproj" />
     <Project Path="tests/ChronoFall.Network.Transport.Tests/ChronoFall.Network.Transport.Tests.csproj" />
     <Project Path="tests/ChronoFall.NetworkTransport.FamilySourceConsumer/ChronoFall.NetworkTransport.FamilySourceConsumer.csproj" />
   </Folder>
@@ -33,5 +37,6 @@
     <Project Path="thirdparty/repos/SimpleMesh/SimpleMesh/SimpleMesh.csproj" />
     <Project Path="thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj" />
     <Project Path="thirdparty/repos/LiteNetLib/LiteNetLib/LiteNetLib.csproj" />
+    <Project Path="thirdparty/repos/ImGui.Net/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj" />
   </Folder>
 </Solution>

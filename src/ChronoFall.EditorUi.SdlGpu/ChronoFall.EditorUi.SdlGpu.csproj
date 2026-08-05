@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../thirdparty/repos/SDL3-CS/SDL3-CS/SDL3-CS.csproj"
+                      AdditionalProperties="CI_DONT_TARGET_ANDROID=1"
+                      SetTargetFramework="TargetFramework=net8.0" />
+    <ProjectReference Include="../../thirdparty/repos/ImGui.Net/Generator/Evergine.Bindings.Imgui/Evergine.Bindings.Imgui.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../thirdparty/artifacts/imgui/osx-arm64/lib/libchronofall_imgui.dylib"
+          CopyToOutputDirectory="PreserveNewest"
+          TargetPath="runtimes/osx-arm64/native/libchronofall_imgui.dylib" />
+    <None Include="../../thirdparty/repos/SDL3-CS/native/osx-arm64/libSDL3.dylib"
+          CopyToOutputDirectory="PreserveNewest"
+          TargetPath="runtimes/osx-arm64/native/libSDL3.dylib" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ChronoFall.EditorUi.SdlGpu.Tests" />
+  </ItemGroup>
+</Project>

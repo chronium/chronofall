@@ -1,7 +1,7 @@
 ---
 title: Starfall editor UI foundation
 createdAt: 2026-08-05T07:29:05.1859490Z
-modifiedAt: 2026-08-05T07:29:05.1859490Z
+modifiedAt: 2026-08-05T10:14:23.2029740Z
 ---
 
 ## Decision
@@ -12,22 +12,23 @@ ChronoFall owns only the narrow caller-controlled native ImGui prerequisite. Sta
 
 ## Shared prerequisite
 
-`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` owns:
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` is the completed coordinator prerequisite. It implements the caller-controlled `ChronoFall.EditorUi.SdlGpu` project and owns:
 
-- the independent coordinator ImGui.Net/cimgui and ImGuizmo pin, patches, licence evidence and reproducible native build;
-- ImGui context lifetime, SDL event forwarding and SDL GPU draw preparation/submission;
-- docking opt-in, font injection, DPI hooks and native artifact packaging;
-- the exact future Starfall.Editor family-source allowlist.
+- the independent coordinator ImGui.Net/cimgui and ImGuizmo pin, reproducible patch/build workflow and licence evidence;
+- one managed ImGui context, SDL event forwarding, capture state, docking opt-in, font-atlas injection and DPI/framebuffer-scale inputs;
+- SDL GPU draw-data preparation before a caller-owned pass and recording into that supplied pass;
+- one macOS ARM64 native artifact containing only the approved neutral ImGui/ImGuizmo surface;
+- the exact future allowlist permitting only the native `Starfall.Editor` host to reference the shared project.
 
-It depends only on completed `SHARED-0016`, which owns the coordinator SDL3-CS pin and family-source boundary.
+It depends only on completed `SHARED-0016`, which owns the coordinator SDL3-CS pin and family-source boundary. Its complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-imgui-backend`.
 
-Completed Royale EDITOR-001, EDITOR-002, EDITOR-003 and EDITOR-005 and Starfall CLIENT-0020 are architectural evidence recorded in the task. They are not PM dependencies and do not make the dependency graph a bibliography.
+Completed Royale EDITOR-001, EDITOR-002, EDITOR-003 and EDITOR-005 and Starfall CLIENT-0020 remain architectural evidence, not PM dependencies.
 
-The shared task excludes application/window/device scheduling, dock layout, theme, panels, selection, documents, authoring concepts, ImPlot, imnodes, graph editors, sequencers and Royale migration.
+The backend does not acquire windows, GPU devices, command buffers, targets or swapchains; begin/end render passes; submit work; or own application layout, theme, fonts, panels, selection, documents or authoring. Multi-viewport, ImPlot, imnodes, graph editors, sequencers and Royale migration are excluded.
 
 ## Planned Starfall sequence
 
-After the shared prerequisite is allocated, Starfall will groom its own backlog through a separate owner-directed cycle:
+With the shared prerequisite complete, Starfall may groom its own backlog through a separate owner-directed cycle:
 
 ~~~text
 SHARED-0024
