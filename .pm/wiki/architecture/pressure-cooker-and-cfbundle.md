@@ -1,7 +1,7 @@
 ---
 title: Pressure Cooker and Deferred Cooked Bundles
 createdAt: 2026-08-05T08:30:12.5053670Z
-modifiedAt: 2026-08-05T08:30:12.5053670Z
+modifiedAt: 2026-08-05T09:33:25.6288330Z
 ---
 
 ## Decision status
@@ -185,16 +185,25 @@ The intended protection is layered:
 
 1. keep private source and restricted canonical outputs outside worktrees;
 2. ignore exact local staging paths;
-3. scan staged blob contents and bundle classification before commit;
-4. scan every new blob in outgoing commit ranges before push, including content committed and later deleted;
-5. run equivalent validation in coordinator and later child CI;
-6. use protected branches where hosted repository policy supports them.
+3. maintain a tracked, versioned coordinator policy of explicitly known forbidden SHA-256 blob fingerprints and, where reviewed evidence exists, minimum classifications for canonical bundle or asset identities;
+4. scan the staged tree before commit, enforcing structurally validated `.cfbundle` declarations and the trusted policy;
+5. scan every new blob in outgoing commit ranges before push, including content committed and later deleted;
+6. run equivalent validation in coordinator and later child CI;
+7. use protected branches where hosted repository policy supports them.
 
-Names and extensions are insufficient: renaming a restricted bundle must not evade scanning.
+### Detection boundary
 
-`.gitignore`, local hooks, and pre-push checks are guardrails and can be bypassed. CI protects accepted branches but runs only after a remote receives a pushed branch. Without a controlled server-side pre-receive hook, keeping canonical private inputs and outputs outside the worktree is the strongest default protection.
+A scanner cannot infer provenance, ownership, licensing status, or confidentiality from arbitrary bytes. An unknown GLB, FBX, texture, archive, or other opaque blob is not proven proprietary or redistributable by its format or contents.
 
-Hook installation, CI wiring, and each child repository's adoption remain separately owned future work.
+A `.cfbundle` classification is an untrusted declaration. The scanner can validate the declaration structurally and enforce repository policy against it, but it cannot prove that the declaration is truthful. Deliberate or accidental misclassification is detectable only when the trusted policy supplies independent evidence, such as a minimum classification for a canonical bundle or asset identity or an exact known-forbidden digest.
+
+Renaming a `.cfbundle` cannot evade enforcement of its embedded declaration. Renaming an explicitly fingerprinted blob cannot evade its policy match. Unknown arbitrary content outside those evidence sources remains unknown and must be handled by normal review and provenance policy.
+
+Scanner diagnostics must identify their factual basis: declared bundle classification, trusted fingerprint match, or trusted minimum-classification conflict. They must not present any of these as a general license determination.
+
+`.gitignore`, local hooks, and pre-push checks are guardrails and can be bypassed. CI protects accepted branches but runs only after a remote receives a pushed branch. Policy manifests are only as complete and trustworthy as their reviewed inputs. Without a controlled server-side pre-receive hook, keeping canonical private inputs and outputs outside the worktree is the strongest default protection.
+
+Hook installation, CI wiring, policy maintenance, and each child repository's adoption remain separately owned future work.
 
 ## Explicit non-goals
 

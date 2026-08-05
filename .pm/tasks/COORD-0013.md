@@ -4,7 +4,7 @@ title: Record deferred Pressure Cooker architecture
 track: COORD
 priority: none
 createdAt: 2026-08-05T08:27:08.7759560Z
-modifiedAt: 2026-08-05T08:30:39.1375540Z
+modifiedAt: 2026-08-05T09:33:34.4959440Z
 ---
 
 ## Purpose
@@ -48,3 +48,4 @@ No bundle implementation, cooker implementation, migration, private content insp
   - COORD-0014, unmilestoned with priority none, dependent on SHARED-0025; owns only the future content-aware blob scanner.
 
   Every mutation receipt named owning project prj_E7QP3LUocfY7k3PYM-EQOlqc and only coordinator .pm paths. PM MCP validation and pm doctor passed with no issues. The linked family reported zero warnings. Royale and Starfall remained clean at their existing pins; no child, gitlink, source, asset, generated-output, existing ASSET task, or dependency changes were made.
+- 2026-08-05 09:33 UTC - Review continuation: corrected the scanner contract after confirming that arbitrary blob bytes cannot establish proprietary status or truthful classification. COORD-0014 now enforces structurally validated .cfbundle declarations plus a tracked trusted policy of explicit SHA-256 fingerprints and reviewed minimum-classification constraints. The architecture and deferred roadmap now state the same detection limit. Mutation receipts targeted only coordinator project prj_E7QP3LUocfY7k3PYM-EQOlqc and the expected COORD-0014 and two wiki paths; no dependencies, source, assets, children, or gitlinks changed.

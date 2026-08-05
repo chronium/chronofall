@@ -1,7 +1,7 @@
 ---
 title: Deferred Pressure Cooker Roadmap
 createdAt: 2026-08-05T08:30:12.4988930Z
-modifiedAt: 2026-08-05T08:30:12.4988930Z
+modifiedAt: 2026-08-05T09:33:25.6374750Z
 ---
 
 ## Status
@@ -40,7 +40,7 @@ Coordinator-owned documentation and grooming task for this decision. It creates 
 
 This is the next permissible Pressure Cooker task only after a trigger is approved. It freezes the binary grammar, fixtures, conformance contract, and bounded implementation decomposition. It does not implement or migrate the format.
 
-### COORD-0014 — Implement restricted-content blob scanner
+### COORD-0014 — Implement declared-classification and fingerprint scanner
 
 - Project: ChronoFall coordinator
 - Track: COORD
@@ -49,7 +49,9 @@ This is the next permissible Pressure Cooker task only after a trigger is approv
 - Dependency: SHARED-0025
 - State after this decision cycle: todo and waiting
 
-This is the first concrete repository-safety primitive. It scans staged trees and outgoing history by blob contents and classification. Hook installation, CI adoption, protected-branch configuration, and child adoption remain distinct later work.
+This first repository-safety primitive enforces structurally validated `.cfbundle` declarations and a trusted, versioned policy of explicitly known forbidden SHA-256 fingerprints and reviewed minimum-classification constraints. It scans staged trees and outgoing history, including blobs introduced and later deleted.
+
+It does not infer provenance, ownership, confidentiality, or licensing status from arbitrary GLB, FBX, texture, archive, or other blob contents. A bundle declaration is enforceable but not self-proving; misclassification is detectable only when independent trusted policy evidence exists. Hook installation, CI adoption, protected-branch configuration, policy maintenance, and child adoption remain distinct later work.
 
 ## Unallocated future stages
 
@@ -77,7 +79,7 @@ The following are architectural stages, not task IDs. They must be groomed only 
    - separate later family cleanup of legacy readers after consumers have moved.
 
 4. **Repository safeguards**
-   - tracked content scanner;
+   - declared-classification and trusted-fingerprint scanner;
    - pre-commit staged-tree integration;
    - pre-push outgoing-history integration;
    - coordinator CI;
@@ -104,7 +106,7 @@ concrete reviewed trigger
           -> later family legacy cleanup
 
 SHARED-0025
-  -> COORD-0014 content-aware blob scanner
+  -> COORD-0014 declared-classification and fingerprint scanner
     -> separate hook and CI adoption tasks
       -> guarded optional private-root integration
         -> optional Starfall prototype-wing proof
