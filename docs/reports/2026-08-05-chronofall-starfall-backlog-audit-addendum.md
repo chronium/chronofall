@@ -294,6 +294,14 @@ In particular:
 
 The later equipment system may reuse the proven bow socket/presentation path. It does not retroactively own the proof.
 
+The ownership boundary for that proof is intentionally concrete:
+
+- coordinator `SHARED-0020` uses only a harness-local technical socket transform to prove reusable static attachment rendering;
+- Starfall `CLIENT-0011` owns the provisional semantic hand socket, local bow transform, rendering, and native placement validation for the first bow;
+- equipment mapping, aiming, off-hand IK, and generalized grip systems remain excluded.
+
+This avoids inventing another content abstraction merely to place the first bow while keeping Starfall-specific placement out of the shared renderer.
+
 ## A-05 — The first player-facing GUI deliverable is the resource HUD
 
 Date: 2026-08-06

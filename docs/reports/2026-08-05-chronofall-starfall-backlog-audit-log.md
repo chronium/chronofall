@@ -15,6 +15,15 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Correct Cycle 1 ownership boundaries after baseline review
+
+- Finding/checklist: corrected one Cycle 1 blocker and two smaller manifest boundaries; no PM grooming or implementation checklist item was marked complete.
+- Bow ownership: `SHARED-0020` now uses only a harness-local technical socket transform, while `CLIENT-0011` owns Starfall's provisional semantic hand socket, local bow transform, rendering, and native placement validation. Equipment, aiming, off-hand IK, and generalized grip systems remain excluded.
+- Player Life: preserved completed `SIM-0011` evidence that respawn retains player entity and gameplay-session identity; entity replacement is no longer presented as an unresolved implementation choice.
+- Debug ownership: coordinator adoption owns the source allowlist, reusable backend/native boundary, lifecycle compatibility, macOS native use, and headless exclusion. `SF-DEV-SHELL` alone owns `--debug-ui-hidden`, `F12`, and visibility behavior.
+- Editor deferral: `EDITOR-0007` through `EDITOR-0010` are removed from M2 and set to `priority: none` individually; the manifest does not pre-group them into one future proper-scene deliverable.
+- PM/source effect: documentation only. No PM task, state, dependency, wiki, source, child repository, or gitlink changed.
+
 ### 2026-08-06 — Bound execution-manifest allocation after review
 
 - Finding/checklist: revised the execution manifest after review; manifest generation remains complete, while no PM grooming or implementation item was checked.

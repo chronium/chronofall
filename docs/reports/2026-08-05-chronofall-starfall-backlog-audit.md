@@ -261,7 +261,7 @@ Examples worth reviewing during grooming:
 
 - `CLIENT-0019` has nine direct dependencies, many already represented through `CLIENT-0027` and `CLIENT-0028`.
 - `EDITOR-0007` has eight dependencies, with content and shared cooking repeated through `ASSET-0007` and `CONTENT-0014`.
-- `CLIENT-0011` repeats grip/reference prerequisites already supplied through `SHARED-0012`.
+- `CLIENT-0011` has stale grip/reference dependencies even though the corrected boundary gives `SHARED-0020` only a harness-local technical socket and makes the Client task own Starfall's provisional semantic hand socket and local bow transform.
 - acquisition tasks often list both stable staging and a cooking task that already depends on staging.
 
 Recommendation:
@@ -486,7 +486,7 @@ The labels mean:
 | `CLIENT-0014` | Split or narrow | Inventory UI, equipment commands, replacement, stats, and reconciliation are too broad together. |
 | `CONTENT-0011` | Keep | Correct evidence-only archer/animation/equipment selection task. |
 | `CONTENT-0009` | Groom / Defer | Own later item-to-attachment presentation mapping after authoritative Equipment; no starter-loadout role. |
-| `CLIENT-0011` | Split | First rendered bow, aiming, and IK should not land as one large integration task. |
+| `CLIENT-0011` | Refocus | Own the provisional Starfall hand socket, local bow transform, rendering, and native placement validation; exclude equipment, aiming, off-hand IK, and generalized grip systems. |
 | `CONTENT-0004` | Keep / Defer | Correct Ranger visual mapping after equipment loop and shared armour contracts. |
 | `CONTENT-0010` | Defer | Correctly outside the critical path. |
 | `CONTENT-0013` | Defer | Exact monster selection is optional while placeholders prove behavior. |
@@ -514,7 +514,7 @@ The labels mean:
 These decisions should be answered during backlog grooming or the owning task's Plan-mode pass:
 
 1. Closed by A-01: unfinished M2 work moves into smaller deliverable milestones.
-2. Which exact picked bow asset and socket/grip inputs form the first presentation proof without creating equipment content?
+2. Which exact picked bow asset and provisional local transform should `CLIENT-0011` validate against Starfall's semantic hand socket without creating equipment content?
 3. Which task owns exact Draft 0 item identities and deterministic drop tables?
 4. Closed by A-02 and A-10: Mana is independent; Basic is the action-lifecycle starting point; Fire reuses or performs one focused evidence-driven refactor.
 5. Closed for Basic by A-01: numeric resolution appears in ImGui Combat diagnostics; permanent damage-number and target-HUD treatment remains undecided.
