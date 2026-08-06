@@ -1,7 +1,7 @@
 ---
 title: Quaternius Medieval Weapons Bow and Arrow Cook
 createdAt: 2026-08-06T17:43:33.4884970Z
-modifiedAt: 2026-08-06T17:51:51.0455500Z
+modifiedAt: 2026-08-06T18:37:54.9953410Z
 ---
 
 ## Decision and ownership
@@ -82,4 +82,6 @@ All generated files remain under Starfall's ignored `artifacts/chronofall/charac
 
 ## Next consumer
 
-The next equipped proof remains separately owned. Shared task `SHARED-0020` proves the narrow reusable socketed-static attachment boundary with a harness-local technical transform. Starfall `CLIENT-0011` later owns its provisional semantic hand socket, local bow transform, rendering and native placement validation. This acquisition task authorizes neither implementation automatically.
+Shared task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0020` completed the narrow reusable socketed-static attachment proof using the exact acquired `Bow_Wooden` cook. The coordinator harness renders it from a technical `hand_l` socket beside the UAL1 technical humanoid, validates deterministic placement across two `Idle_Loop` samples, and renders the skinned and static geometry in one caller-owned SDL GPU pass and depth target.
+
+The owner-validated harness transform is technical evidence only: 0.09 metres along the hand grip axis, +0.03 metres across the palm, an 80-degree twist, and a -70-degree roll. Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0011` still owns its provisional semantic socket, local bow transform, gameplay-facing rendering integration, and native placement validation. Arrow nocking/release, aiming, grip/IK, equipment, and projectile presentation remain separate work. This completed shared proof authorizes none of those tasks automatically.

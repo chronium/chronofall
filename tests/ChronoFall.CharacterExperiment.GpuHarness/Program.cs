@@ -37,6 +37,24 @@ public static class Program
                 return 0;
             }
             SkeletalCharacterAsset asset = LoadAsset(options);
+            if (options.SocketedBowProof)
+            {
+                StaticMeshDefinition bow = LoadStaticAsset(options.CookedStaticAssetPath) ??
+                    throw new ArgumentException("--socketed-bow-proof requires --cooked-static-asset.");
+                SocketedBowHarnessResult socketedBowResult = SdlGpuCharacterHarness.RunSocketedBowProof(
+                    asset,
+                    bow,
+                    new SocketedBowHarnessOptions(
+                        Visible: options.Visible,
+                        CaptureSuiteDirectory: options.SocketedBowCaptureSuiteDirectory));
+                Console.WriteLine(
+                    $"GPU_SOCKETED_BOW_SUCCESS shader={socketedBowResult.ShaderFormat} " +
+                    $"joint={socketedBowResult.JointIndex} " +
+                    $"fingerprints={socketedBowResult.FirstFingerprint:x16}/" +
+                    $"{socketedBowResult.SecondFingerprint:x16}/" +
+                    $"{socketedBowResult.RepeatedFingerprint:x16}");
+                return 0;
+            }
             if (options.BowBodyProof)
             {
                 AnimationClip referenceIdle = LoadExactReferenceIdle(asset.Mesh.Skin);
@@ -178,6 +196,7 @@ public static class Program
         bool Visible,
         bool StaticProof,
         bool BowBodyProof,
+        bool SocketedBowProof,
         string? AssetPath,
         string? CookedAssetPath,
         string? CookedStaticAssetPath,
@@ -190,13 +209,15 @@ public static class Program
         string? LayeredCaptureSuiteDirectory,
         string? IkAimCaptureSuiteDirectory,
         string? BowBodyCaptureSuiteDirectory,
-        string? BowReleaseFrameDirectory)
+        string? BowReleaseFrameDirectory,
+        string? SocketedBowCaptureSuiteDirectory)
     {
         internal static HarnessArguments Parse(string[] args)
         {
             bool visible = false;
             bool staticProof = false;
             bool bowBodyProof = false;
+            bool socketedBowProof = false;
             string? asset = null;
             string? cookedAsset = null;
             string? cookedStaticAsset = null;
@@ -210,6 +231,7 @@ public static class Program
             string? ikAimCaptureSuite = null;
             string? bowBodyCaptureSuite = null;
             string? bowReleaseFrames = null;
+            string? socketedBowCaptureSuite = null;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
@@ -222,6 +244,9 @@ public static class Program
                         break;
                     case "--bow-body-proof":
                         bowBodyProof = true;
+                        break;
+                    case "--socketed-bow-proof":
+                        socketedBowProof = true;
                         break;
                     case "--static-capture" when index + 1 < args.Length:
                         staticCapture = Path.GetFullPath(args[++index]);
@@ -262,19 +287,35 @@ public static class Program
                     case "--bow-release-frames" when index + 1 < args.Length:
                         bowReleaseFrames = Path.GetFullPath(args[++index]);
                         break;
+                    case "--socketed-bow-capture-suite" when index + 1 < args.Length:
+                        socketedBowCaptureSuite = Path.GetFullPath(args[++index]);
+                        break;
                     default:
                         throw new ArgumentException($"Unknown or incomplete GPU harness argument '{args[index]}'.");
                 }
             }
             if (staticProof)
             {
-                if (bowBodyProof || asset is not null || cookedAsset is not null || capture is not null ||
+                if (bowBodyProof || socketedBowProof || asset is not null || cookedAsset is not null || capture is not null ||
                     skeletonCapture is not null || animationCapture is not null ||
                     captureSuite is not null || blendCaptureSuite is not null ||
                     layeredCaptureSuite is not null || ikAimCaptureSuite is not null ||
-                    bowBodyCaptureSuite is not null || bowReleaseFrames is not null)
+                    bowBodyCaptureSuite is not null || bowReleaseFrames is not null ||
+                    socketedBowCaptureSuite is not null)
                 {
                     throw new ArgumentException("--static-proof cannot be combined with character asset or capture arguments.");
+                }
+            }
+            else if (socketedBowProof)
+            {
+                if (bowBodyProof || asset is not null || cookedAsset is null || cookedStaticAsset is null ||
+                    staticCapture is not null || capture is not null || skeletonCapture is not null ||
+                    animationCapture is not null || captureSuite is not null || blendCaptureSuite is not null ||
+                    layeredCaptureSuite is not null || ikAimCaptureSuite is not null ||
+                    bowBodyCaptureSuite is not null || bowReleaseFrames is not null)
+                {
+                    throw new ArgumentException(
+                        "--socketed-bow-proof requires --cooked-asset and --cooked-static-asset and cannot be combined with other proof/capture modes.");
                 }
             }
             else if (bowBodyProof)
@@ -300,10 +341,15 @@ public static class Program
             {
                 throw new ArgumentException("Bow-body capture arguments require --bow-body-proof.");
             }
+            else if (socketedBowCaptureSuite is not null)
+            {
+                throw new ArgumentException("--socketed-bow-capture-suite requires --socketed-bow-proof.");
+            }
             return new HarnessArguments(
                 visible,
                 staticProof,
                 bowBodyProof,
+                socketedBowProof,
                 asset,
                 cookedAsset,
                 cookedStaticAsset,
@@ -316,7 +362,8 @@ public static class Program
                 layeredCaptureSuite,
                 ikAimCaptureSuite,
                 bowBodyCaptureSuite,
-                bowReleaseFrames);
+                bowReleaseFrames,
+                socketedBowCaptureSuite);
         }
     }
 }

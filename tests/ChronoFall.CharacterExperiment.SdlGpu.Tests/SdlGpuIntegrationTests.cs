@@ -243,6 +243,62 @@ public sealed class SdlGpuIntegrationTests
         Assert.Contains("GPU_STATIC_HARNESS_ASSET cooked id=chronofall-static-two-boxes", cooked.StandardOutput, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task StandaloneHarnessRendersSelectedSocketedBowWhenEnabled()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("CHRONOFALL_GPU_TESTS"), "1", StringComparison.Ordinal))
+            return;
+
+        string harnessPath = Path.Combine(AppContext.BaseDirectory, "gpu-harness", "ChronoFall.CharacterExperiment.GpuHarness.dll");
+        Assert.True(File.Exists(harnessPath), $"GPU harness was not packaged at '{harnessPath}'.");
+        using var cookedDirectory = new TemporaryDirectory();
+        using var firstCaptures = new TemporaryDirectory();
+        using var secondCaptures = new TemporaryDirectory();
+        Directory.CreateDirectory(cookedDirectory.Path);
+        string characterPath = Path.Combine(cookedDirectory.Path, "quaternius-ual1-standard.cfskel");
+        string bowPath = Path.Combine(cookedDirectory.Path, "quaternius-medieval-weapons-bow-wooden.cfmesh");
+        WriteSelectedCookedAsset(characterPath);
+        WriteSelectedCookedBowAsset(bowPath);
+
+        ProcessResult first = await RunSocketedBowHarness(
+            harnessPath,
+            characterPath,
+            bowPath,
+            firstCaptures.Path,
+            TimeSpan.FromSeconds(45));
+        ProcessResult second = await RunSocketedBowHarness(
+            harnessPath,
+            characterPath,
+            bowPath,
+            secondCaptures.Path,
+            TimeSpan.FromSeconds(45));
+
+        Assert.True(
+            first.ExitCode == 0,
+            $"Socketed-bow GPU harness exited with code {first.ExitCode}.\nstdout:\n{first.StandardOutput}\nstderr:\n{first.StandardError}");
+        Assert.True(
+            second.ExitCode == 0,
+            $"Repeated socketed-bow GPU harness exited with code {second.ExitCode}.\nstdout:\n{second.StandardOutput}\nstderr:\n{second.StandardError}");
+        Assert.Contains("GPU_HARNESS_ASSET cooked id=quaternius-ual1-standard", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_STATIC_HARNESS_ASSET cooked id=quaternius-medieval-weapons-bow-wooden", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_SOCKETED_BOW_PASS joint=hand_l:", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("clip=Idle_Loop samples=0.000/0.500", first.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains("GPU_SOCKETED_BOW_SUCCESS shader=SDL_GPU_SHADERFORMAT_MSL", first.StandardOutput, StringComparison.Ordinal);
+        AssertDirectoryEqual(firstCaptures.Path, secondCaptures.Path);
+
+        string[] expectedFiles =
+        [
+            "socketed-bow-idle-0000ms.ppm",
+            "socketed-bow-idle-0500ms.ppm",
+        ];
+        string[] actualFiles = Directory.GetFiles(firstCaptures.Path)
+            .Select(static path => Path.GetFileName(path)!)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(expectedFiles, actualFiles);
+        Assert.All(expectedFiles, file => AssertPpm(Path.Combine(firstCaptures.Path, file)));
+    }
+
     private static async Task<ProcessResult> RunFullHarness(
         string harnessPath,
         string cookedAssetPath,
@@ -342,6 +398,53 @@ public sealed class SdlGpuIntegrationTests
         return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
     }
 
+    private static async Task<ProcessResult> RunSocketedBowHarness(
+        string harnessPath,
+        string characterPath,
+        string bowPath,
+        string captureDirectory,
+        TimeSpan timeout)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                ArgumentList =
+                {
+                    harnessPath,
+                    "--socketed-bow-proof",
+                    "--cooked-asset",
+                    characterPath,
+                    "--cooked-static-asset",
+                    bowPath,
+                    "--socketed-bow-capture-suite",
+                    captureDirectory,
+                },
+                WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+        };
+        Assert.True(process.Start(), "Socketed-bow GPU harness process did not start.");
+        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+        using var cancellation = new CancellationTokenSource(timeout);
+        try
+        {
+            await process.WaitForExitAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync();
+            Assert.Fail("Socketed-bow GPU harness exceeded its timeout.");
+        }
+        return new ProcessResult(process.ExitCode, await stdoutTask, await stderrTask);
+    }
+
     private static void WriteSelectedCookedAsset(string path)
     {
         string root = FindRepositoryRoot();
@@ -394,6 +497,32 @@ public sealed class SdlGpuIntegrationTests
             "CC0-1.0",
             [new StaticAssetFileEvidence(licenseRelative, Sha256(Path.Combine(root, licenseRelative.Replace('/', Path.DirectorySeparatorChar))))],
             1.0f,
+            StaticAssetCookDescriptor.SectionNamesOnlyMaterialPolicy);
+        using FileStream stream = File.Create(path);
+        StaticMeshCookedFormat.Write(stream, new CookedStaticMeshAsset(descriptor, imported.Mesh));
+    }
+
+    private static void WriteSelectedCookedBowAsset(string path)
+    {
+        string root = FindRepositoryRoot();
+        const string sourceRelative = "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Bow_Wooden.obj";
+        const string materialRelative = "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Bow_Wooden.mtl";
+        const string licenseRelative = "assets/Quaternius/Medieval Weapons Pack by @Quaternius/License.txt";
+        string source = Path.Combine(root, sourceRelative.Replace('/', Path.DirectorySeparatorChar));
+        string material = Path.Combine(root, materialRelative.Replace('/', Path.DirectorySeparatorChar));
+        SimpleMeshStaticSourceAsset imported = SimpleMeshStaticAssetLoader.LoadFromFile(
+            "quaternius-medieval-weapons-bow-wooden",
+            root,
+            source,
+            new Dictionary<string, string> { [materialRelative] = Sha256(material) },
+            0.25f);
+        var descriptor = new StaticAssetCookDescriptor(
+            "quaternius-medieval-weapons-bow-wooden",
+            new StaticAssetFileEvidence(sourceRelative, Sha256(source)),
+            [new StaticAssetFileEvidence(materialRelative, Sha256(material))],
+            "CC0-1.0",
+            [new StaticAssetFileEvidence(licenseRelative, Sha256(Path.Combine(root, licenseRelative.Replace('/', Path.DirectorySeparatorChar))))],
+            0.25f,
             StaticAssetCookDescriptor.SectionNamesOnlyMaterialPolicy);
         using FileStream stream = File.Create(path);
         StaticMeshCookedFormat.Write(stream, new CookedStaticMeshAsset(descriptor, imported.Mesh));

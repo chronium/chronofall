@@ -992,6 +992,8 @@ internal static partial class SdlGpuCharacterHarness
         private SdlGpuSkinnedCharacterRenderer? characterRenderer;
         private SdlGpuSkinnedMesh? characterMesh;
         private SdlGpuSkinningPalette? characterPalette;
+        private SdlGpuStaticMeshRenderer? attachmentRenderer;
+        private SdlGpuStaticMesh? attachmentMesh;
         private SDL_GPUShader* skeletonVertexShader;
         private SDL_GPUShader* skeletonFragmentShader;
         private SDL_GPUGraphicsPipeline* skeletonPipeline;
@@ -1011,7 +1013,8 @@ internal static partial class SdlGpuCharacterHarness
             SkeletonDebugGeometry skeletonDebug,
             int width,
             int height,
-            bool visible)
+            bool visible,
+            StaticMeshDefinition? attachmentSource = null)
         {
             ArgumentNullException.ThrowIfNull(mesh);
             ArgumentNullException.ThrowIfNull(skeletonDebug);
@@ -1047,9 +1050,19 @@ internal static partial class SdlGpuCharacterHarness
                     colorFormat,
                     DepthFormat,
                     LoadCharacterShaders());
+                if (attachmentSource is not null)
+                {
+                    attachmentRenderer = new SdlGpuStaticMeshRenderer(
+                        device,
+                        colorFormat,
+                        DepthFormat,
+                        LoadStaticShaders());
+                }
                 SDL_GPUCommandBuffer* geometryCommand = AcquireCommand();
                 characterMesh = characterRenderer.UploadMesh(geometryCommand, mesh);
                 characterPalette = characterRenderer.CreatePalette(jointCount);
+                if (attachmentSource is not null)
+                    attachmentMesh = attachmentRenderer!.UploadMesh(geometryCommand, attachmentSource);
                 if (!SDL_SubmitGPUCommandBuffer(geometryCommand))
                     throw new InvalidOperationException($"SDL GPU character geometry submission failed: {SDL_GetError()}");
                 skeletonVertexShader = LoadShader("skeleton-debug.vert", SDL_GPUShaderStage.SDL_GPU_SHADERSTAGE_VERTEX, storageBuffers: 0, uniformBuffers: 1);
@@ -1097,12 +1110,23 @@ internal static partial class SdlGpuCharacterHarness
             UploadCycled(skeletonTransferBuffer, skeletonVertexBuffer, vertices, "skeleton");
         }
 
-        internal byte[] RenderOffscreen(Matrix4x4 viewProjection, bool includeSkeleton)
+        internal byte[] RenderOffscreen(
+            Matrix4x4 viewProjection,
+            bool includeSkeleton,
+            Matrix4x4? attachmentWorld = null)
         {
             SDL_GPUCommandBuffer* command = AcquireCommand();
             try
             {
-                Render(command, offscreenColor, offscreenDepth, (uint)width, (uint)height, viewProjection, includeSkeleton);
+                Render(
+                    command,
+                    offscreenColor,
+                    offscreenDepth,
+                    (uint)width,
+                    (uint)height,
+                    viewProjection,
+                    includeSkeleton,
+                    attachmentWorld);
             }
             catch
             {
@@ -1257,6 +1281,10 @@ internal static partial class SdlGpuCharacterHarness
             ReleaseBuffer(ref skeletonVertexBuffer);
             characterPalette?.Dispose();
             characterPalette = null;
+            attachmentMesh?.Dispose();
+            attachmentMesh = null;
+            attachmentRenderer?.Dispose();
+            attachmentRenderer = null;
             characterMesh?.Dispose();
             characterMesh = null;
             characterRenderer?.Dispose();
@@ -1350,7 +1378,9 @@ internal static partial class SdlGpuCharacterHarness
             uint renderWidth,
             uint renderHeight,
             Matrix4x4 viewProjection,
-            bool includeSkeleton)
+            bool includeSkeleton,
+            Matrix4x4? attachmentWorld = null,
+            Matrix4x4? characterWorld = null)
         {
             var colorTarget = new SDL_GPUColorTargetInfo
             {
@@ -1372,6 +1402,8 @@ internal static partial class SdlGpuCharacterHarness
             if (pass is null)
                 throw new InvalidOperationException($"SDL GPU render pass failed: {SDL_GetError()}");
 
+            Matrix4x4 characterTransform = characterWorld ?? Matrix4x4.Identity;
+
             for (int sectionIndex = 0; sectionIndex < characterMesh!.SectionCount; sectionIndex++)
             {
                 Vector4 colorValue = sectionIndex % 2 == 0
@@ -1384,9 +1416,24 @@ internal static partial class SdlGpuCharacterHarness
                     characterPalette!,
                     sectionIndex,
                     new SkinnedCharacterDraw(
-                        Matrix4x4.Identity,
+                        characterTransform,
                         viewProjection,
                         colorValue,
+                        new Vector3(-0.35f, -0.70f, -0.62f)));
+            }
+
+            if (attachmentWorld is Matrix4x4 bowWorld)
+            {
+                if (attachmentRenderer is null || attachmentMesh is null)
+                    throw new InvalidOperationException("The character GPU session has no uploaded static attachment.");
+                attachmentRenderer.Draw(
+                    command,
+                    pass,
+                    attachmentMesh,
+                    new StaticMeshDraw(
+                        bowWorld,
+                        viewProjection,
+                        new Vector3(0.90f, 0.65f, 0.12f),
                         new Vector3(-0.35f, -0.70f, -0.62f)));
             }
 
@@ -1445,6 +1492,27 @@ internal static partial class SdlGpuCharacterHarness
             if (!File.Exists(fragmentPath))
                 throw new FileNotFoundException($"SDL GPU shader asset was not found: {fragmentPath}", fragmentPath);
             return new SdlGpuSkinnedShaderSet(
+                ShaderFormat,
+                File.ReadAllBytes(vertexPath),
+                File.ReadAllBytes(fragmentPath),
+                ShaderAssetSelector.GetEntrypoint(ShaderFormat));
+        }
+
+        private SdlGpuStaticShaderSet LoadStaticShaders()
+        {
+            string vertexPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "shaders",
+                ShaderAssetSelector.GetFileName("static-mesh.vert", ShaderFormat));
+            string fragmentPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "shaders",
+                ShaderAssetSelector.GetFileName("static-mesh.frag", ShaderFormat));
+            if (!File.Exists(vertexPath))
+                throw new FileNotFoundException($"SDL GPU static vertex shader asset was not found: {vertexPath}", vertexPath);
+            if (!File.Exists(fragmentPath))
+                throw new FileNotFoundException($"SDL GPU static fragment shader asset was not found: {fragmentPath}", fragmentPath);
+            return new SdlGpuStaticShaderSet(
                 ShaderFormat,
                 File.ReadAllBytes(vertexPath),
                 File.ReadAllBytes(fragmentPath),

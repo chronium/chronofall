@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-06T11:51:31.5192060Z
+modifiedAt: 2026-08-06T18:38:19.9607130Z
 ---
 
 ## Purpose and ownership
@@ -39,12 +39,12 @@ EXPERIMENT-0014 completed technical bow-body evidence
 Starfall CONTENT-0011 exact Basic bow/arrow selection
 SHARED-0019 completed static cooking
 SHARED-0017 completed stable-ID staging
-  -> ASSET-0006 exact selected bow and arrow inputs
+  -> ASSET-0006 completed exact selected bow and arrow inputs
 
 SHARED-0006 completed socket transform contract
 SHARED-0018 completed static rendering
 ASSET-0006
-  -> SHARED-0020 one rendered socketed static-bow proof
+  -> SHARED-0020 completed rendered socketed static-bow proof
 ~~~
 
 `SHARED-0020` uses a harness-local technical socket and local transform. Starfall `CLIENT-0011` owns the provisional semantic hand socket, local bow transform, rendering integration, and native placement validation. Equipment, aiming, off-hand IK, projectile behavior, and generalized grip systems are excluded.
@@ -63,17 +63,21 @@ SHARED-0002 completed skeletal cooking
 
 No Ranger-selection task identity is currently allocated. `SHARED-0003` and `ASSET-0005` deliberately carry no fabricated canonical dependency; the real edge is attached only in an owner-approved activation cycle after Starfall allocates and completes that selection. These and the later material, attachment, debugging, preview, zone, monster, and authoring tasks remain milestone-free scheduling placeholders until concrete deliverables activate them.
 
+### Completed narrow bow-attachment enabler
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0020` now proves one selected static `Bow_Wooden` rendered from the posed UAL1 `hand_l` socket in the same caller-owned SDL GPU pass as the technical humanoid. The proof consumes the completed socket, static-rendering, cooking, and exact-acquisition boundaries; it does not add equipment, aiming, IK, arrow presentation, or Starfall gameplay. Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0011` remains the owner of the game-specific semantic socket, local placement, integration, and native validation. The broader deferred `SHARED-0007` task must review and reuse this proof rather than recreate it.
+
 ## Exact acquisition graph
 
 | Coordinator task | Owning selection | Coordinator prerequisites | Scheduling/result |
 | --- | --- | --- | --- |
 | `ASSET-0004` archer and bow animations | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0002`, `SHARED-0017`, `EXPERIMENT-0014` | M5; exact selected technical humanoid/base and minimum compatible bow clips |
-| `ASSET-0006` bow and arrows | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0019`, `SHARED-0017` | M5; exact selected static weapon inputs |
+| `ASSET-0006` bow and arrows | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0019`, `SHARED-0017` | Completed M5 acquisition and stable-ID staging of exact selected static weapon inputs |
 | `ASSET-0005` Ranger equipment | Future task-owned Starfall Ranger/leather selection; not allocated | `SHARED-0004`, `SHARED-0017` plus the later canonical selection edge | Milestone-free and priority none until post-Inventory equipment work activates |
 | `ASSET-0007` zone presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0012` | `SHARED-0019`, `SHARED-0017` | Milestone-free and priority none until proper-scene work activates |
 | `ASSET-0008` monster presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0013` | `SHARED-0017` initially | Milestone-free and priority none until selected-monster presentation activates |
 
-`ASSET-0004` and `ASSET-0006` remain blocked on the still-todo Basic selection in `CONTENT-0011`; M5 assignment does not make selection complete. Acquisitions consume exact selections and may stage only approved inputs with pack-relative paths, hashes, licence evidence, format/scale/material/rig evidence, intended consumer, and deliberate conversions.
+`ASSET-0004` remains blocked on its still-todo selected archer/base and minimum bow-animation inputs. `ASSET-0006` completed after Starfall froze the exact Bow_Wooden and Arrow selection; its M5 assignment did not substitute for that selection. Acquisitions consume exact selections and may stage only approved inputs with pack-relative paths, hashes, licence evidence, format/scale/material/rig evidence, intended consumer, and deliberate conversions.
 
 `ASSET-0005` no longer depends on `CONTENT-0011` because that task does not own Ranger/equipment selection. The future real selection is an explicit activation-time prerequisite rather than an alias, prose-only identity presented as a dependency, or prematurely allocated task.
 

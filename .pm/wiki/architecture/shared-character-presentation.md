@@ -1,7 +1,7 @@
 ---
 title: Shared Character Presentation Foundation
 createdAt: 2026-08-01T17:05:19.5488560Z
-modifiedAt: 2026-08-03T15:40:47.9023790Z
+modifiedAt: 2026-08-06T18:38:07.4186780Z
 ---
 
 ## Decision
@@ -238,7 +238,19 @@ Coordinator task and acquisition graph: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOl
 
 The runtime payload retains geometry and opaque section identities only. Deterministic provenance records exact source/resource/licence hashes and observed material evidence, but UVs, textures, colours, alpha, two-sided state and PBR behavior are not cooked. Full format, recipe, locale-patch, reproduction and staging evidence: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/shared-static-cooking`.
 
-No real asset recipe or child staging output exists yet. The first such extension remains owned by `ASSET-0006` or `ASSET-0007` after its canonical Starfall selection completes.
+`ASSET-0006` now supplies and stages the exact selected Bow_Wooden and Arrow cooks through this boundary. `ASSET-0007` remains the separately owned future zone-presentation acquisition after its canonical Starfall selection completes.
+
+### Socketed static bow proof
+
+`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0020` proves that one posed skeleton evaluation can drive both the skinned character palette and a socketed static attachment rendered in the same caller-owned SDL GPU pass and depth target. The harness resolves the selected Quaternius `Bow_Wooden` through a technical socket on UAL1 joint `hand_l`, then composes the final row-vector transform as:
+
+```text
+bowWorld = bowLocal * socketModel * characterWorld
+```
+
+The owner-validated technical transform is intentionally harness-local: 0.09 metres along the hand grip axis, +0.03 metres across the palm into the curled-finger gap, an 80-degree twist, and a -70-degree roll. Those values prove placement and reviewability; they are not Starfall content and do not establish a shared anatomical name, grip profile, equipment slot, or gameplay rule. The native harness retains review-only controls for character turntable rotation and bounded transform tuning.
+
+Deterministic evidence samples `Idle_Loop` at 0.000 and 0.500 seconds, requires distinct animated captures, and requires a repeated 0.000-second capture to be byte-identical. Final macOS ARM64 Metal fingerprints are `8d01823335cf6f94`, `4cb833897572116b`, and repeated `8d01823335cf6f94`; the captures contain 15,426 and 15,493 technical bow pixels. Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0011` still owns its semantic socket, local bow transform, gameplay-facing presentation integration, and native validation. Arrow nocking, release, projectile presentation, equipment, aiming, grip/IK, and broader attachment categories remain outside this proof.
 
 ## Deferred contracts
 
