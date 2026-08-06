@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-06T07:25:48.7054220Z
+modifiedAt: 2026-08-06T11:50:37.9193500Z
 ---
 
 ## Focus
@@ -64,9 +64,15 @@ Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` is
 
 The backend owns ImGui context lifetime, SDL event forwarding, framebuffer-scale propagation, caller-injected font-atlas configuration, draw-data preparation, and recording into a caller-supplied SDL GPU render pass. Every consumer continues to own its SDL window/device, command buffer, swapchain/target, pass begin/end, submission, application loop, layout, state, and product semantics.
 
-The completed contract originally established the future native `Starfall.Editor` audience. Editor work remains deferred and is not activated by later consumers.
+The completed `SHARED-0024` contract established the native `Starfall.Editor` host audience. Editor work remains deferred and is not activated by later consumers.
 
-Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` is the allocated M4 extension for Starfall.Client development instrumentation. It is todo and dependency-ready, not implemented. When completed under its own approved plan, it may extend the exact family-source allowlist to Starfall.Client while reusing the same backend and preserving caller lifecycle ownership.
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` completes the distinct Starfall.Client development-instrumentation audience boundary. The only approved direct reference is:
+
+```text
+$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj
+```
+
+Only the Starfall.Client composition root may adopt that reference, through its separately planned `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. SDL3-CS, ImGui.Net, Evergine.Mathematics, the coordinator-built native libraries, and coordinator checkout paths remain transitive implementation details.
 
 `SHARED-0026` does not own Starfall debug windows, menu organization, F12, `--debug-ui-hidden`, input-capture policy, feature diagnostics, the console, development-command semantics, permanent UI, or gameplay. Those remain Starfall-owned. World, Simulation, Protocol, Content, Balance Lab, and the headless editor document/compiler remain presentation-free.
 

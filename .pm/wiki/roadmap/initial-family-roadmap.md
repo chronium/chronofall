@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-06T08:12:05.1912330Z
+modifiedAt: 2026-08-06T11:52:37.9723440Z
 ---
 
 ## M0 — Coordinator foundation
@@ -53,9 +53,9 @@ Every unfinished task has moved out of M3. Starfall's game-specific roadmap rema
 
 ## M4 — Starfall.Client Development Instrumentation Boundary
 
-M4 is a medium-priority coordinator deliverable containing `SHARED-0026`. It will extend the approved family-source allowlist so Starfall.Client can consume the completed caller-controlled SDL GPU ImGui backend for development instrumentation while preserving caller lifecycle ownership and complete headless exclusion.
+M4 is complete. Its sole coordinator task, `SHARED-0026`, approves `Starfall.Client` as a direct family-source consumer of the completed caller-controlled SDL GPU ImGui backend through `$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj`. The coordinator retains the backend, pinned native/source boundary, caller-owned lifecycle contract, and complete headless exclusion.
 
-The coordinator does not own Starfall's debug shell, windows, F12 behavior, `--debug-ui-hidden`, feature diagnostics, console, command semantics, or permanent UI. Starfall Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. The child adoption task is valid but waiting and must not activate or consume shared source until `SHARED-0026` completes and `CLIENT-0029` receives its own approved implementation plan.
+Starfall retains ownership of its debug shell, windows, menu and F12 behavior, `--debug-ui-hidden`, input capture, feature diagnostics, console, development-command semantics, and permanent product UI. Starfall Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. The canonical prerequisite is complete, so `CLIENT-0029` is dependency-ready but remains todo until its own owner-approved implementation plan. No Starfall source, task state, or gitlink changed while completing M4.
 
 ## M5 — Connected Basic Arrow Shared Enablers
 

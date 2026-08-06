@@ -1,7 +1,7 @@
 ---
 title: Shared SDL GPU ImGui Backend
 createdAt: 2026-08-05T10:06:17.9136640Z
-modifiedAt: 2026-08-05T10:06:17.9136640Z
+modifiedAt: 2026-08-06T11:51:06.0619590Z
 ---
 
 ## Decision
@@ -75,17 +75,22 @@ The shared project copies it and the pinned SDL3 library to `runtimes/osx-arm64/
 
 ## Family source allowlist
 
-The only planned child reference is:
+The only approved child direct reference is:
 
 ~~~text
 $(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj
 ~~~
 
-Only the native `Starfall.Editor` host may adopt it, and only through its separately approved editor UI foundation task. SDL3-CS, ImGui.Net and the native libraries remain transitive implementation details; Starfall must not reference their coordinator project paths directly.
+The allowlist has two distinct audiences, each requiring a separately approved child task:
 
-Starfall World, Simulation, Protocol, Content, Balance Lab and the headless editor document/compiler remain outside this allowlist. Starfall-specific tokens, fonts, UI primitives, shell, interaction state, documents, inspectors and workflows stay in Starfall.
+- the native `Starfall.Editor` host established by completed `SHARED-0024`;
+- the `Starfall.Client` composition root for development-only instrumentation, established by completed `SHARED-0026` and adopted only by `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`.
 
-Royale remains unchanged. Any future Royale adoption requires a Royale-owned plan and may reuse this proof rather than forcing an editor rewrite.
+SDL3-CS, ImGui.Net, Evergine.Mathematics and the native libraries remain transitive implementation details; Starfall must not reference their coordinator project or checkout paths directly.
+
+Starfall World, Simulation, Protocol, Content, Balance Lab and the headless editor document/compiler remain outside this allowlist. The native editor host may compose the backend with separately approved presentation projects, but authoritative editor documents remain presentation-free.
+
+Starfall-specific tokens, fonts, UI primitives, shell behavior, input policy, debug windows, commands, documents, inspectors and workflows stay in Starfall. Royale remains unchanged. Any future Royale adoption requires a Royale-owned plan and may reuse this proof without forcing an editor rewrite.
 
 ## Platform validation
 

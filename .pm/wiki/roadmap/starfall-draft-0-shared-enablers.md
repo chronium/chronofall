@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-06T08:12:16.8011070Z
+modifiedAt: 2026-08-06T11:51:31.5192060Z
 ---
 
 ## Purpose and ownership
@@ -21,11 +21,11 @@ M4 Starfall.Client Development Instrumentation Boundary
 
 SHARED-0016 completed family-source policy
 SHARED-0024 completed caller-controlled SDL GPU ImGui backend
-  -> SHARED-0026 allocated todo Starfall.Client development-instrumentation boundary
-  -> Starfall CLIENT-0029 canonical dependency attached; valid but waiting
+  -> SHARED-0026 completed Starfall.Client development-instrumentation boundary
+  -> Starfall CLIENT-0029 canonical dependency complete; dependency-ready and still todo
 ~~~
 
-`SHARED-0026` owns only the exact family-source allowlist, reusable backend/native boundary, caller-lifecycle compatibility, macOS ARM64 evidence, and headless exclusion. Starfall owns debug-window organization, menu/F12/hidden-at-launch behavior, input capture, diagnostics, command frontends, and permanent UI. Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`; the child task remains blocked until the coordinator task completes and still requires its own approved implementation plan.
+`SHARED-0026` completes only the exact family-source allowlist, reusable backend/native boundary, caller-lifecycle compatibility, macOS ARM64 evidence, and headless exclusion. Starfall owns debug-window organization, menu/F12/hidden-at-launch behavior, input capture, diagnostics, command frontends, and permanent UI. Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`; the canonical dependency is now complete and the child task is dependency-ready but remains todo pending its own approved implementation plan.
 
 ~~~text
 M5 Connected Basic Arrow Shared Enablers
