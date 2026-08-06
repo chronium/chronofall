@@ -15,6 +15,17 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Complete Cycle 1 Starfall structural grooming
+
+- Finding/checklist: completed the approved direct Starfall grooming cycle for deliverable milestones, Basic Arrow, Mana, Development Instrumentation, Movement Quality v1, deferred placeholders, and the related dependency/scope repairs.
+- Milestones: created M4 Development Instrumentation, M5 Connected Basic Arrow, M6 Authoritative Mana, and M7 Connected Movement Quality v1. Preserved M2's name and 31 completed historical members while moving every unfinished task out.
+- Allocation: created exactly 14 near-sequence tasks through PM's track-scoped next-ID service: `CLIENT-0029`–`CLIENT-0036`, `CONTENT-0016`, `SIM-0012`, `PROTOCOL-0013`–`PROTOCOL-0014`, and `SERVER-0015`–`SERVER-0016`. No HUD, Fire/Rain presentation, Player Life, Progression replacement, Inventory, Equipment, Physical Drop, Ranger, selected-monster, proper-scene, or Balance Lab replacement graph was allocated.
+- Grooming: preserved the high-priority `PROTOCOL-0006 -> PROTOCOL-0007 -> SERVER-0008 -> CLIENT-0012` path; made the Basic contract Basic-only; separated its body, bow, visual projectile, Combat diagnostics, and terminal proof; removed equipment/loadout/Ranger gates; made Mana independent; rewired Fire/Rain to consume Mana; narrowed Progression, Inventory, Equipment, Drops, and Ranger placeholders; and deferred Editor, Balance Lab, proper-scene, selected-monster, and transformation work with no milestone and `priority: none`.
+- Durable documentation: updated the Starfall bootstrap, product direction, Draft 0, archer, starter-flyer/camp, World lifecycle, and editor-language pages; added focused Development Instrumentation, Authoritative Mana, and Connected Movement Quality v1 roadmaps.
+- Repositories/commits: Starfall commit `a2e4f138bcce206dde4f01d87ce045705a8616e9`; pointer-only coordinator commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` pins that child revision. No source, assets, Royale, feature state, or generated content changed.
+- Validation: Starfall `pm doctor` passed; 112 tasks read back with no missing, invalid, or unavailable dependencies; no task is active; M2 has zero unfinished members; family resolution has zero warnings; `git diff --check` passed; Starfall and Royale worktrees were clean at handoff.
+- Remaining work: Cycle 2 must allocate the coordinator-owned Starfall Client ImGui-consumption boundary. Cycle 3 then attaches its canonical URI to `CLIENT-0029`. Until then, `CLIENT-0029` remains `priority: none` and must not activate.
+
 ### 2026-08-06 — Correct Cycle 1 ownership boundaries after baseline review
 
 - Finding/checklist: corrected one Cycle 1 blocker and two smaller manifest boundaries; no PM grooming or implementation checklist item was marked complete.

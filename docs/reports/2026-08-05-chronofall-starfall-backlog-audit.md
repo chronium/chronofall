@@ -538,22 +538,22 @@ In the same cycle, change every checklist item that was genuinely completed from
 
 - [x] Generate the execution manifest from fresh authoritative family readback with the A-13 supersession crosswalk before PM grooming begins. See the companion execution manifest.
 - [x] Decide whether to split unfinished M2 work into outcome milestones or document M2 as an umbrella. Owner decision: split it into deliverable milestones; see Addendum A-01.
-- [ ] Preserve `PROTOCOL-0006 -> PROTOCOL-0007 -> SERVER-0008 -> CLIENT-0012` as the next path.
-- [ ] Add explicit native end-to-end acceptance to `CLIENT-0012`.
+- [x] Preserve `PROTOCOL-0006 -> PROTOCOL-0007 -> SERVER-0008 -> CLIENT-0012` as the next path.
+- [x] Add explicit native end-to-end acceptance to `CLIENT-0012`.
 - [x] Decide complete Basic Arrow milestone acceptance. Owner decision: connected authority, bow-body animation, rendered bow/arrow, hit flash, monster damage/death, Combat diagnostics, and native proof; see refined A-01.
 - [ ] Split/refocus `CONTENT-0008` into exact progression and item/drop contracts.
 - [x] Decide whether Basic Arrow and the first rendered bow require equipment or a starter loadout. Owner decision: they do not; see Addendum A-04.
-- [ ] Groom Basic Arrow and first-bow dependencies so no equipment, inventory, loadout, Ranger, `CONTENT-0009`, or `GAME-0005` work blocks them.
+- [x] Groom Basic Arrow and first-bow dependencies so no equipment, inventory, loadout, Ranger, `CONTENT-0009`, or `GAME-0005` work blocks them.
 - [ ] Move authoritative inventory/equipment and `CONTENT-0009` item-to-attachment mapping into their later post-GUI milestones.
-- [ ] Split Basic projectile presentation from Fire Arrow presentation in `CLIENT-0018`.
-- [ ] Split Basic combat feedback from later three-skill feedback in `CLIENT-0019`.
-- [ ] Resolve the `CLIENT-0007` hit/death clip mismatch.
+- [x] Split Basic projectile presentation from Fire Arrow presentation in `CLIENT-0018`.
+- [x] Split Basic combat feedback from later three-skill feedback in `CLIENT-0019`.
+- [x] Resolve the `CLIENT-0007` hit/death clip mismatch.
 - [x] Decide mana ownership. Owner decision: mana is an independent end-to-end milestone, not part of Fire Arrow or Arrow Rain; see Addendum A-02.
-- [ ] Groom the independent mana milestone and remove mana-system ownership from Fire Arrow and Arrow Rain tasks.
-- [ ] Groom the Starfall ImGui debug-GUI adoption and authoritative development-command path described by Addendum A-03.
+- [x] Groom the independent mana milestone and remove mana-system ownership from Fire Arrow and Arrow Rain tasks.
+- [x] Groom the Starfall ImGui debug-GUI adoption and authoritative development-command path described by Addendum A-03.
 - [x] Decide Development Instrumentation milestone acceptance. Owner decision: shared ImGui adoption, shell/input behavior, one command envelope, typed and console Ping World, correlated result, macOS/headless validation; see refined A-03/A-08.
 - [x] Decide shared combat-action ownership. Owner decision: Basic Arrow is canonical; Fire reuses or performs one focused evidence-driven refactor; see A-10.
-- [ ] Groom Fire/Arrow Rain tasks so Mana is an independent dependency and shared combat-action ownership follows A-10.
+- [x] Groom Fire/Arrow Rain tasks so Mana is an independent dependency and shared combat-action ownership follows A-10.
 - [x] Decide player-life ownership. Owner decision: separate Player Defeat and Town Respawn milestone; Basic owns monster death only; see A-11.
 - [ ] Groom the Player Defeat and Town Respawn milestone while preserving completed simulation evidence.
 
@@ -572,9 +572,9 @@ In the same cycle, change every checklist item that was genuinely completed from
 - [ ] Groom the shared development-command boundary, ImGui console frontend, and later inventory-owned `give` validation integration without making inventory depend architecturally on the console.
 - [x] Decide Basic damage-number treatment. Owner decision: numeric resolution appears in ImGui Combat diagnostics; no permanent floating damage or target HUD commitment; see refined A-01.
 - [x] Decide smoothing/interpolation/prediction/reconciliation ownership. Owner decision: completable Connected Movement Quality v1 plus a broader milestone-free initiative; see revised A-09.
-- [ ] Groom Connected Movement Quality v1 around buffering, interpolation, correction diagnostics, representative fixtures, deterministic tests, and macOS comparison.
+- [x] Groom Connected Movement Quality v1 around buffering, interpolation, correction diagnostics, representative fixtures, deterministic tests, and macOS comparison.
 - [x] Decide how broad initiatives are scheduled. Owner decision: no milestone and lowest priority until decomposed into executable deliverable work; see A-09.
-- [ ] Audit current initiative-like tasks and remove misleading milestone assignments while preserving lowest-priority roadmap placeholders.
+- [x] Audit current initiative-like tasks and remove misleading milestone assignments while preserving lowest-priority roadmap placeholders.
 - [x] Decide Inventory/Equipment/Physical Drops ordering. Owner decision: Inventory precedes sibling Equipment and Physical Drops deliverables; see A-12.
 - [ ] Define exact deterministic drop-table/item content before `GAME-0004` activates.
 - [ ] Decide the first placeholder physical-drop representation and pickup interaction.
@@ -582,7 +582,7 @@ In the same cycle, change every checklist item that was genuinely completed from
 
 ### Scope and dependency hygiene
 
-- [ ] Set `EDITOR-0004` to an honest deferred scheduling gate until its first scenario is ready.
+- [x] Set `EDITOR-0004` to an honest deferred scheduling gate until its first scenario is ready.
 - [ ] Make `COORD-0005` non-recommendable and rewrite it only when a concrete authoring need exists.
 - [ ] Mark `SHARED-0007`, `SHARED-0013`, `SHARED-0014`, `EDITOR-0007`, `EDITOR-0010`, and `CLIENT-0008` for re-grooming before activation.
 - [ ] Review high-fan-in tasks and remove dependency edges used only as bibliography.

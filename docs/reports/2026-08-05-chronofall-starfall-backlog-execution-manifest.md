@@ -366,6 +366,8 @@ From the verified Starfall project context, using supported PM tooling:
 
 Cycle 1 does not allocate HUD, Fire-presentation, Rain replacement, Player Life, Progression replacement, Inventory, Equipment, Physical Drop, Ranger, proper-scene, selected-monster, or Balance Lab tasks. Their manifest handles remain planning notes. This is a direct backlog-grooming cycle, not a PM task whose purpose is task creation.
 
+Completion record: Cycle 1 completed on 2026-08-06. Starfall commit `a2e4f138bcce206dde4f01d87ce045705a8616e9` contains only the approved PM/wiki grooming. Pointer-only coordinator commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` pins that revision. Starfall validation passed with 112 tasks, no missing/invalid/unavailable dependencies, no active task, zero unfinished M2 members, and zero linked-family warnings. Cycle 2 and Cycle 3 remain unstarted.
+
 ### Cycle 2 — Coordinator shared-boundary grooming
 
 After Cycle 1 is pinned:
@@ -435,8 +437,8 @@ Every feature implementation retains its task-specific automated, headless, nati
 - [x] Executable work separated from milestone-free `priority: none` roadmap placeholders.
 - [x] Cross-project allocation and canonical-wiring cycles separated.
 - [x] Remaining decisions isolated to owning Plan-mode passes.
-- [ ] Owner approves Cycle 1 Starfall structural grooming.
-- [ ] Cycle 1 completes, validates, commits, logs, checks corresponding audit items, and stops.
+- [x] Owner approves Cycle 1 Starfall structural grooming.
+- [x] Cycle 1 completes, validates, commits, logs, checks corresponding audit items, and stops.
 - [ ] Owner approves Cycle 2 coordinator grooming.
 - [ ] Cycle 2 completes, validates, commits, logs, checks corresponding audit items, and stops.
 - [ ] Owner approves Cycle 3 Starfall canonical wiring.
