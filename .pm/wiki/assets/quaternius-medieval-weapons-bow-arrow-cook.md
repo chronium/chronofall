@@ -1,7 +1,7 @@
 ---
 title: Quaternius Medieval Weapons Bow and Arrow Cook
 createdAt: 2026-08-06T17:43:33.4884970Z
-modifiedAt: 2026-08-06T17:43:33.4884970Z
+modifiedAt: 2026-08-06T17:51:51.0455500Z
 ---
 
 ## Decision and ownership
@@ -49,6 +49,8 @@ The arrow retains ordered sections `LightWood`, `Steel`, `LightSteel` and `Red`.
 Its dominant extent is approximately `0.683456` metres.
 
 The source Blend files use their own Blender-oriented axes. An unsaved native Blender comparison used the exact Blend meshes at the same uniform `0.25` scale beside a 1.8 metre reference. The owner confirmed that the approximately 1.36 metre bow and 0.68 metre arrow are credible. This validates scale and proportion only; it is not a socket, grip, nocking or equipped-character proof.
+
+The reusable native-review procedure established by this task is recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/native-blender-asset-evaluation`.
 
 ## Deterministic outputs
 

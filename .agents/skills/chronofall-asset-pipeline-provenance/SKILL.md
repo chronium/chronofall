@@ -34,6 +34,21 @@ Use evidence from the file, not naming similarity. If compatibility fails, stop 
 
 Choose only one humanoid, one skeleton, one idle, one locomotion clip, and a compatible attack if available. Persist exact repository paths and rationale. Do not process the whole collection or copy unrelated outfits, weapons, or village assets into an experiment.
 
+## Run Native Blender Asset Reviews Safely
+
+Use Blender as a focused, owner-visible dimensional and composition review tool when an asset task needs human confirmation of scale, orientation, pivot implications, silhouette, or relative proportions.
+
+1. Probe the connected Blender MCP with a read-only scene or file summary before attempting native review work. If Blender is closed, the MCP add-on is disconnected, or the probe fails, tell the owner that Blender must be opened with the MCP add-on enabled and stop the native-review path until it is available. Do not install, launch, configure, or replace Blender autonomously.
+2. Inspect the open file, scene names, active scene, mode, unit settings, dirty state, and relevant objects before changing anything. Preserve user work. Never reset Blender, reload a file, switch to factory settings, or discard an existing scene merely to obtain a clean review surface.
+3. Create a clearly named temporary scene or collection such as `<TASK-ID> Scale Review (UNSAVED)`. Append or duplicate only the exact task-selected source objects. Keep the source scene and source datablocks intact; do not edit the supplied mesh in place.
+4. Use metric scene units and apply the exact approved conversion uniformly. Retain source orientation and pivot unless the task explicitly owns a conversion. Where source variants use different authoring axes, state that difference instead of silently rotating the durable cook contract.
+5. Add only simple diagnostic context needed for the decision: a ground plane, dimensional ruler, a known-height reference, concise labels, and a neutral view. Freeze measured dimensions from transformed bounds and report them in metres. Do not embellish the scene into an art, socket, animation, gameplay, or renderer proof.
+6. Frame the exact question for the owner, for example whether a 1.36 metre bow and 0.68 metre arrow are credible beside a 1.8 metre reference. State explicitly what the review does not prove.
+7. Never save over a supplied `.blend`, export replacement source files, run lossy conversions, or persist the owner's machine paths. Treat the comparison scene as unsaved validation unless a separately approved task owns a reusable diagnostic fixture.
+8. After confirmation, record the selected source identities, scale, measured bounds, review setup, owner conclusion, and exclusions in the owning task and wiki. A screenshot or project-history artifact is a separate owner choice; do not preserve it automatically.
+
+If cleanup is needed, remove only objects, collections, or scenes created by the review after confirming that doing so cannot discard owner work. When uncertain, leave the temporary scene open and remind the owner not to save the supplied source file.
+
 ## Preserve Audience Boundaries
 
 Client output may contain render meshes, materials, textures, skeletons, and animation. Server output receives only content required by authoritative rules/collision. Keep render dependencies and source-authoring files out of headless artifacts.
