@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "assetId": "quaternius-medieval-weapons-arrow",
+  "source": {
+    "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Arrow.obj",
+    "sha256": "6960c207e3a8e6f2f09cbfd31b7fe990119cd260ef692729c498738a86698bf1"
+  },
+  "externalResources": [
+    {
+      "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Arrow.mtl",
+      "sha256": "cee901eef3fabe40154cc3a13ed3d64181aac886767fb1132382667332c6891f"
+    }
+  ],
+  "licenseIdentifier": "CC0-1.0",
+  "licenseEvidence": [
+    {
+      "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/License.txt",
+      "sha256": "d32abf5eb61a5d20c582525c2ee9d8d42d86401d6b3ea0a2d5283fcaecaa35b9"
+    }
+  ],
+  "metersPerSourceUnit": 0.25,
+  "materialPolicy": "section-names-only",
+  "expectedMaterials": [
+    "LightWood",
+    "Steel",
+    "LightSteel",
+    "Red"
+  ]
+}

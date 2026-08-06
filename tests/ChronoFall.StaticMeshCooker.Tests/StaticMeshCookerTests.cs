@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -6,6 +7,91 @@ namespace ChronoFall.StaticMeshCooker.Tests;
 public sealed class StaticMeshCookerTests
 {
     private const string FixtureRecipe = "tests/fixtures/static-cooking/two-boxes.recipe.json";
+
+    [Theory]
+    [InlineData(
+        "assets/recipes/quaternius-medieval-weapons-bow-wooden.json",
+        "quaternius-medieval-weapons-bow-wooden",
+        "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Bow_Wooden.obj",
+        "788c9e72bdd839a86704113de4809a96cfedf09441bb3f98f383a7abfe751e6d",
+        3,
+        -0.09612475f, -0.6795755f, -0.030426f,
+        0.27085575f, 0.6795755f, 0.0304265f)]
+    [InlineData(
+        "assets/recipes/quaternius-medieval-weapons-arrow.json",
+        "quaternius-medieval-weapons-arrow",
+        "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Arrow.obj",
+        "6960c207e3a8e6f2f09cbfd31b7fe990119cd260ef692729c498738a86698bf1",
+        4,
+        -0.034382f, -0.0213025f, -0.01055675f,
+        0.03415425f, 0.038266f, 0.67289925f)]
+    public void SelectedMedievalWeaponCooksAreExactPortableAndDeterministic(
+        string recipeRelativePath,
+        string expectedAssetId,
+        string sourceRelativePath,
+        string expectedSourceHash,
+        int expectedSections,
+        float minimumX,
+        float minimumY,
+        float minimumZ,
+        float maximumX,
+        float maximumY,
+        float maximumZ)
+    {
+        string root = FindRepositoryRoot();
+        string recipe = Path.Combine(root, recipeRelativePath.Replace('/', Path.DirectorySeparatorChar));
+        string source = Path.Combine(root, sourceRelativePath.Replace('/', Path.DirectorySeparatorChar));
+        using var temporary = new TemporaryDirectory();
+        string firstOutput = Path.Combine(temporary.Path, "first", $"{expectedAssetId}.cfmesh");
+        string secondOutput = Path.Combine(temporary.Path, "second", $"{expectedAssetId}.cfmesh");
+        string firstProvenance = Path.Combine(temporary.Path, "first", $"{expectedAssetId}.json");
+        string secondProvenance = Path.Combine(temporary.Path, "second", $"{expectedAssetId}.json");
+
+        StaticMeshCookResult first = StaticMeshCooker.Run(
+            new StaticMeshCookOptions(root, recipe, firstOutput, firstProvenance));
+        StaticMeshCookResult second = StaticMeshCooker.Run(
+            new StaticMeshCookOptions(root, recipe, secondOutput, secondProvenance));
+
+        Assert.Equal(File.ReadAllBytes(firstOutput), File.ReadAllBytes(secondOutput));
+        Assert.Equal(File.ReadAllBytes(firstProvenance), File.ReadAllBytes(secondProvenance));
+        Assert.Equal(first.OutputSha256, second.OutputSha256);
+        Assert.Equal(expectedSourceHash, Sha256(source));
+        Assert.Equal(expectedAssetId, first.AssetId);
+        Assert.Equal(expectedSections, first.SectionCount);
+
+        using FileStream stream = File.OpenRead(firstOutput);
+        CookedStaticMeshAsset cooked = StaticMeshCookedFormat.Read(stream);
+        Assert.Equal(expectedAssetId, cooked.Descriptor.AssetId);
+        Assert.Equal(sourceRelativePath, cooked.Descriptor.PrimarySource.Path);
+        Assert.Equal(expectedSourceHash, cooked.Descriptor.PrimarySource.Sha256);
+        Assert.Equal(0.25f, cooked.Descriptor.MetersPerSourceUnit);
+        Assert.Equal("CC0-1.0", cooked.Descriptor.LicenseIdentifier);
+        Assert.Equal("section-names-only", cooked.Descriptor.MaterialPolicy);
+        Assert.Single(cooked.Descriptor.ExternalResources);
+        Assert.Single(cooked.Descriptor.LicenseEvidence);
+        Assert.Equal(expectedSections, cooked.Mesh.Sections.Count);
+
+        Vector3 actualMinimum = new(
+            cooked.Mesh.Vertices.Min(static vertex => vertex.Position.X),
+            cooked.Mesh.Vertices.Min(static vertex => vertex.Position.Y),
+            cooked.Mesh.Vertices.Min(static vertex => vertex.Position.Z));
+        Vector3 actualMaximum = new(
+            cooked.Mesh.Vertices.Max(static vertex => vertex.Position.X),
+            cooked.Mesh.Vertices.Max(static vertex => vertex.Position.Y),
+            cooked.Mesh.Vertices.Max(static vertex => vertex.Position.Z));
+        AssertVectorClose(new(minimumX, minimumY, minimumZ), actualMinimum);
+        AssertVectorClose(new(maximumX, maximumY, maximumZ), actualMaximum);
+
+        string provenance = File.ReadAllText(firstProvenance);
+        Assert.DoesNotContain(root, provenance, StringComparison.Ordinal);
+        using JsonDocument document = JsonDocument.Parse(provenance);
+        JsonElement value = document.RootElement;
+        Assert.Equal(recipeRelativePath, value.GetProperty("recipePath").GetString());
+        Assert.Equal(expectedAssetId, value.GetProperty("assetId").GetString());
+        Assert.Equal(first.OutputSha256, value.GetProperty("cookedSha256").GetString());
+        Assert.Equal(expectedSections, value.GetProperty("materials").GetArrayLength());
+        Assert.False(value.TryGetProperty("timestamp", out _));
+    }
 
     [Fact]
     public void ExactFixtureCooksDeterministicallyWithoutModifyingInputs()
@@ -142,6 +228,14 @@ public sealed class StaticMeshCookerTests
     {
         using FileStream stream = File.OpenRead(path);
         return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
+    }
+
+    private static void AssertVectorClose(Vector3 expected, Vector3 actual)
+    {
+        const float tolerance = 0.000001f;
+        Assert.InRange(actual.X, expected.X - tolerance, expected.X + tolerance);
+        Assert.InRange(actual.Y, expected.Y - tolerance, expected.Y + tolerance);
+        Assert.InRange(actual.Z, expected.Z - tolerance, expected.Z + tolerance);
     }
 
     private sealed class TemporaryDirectory : IDisposable

@@ -93,6 +93,28 @@ public sealed class FamilySourceConsumptionPolicyTests
     }
 
     [Fact]
+    public void ClientStagingScriptOwnsOnlyTheSelectedMedievalWeaponOutputs()
+    {
+        string script = File.ReadAllText(Path.Combine(
+            RepositoryRoot,
+            "scripts",
+            "cook-character-presentation-for-client.sh"));
+
+        Assert.Contains("ChronoFall.StaticMeshCooker.csproj", script, StringComparison.Ordinal);
+        Assert.Contains("assets/recipes/quaternius-medieval-weapons-bow-wooden.json", script, StringComparison.Ordinal);
+        Assert.Contains("assets/recipes/quaternius-medieval-weapons-arrow.json", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-medieval-weapons-bow-wooden.cfmesh", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-medieval-weapons-bow-wooden.provenance.json", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-medieval-weapons-arrow.cfmesh", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-medieval-weapons-arrow.provenance.json", script, StringComparison.Ordinal);
+        Assert.Contains("licenses/quaternius-medieval-weapons/License.txt", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("cp \"$coordinator_root/assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ", script, StringComparison.Ordinal);
+        Assert.DoesNotContain(".blend\" \"$output_root", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(".fbx\" \"$output_root", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(".glb\" \"$output_root", script, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void ClientStagingScriptRestoresBeforeItsNoRestoreBuildAndNoBuildRun()
     {
         string script = File.ReadAllText(Path.Combine(

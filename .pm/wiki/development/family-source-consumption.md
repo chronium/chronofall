@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-06T11:51:18.2708030Z
+modifiedAt: 2026-08-06T17:44:20.0578130Z
 ---
 
 ## Decision
@@ -96,14 +96,14 @@ Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029` now has a 
 
 ## Generated client content
 
-From the coordinator root, stage the selected Quaternius character cook for a declared child by stable project ID:
+From the coordinator root, stage the selected Quaternius character, bow and arrow cooks for a declared child by stable project ID:
 
 ```sh
 scripts/cook-character-presentation-for-client.sh \
   --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
 ```
 
-The command does not accept an alias, filesystem destination, or server audience. It resolves the committed child `pathHint`, canonicalizes the checkout, and verifies:
+The command does not accept an alias, filesystem destination or server audience. It resolves the committed child `pathHint`, canonicalizes the checkout and verifies:
 
 - the child stable ID in `.pm/project_id.txt`;
 - the reciprocal parent stable ID;
@@ -120,32 +120,50 @@ The fixed generated layout is:
 artifacts/chronofall/character-presentation/client/
 ├── quaternius-ual1-standard.cfskel
 ├── quaternius-ual1-standard.provenance.json
-└── licenses/quaternius-ual1-standard/
-    ├── License.txt
-    └── README.txt
+├── quaternius-medieval-weapons-bow-wooden.cfmesh
+├── quaternius-medieval-weapons-bow-wooden.provenance.json
+├── quaternius-medieval-weapons-arrow.cfmesh
+├── quaternius-medieval-weapons-arrow.provenance.json
+└── licenses/
+    ├── quaternius-ual1-standard/
+    │   ├── License.txt
+    │   └── README.txt
+    └── quaternius-medieval-weapons/
+        └── License.txt
 ```
 
-The command cooks into a temporary directory, then replaces only these known files. It copies no raw GLB, changes no child source or PM data, and creates no runtime manifest.
+The command restores and builds only the focused skeletal and static cookers, cooks into a temporary directory, then replaces only these known files. It copies no raw GLB, OBJ, MTL, Blend or FBX, changes no child source or PM data and creates no runtime manifest.
 
 ## Provenance and determinism
 
-The cook remains the client-only recipe at `assets/recipes/quaternius-ual1-standard.json`. It selects `Mannequin`, the `Armature` skeleton, and `Idle_Loop`, `Walk_Loop`, and `Sword_Attack` from Quaternius `Universal Animation Library[Standard]`.
+The selected UAL1 character cook remains the client-only recipe at `assets/recipes/quaternius-ual1-standard.json`. It selects `Mannequin`, the `Armature` skeleton and `Idle_Loop`, `Walk_Loop` and `Sword_Attack` from Quaternius `Universal Animation Library[Standard]`.
 
-The deterministic JSON sidecar records schema and audience, portable recipe/source paths and hashes, CC0 identifier and evidence paths, selected clips, cooked filename, byte count, and SHA-256. It contains no timestamp or absolute checkout path.
+ASSET-0006 adds two exact static client recipes:
 
-The established `.cfskel` output is 1,278,301 bytes with SHA-256 `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`. The format remains provisional. Generated output stays ignored and must not be committed or placed in headless artifacts.
+- `assets/recipes/quaternius-medieval-weapons-bow-wooden.json`;
+- `assets/recipes/quaternius-medieval-weapons-arrow.json`.
+
+They select only the Quaternius Medieval Weapons Pack OBJ/MTL pairs approved by Starfall CONTENT-0011, record every source/resource/licence SHA-256 and cook at `0.25` metres per source unit through the provisional `section-names-only` material contract.
+
+Every deterministic JSON sidecar records schema and audience, portable recipe/source paths and hashes, CC0 identifier and evidence paths, cooked filename, byte count and SHA-256. It contains no timestamp or absolute checkout path.
+
+Established output hashes are:
+
+- `quaternius-ual1-standard.cfskel`: `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`;
+- `quaternius-medieval-weapons-bow-wooden.cfmesh`: `4c0ab766e7c622c0f52ff0ade3cb1992c6d96664233a4695fc049a3a9b1d642e`;
+- `quaternius-medieval-weapons-arrow.cfmesh`: `4eeb80dc06e1f729b67606eb6c12110b954068cfb7ea39590706771e4c02d9c3`.
+
+The formats remain provisional. Generated output stays ignored and must not be committed or placed in headless artifacts. Exact bow/arrow provenance, bounds and scale evidence are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-medieval-weapons-bow-arrow-cook`.
 
 ## Future exact-selection staging
 
-The Draft 0 coordinator roadmap extends this boundary only through focused acquisition tasks. Each acquisition must consume a completed canonical Starfall selection, verify exact pack-relative paths, hashes and licence evidence, and stage only an approved client output set. It may not accept an alias or arbitrary destination, modify a child, import a whole pack, or add a runtime manifest.
+The Draft 0 coordinator roadmap extends this boundary only through focused acquisition tasks. Each acquisition consumes a completed canonical Starfall selection, verifies exact pack-relative paths, hashes and licence evidence, and stages only an approved client output set. It may not accept an alias or arbitrary destination, modify a child, import a whole pack or add a runtime manifest.
 
-`ASSET-0004` through `ASSET-0007` have known skeletal or static prerequisites. `ASSET-0008` monster acquisition deliberately begins with only the canonical still-todo selection and the established stable-ID staging boundary. Static, rigid, or skeletal prerequisites are attached only after selection evidence identifies the actual representation.
+ASSET-0006 realizes the first static extension with the exact selected `Bow_Wooden` and `Arrow` recipes and ignored outputs. It does not authorize sockets, equipment, combat or automatic child integration.
+
+ASSET-0004 and ASSET-0005 retain their known skeletal prerequisites. ASSET-0007 remains the owner of exact selected zone inputs. ASSET-0008 monster acquisition deliberately begins with only its canonical selection and the established stable-ID staging boundary. Static, rigid or skeletal prerequisites are attached only after selection evidence identifies the actual representation.
 
 Generated outputs remain ignored and client-only. Package/feed distribution remains deferred.
-
-`pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0019` completes the provisional deterministic static-mesh cooking capability and exact hashed source/resource/licence evidence boundary. It deliberately adds no child allowlist, recipe, generated output or runtime manifest entry.
-
-`ASSET-0006`, `ASSET-0007`, and `ASSET-0008` remain the respective owners of the first real bow-and-arrow, zone, and monster exact-selection recipes and staged outputs after their canonical Starfall selection dependencies complete. The existing character staging workflow and selected UAL1 cook remain unchanged.
 
 ## Ownership and next consumers
 

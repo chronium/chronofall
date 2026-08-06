@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "assetId": "quaternius-medieval-weapons-bow-wooden",
+  "source": {
+    "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Bow_Wooden.obj",
+    "sha256": "788c9e72bdd839a86704113de4809a96cfedf09441bb3f98f383a7abfe751e6d"
+  },
+  "externalResources": [
+    {
+      "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/OBJ/Bow_Wooden.mtl",
+      "sha256": "545318d522d6ab3f0f4942cd5fc25001fcc9c1a722cef2d04555009721847a54"
+    }
+  ],
+  "licenseIdentifier": "CC0-1.0",
+  "licenseEvidence": [
+    {
+      "path": "assets/Quaternius/Medieval Weapons Pack by @Quaternius/License.txt",
+      "sha256": "d32abf5eb61a5d20c582525c2ee9d8d42d86401d6b3ea0a2d5283fcaecaa35b9"
+    }
+  ],
+  "metersPerSourceUnit": 0.25,
+  "materialPolicy": "section-names-only",
+  "expectedMaterials": [
+    "DarkWood",
+    "LightWood",
+    "White"
+  ]
+}

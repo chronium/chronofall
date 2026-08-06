@@ -4,7 +4,7 @@ This directory contains small coordinator-owned documentation and workflow helpe
 
 ## Character Presentation Client Cook
 
-`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, restores and builds the focused cooker project, and stages the selected Quaternius UAL1 cook plus portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree. No separate restore step is required.
+`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, restores and builds the focused skeletal and static cooker projects, and stages the selected Quaternius UAL1 character plus the exact Medieval Weapons wooden bow and arrow cooks with portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree. No separate restore step is required.
 
 From the coordinator root:
 
@@ -13,7 +13,7 @@ scripts/cook-character-presentation-for-client.sh \
   --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
 ```
 
-Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink escapes, and unexpected existing files are rejected. The output is client-only generated content; it is not a runtime manifest or a committed package.
+Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink escapes, and unexpected existing files are rejected. Only the fixed selected `.cfskel`, `.cfmesh`, provenance, and licence/readme set is staged; raw model sources are never copied. The output is client-only generated content; it is not a runtime manifest or a committed package.
 
 ## Contact-Sheet Compositor
 

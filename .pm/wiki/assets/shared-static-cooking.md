@@ -1,7 +1,7 @@
 ---
 title: Shared Static Asset Cooking
 createdAt: 2026-08-02T17:49:59.5767640Z
-modifiedAt: 2026-08-02T17:49:59.5767640Z
+modifiedAt: 2026-08-06T17:43:52.1372840Z
 ---
 
 ## Decision and ownership
@@ -55,11 +55,18 @@ The GPU harness accepts `--static-proof --cooked-static-asset <path>`. The cooke
 
 ## Selection and staging boundary
 
-No real static recipe, child output, runtime manifest or stable-ID staging allowlist is added by SHARED-0019 because Starfall `CONTENT-0011` and `CONTENT-0012` remain todo.
+SHARED-0019 deliberately added no real static recipe or child output. Starfall selection task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` later selected the exact Quaternius Medieval Weapons Pack `Bow_Wooden` and `Arrow` inputs.
 
-After one of those tasks completes, coordinator acquisition task `ASSET-0006` or `ASSET-0007` may add only its exact approved recipe, provenance/licence copy set and ignored client output. That acquisition must extend the established stable-project-ID checks and fixed output allowlist without accepting aliases, arbitrary destinations or whole packs.
+Coordinator acquisition task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/ASSET-0006` is the first bounded real consumer. It adds exactly two recipes at `0.25` metres per source unit:
 
-Generated outputs remain ignored. Server, world, simulation, protocol, content and Balance Lab outputs receive no `.cfmesh`, source art, renderer, SDL or native dependency.
+- `assets/recipes/quaternius-medieval-weapons-bow-wooden.json`;
+- `assets/recipes/quaternius-medieval-weapons-arrow.json`.
+
+The stable-project-ID staging workflow now permits only their two cooked `.cfmesh` files, deterministic provenance sidecars and one preserved Medieval Weapons licence in addition to the existing selected UAL1 character cook. Generated files remain ignored and client-only. No raw model, entire pack, runtime manifest, production material or child source enters the boundary.
+
+Exact source hashes, bounds, output hashes and owner scale validation are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-medieval-weapons-bow-arrow-cook`.
+
+Future real selections remain separately task-owned. ASSET-0007 may later add only exact Starfall-selected zone inputs. ASSET-0008 remains evidence-gated until Starfall selects a monster representation and proves whether static, rigid or skeletal acquisition is actually required.
 
 ## Deferred work
 

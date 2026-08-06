@@ -94,10 +94,16 @@ if [ -d "$output_root" ]; then
     unexpected=$(find "$output_root" -mindepth 1 \
         ! -path "$output_root/quaternius-ual1-standard.cfskel" \
         ! -path "$output_root/quaternius-ual1-standard.provenance.json" \
+        ! -path "$output_root/quaternius-medieval-weapons-bow-wooden.cfmesh" \
+        ! -path "$output_root/quaternius-medieval-weapons-bow-wooden.provenance.json" \
+        ! -path "$output_root/quaternius-medieval-weapons-arrow.cfmesh" \
+        ! -path "$output_root/quaternius-medieval-weapons-arrow.provenance.json" \
         ! -path "$output_root/licenses" \
         ! -path "$output_root/licenses/quaternius-ual1-standard" \
         ! -path "$output_root/licenses/quaternius-ual1-standard/License.txt" \
         ! -path "$output_root/licenses/quaternius-ual1-standard/README.txt" \
+        ! -path "$output_root/licenses/quaternius-medieval-weapons" \
+        ! -path "$output_root/licenses/quaternius-medieval-weapons/License.txt" \
         -print -quit)
     [ -z "$unexpected" ] || fail "the owned output tree contains unexpected content: $unexpected"
 fi
@@ -105,10 +111,15 @@ fi
 staging_root=$(mktemp -d "${TMPDIR:-/tmp}/chronofall-character-client.XXXXXX")
 trap 'rm -r "$staging_root"' EXIT HUP INT TERM
 mkdir -p "$staging_root/licenses/quaternius-ual1-standard"
+mkdir -p "$staging_root/licenses/quaternius-medieval-weapons"
 
 dotnet restore "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
     --disable-build-servers
+dotnet restore "$coordinator_root/tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" \
+    --disable-build-servers
 dotnet build "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
+    -c Release -m:1 --no-restore --disable-build-servers
+dotnet build "$coordinator_root/tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" \
     -c Release -m:1 --no-restore --disable-build-servers
 dotnet run --project "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
     -c Release --no-restore --no-build -- \
@@ -117,16 +128,43 @@ dotnet run --project "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoF
     --output "$staging_root/quaternius-ual1-standard.cfskel" \
     --provenance-output "$staging_root/quaternius-ual1-standard.provenance.json" \
     --audience client
+dotnet run --project "$coordinator_root/tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" \
+    -c Release --no-restore --no-build -- \
+    --source-root "$coordinator_root" \
+    --recipe "$coordinator_root/assets/recipes/quaternius-medieval-weapons-bow-wooden.json" \
+    --output "$staging_root/quaternius-medieval-weapons-bow-wooden.cfmesh" \
+    --provenance-output "$staging_root/quaternius-medieval-weapons-bow-wooden.provenance.json" \
+    --audience client
+dotnet run --project "$coordinator_root/tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" \
+    -c Release --no-restore --no-build -- \
+    --source-root "$coordinator_root" \
+    --recipe "$coordinator_root/assets/recipes/quaternius-medieval-weapons-arrow.json" \
+    --output "$staging_root/quaternius-medieval-weapons-arrow.cfmesh" \
+    --provenance-output "$staging_root/quaternius-medieval-weapons-arrow.provenance.json" \
+    --audience client
 
 cp "$coordinator_root/assets/Quaternius/Universal Animation Library[Standard]/License.txt" \
     "$staging_root/licenses/quaternius-ual1-standard/License.txt"
 cp "$coordinator_root/assets/Quaternius/Universal Animation Library[Standard]/README.txt" \
     "$staging_root/licenses/quaternius-ual1-standard/README.txt"
+cp "$coordinator_root/assets/Quaternius/Medieval Weapons Pack by @Quaternius/License.txt" \
+    "$staging_root/licenses/quaternius-medieval-weapons/License.txt"
 
 mkdir -p "$output_root/licenses/quaternius-ual1-standard"
+mkdir -p "$output_root/licenses/quaternius-medieval-weapons"
 cp "$staging_root/quaternius-ual1-standard.cfskel" "$output_root/quaternius-ual1-standard.cfskel"
 cp "$staging_root/quaternius-ual1-standard.provenance.json" "$output_root/quaternius-ual1-standard.provenance.json"
+cp "$staging_root/quaternius-medieval-weapons-bow-wooden.cfmesh" \
+    "$output_root/quaternius-medieval-weapons-bow-wooden.cfmesh"
+cp "$staging_root/quaternius-medieval-weapons-bow-wooden.provenance.json" \
+    "$output_root/quaternius-medieval-weapons-bow-wooden.provenance.json"
+cp "$staging_root/quaternius-medieval-weapons-arrow.cfmesh" \
+    "$output_root/quaternius-medieval-weapons-arrow.cfmesh"
+cp "$staging_root/quaternius-medieval-weapons-arrow.provenance.json" \
+    "$output_root/quaternius-medieval-weapons-arrow.provenance.json"
 cp "$staging_root/licenses/quaternius-ual1-standard/License.txt" "$output_root/licenses/quaternius-ual1-standard/License.txt"
 cp "$staging_root/licenses/quaternius-ual1-standard/README.txt" "$output_root/licenses/quaternius-ual1-standard/README.txt"
+cp "$staging_root/licenses/quaternius-medieval-weapons/License.txt" \
+    "$output_root/licenses/quaternius-medieval-weapons/License.txt"
 
 printf '%s\n' "CHARACTER_CLIENT_STAGE_SUCCESS project=$project_id output=$output_root"
