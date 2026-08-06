@@ -21,6 +21,7 @@ Inspect the active PM project, linked family, worktrees, relevant wiki pages, so
 - `royale` and `starfall` must never depend directly on one another.
 - Do not extract code merely because it looks reusable. Promote only contracts demonstrated by both a focused experiment and a concrete child need.
 - Do not build a general Unity-like engine, generic runtime component framework, retargeter, animation graph, or general asset framework without an approved task and explicit contract decision.
+- Do not preserve backward compatibility merely because an older path exists. Once an approved replacement is complete, remove obsolete readers, writers, shims, fallbacks, dual paths and speculative migrations. Retain or migrate an older contract only when a current consumer, stored data, staged deployment or explicit owner decision proves it is required, and give that compatibility a clear owner and removal condition.
 
 Authoring objects may later use typed components and registered tooling, but they must compile into compact game-specific runtime data. Authoring representation is not runtime simulation representation.
 

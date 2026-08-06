@@ -27,6 +27,8 @@ Keep the first skinned-character work as a coordinator experiment. Promote a con
 
 Reject premature render graphs, scene frameworks, generic ECS/component runtimes, retargeting systems, permanent custom skeletal formats, or production animation graphs.
 
+Do not preserve backward compatibility merely because an older path exists. After an approved replacement is complete, remove obsolete readers, writers, shims, fallbacks, dual paths and speculative migrations. Keep or migrate an old contract only for a demonstrated current consumer, stored data, staged deployment or explicit owner decision, with a named owner and removal condition.
+
 ## Keep Authoring Separate
 
 Typed authoring objects may register serialization, inspector controls, validation, gizmos, icons, debug drawing, and cooking. Compile them into game-specific runtime data such as Royale navigation graphs or Starfall spawn definitions. Do not make runtime simulation reflective merely to resemble the authoring model.
