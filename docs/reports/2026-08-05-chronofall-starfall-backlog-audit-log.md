@@ -15,6 +15,14 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Correct Cycle 2 durable-documentation review findings
+
+- Finding/checklist: corrected three documentation inconsistencies found after Cycle 2 approval. No checklist state changed because the PM graph, milestone structure, and implementation readiness were already correct.
+- Bow-animation evidence: recorded `ASSET-0010` and `EXPERIMENT-0014` as complete, preserved the experiment as technical body-animation and release-marker evidence rather than an equipped-bow proof, and clarified that Starfall `CONTENT-0011` cites it without a dependency unless a later implementation plan identifies a concrete consumed artifact.
+- Cycle 3 wiring: clarified that Cycle 3 attaches the canonical todo `SHARED-0026` dependency immediately; the Starfall adoption task then remains blocked until `SHARED-0026` completes.
+- Acquisition ownership: corrected the exact mapping to `ASSET-0006` bow and arrow, `ASSET-0007` zone, and `ASSET-0008` monster.
+- Scope: coordinator wiki and this audit log only. No PM task, state, milestone, priority, dependency, source, asset, child repository, or gitlink changed.
+
 ### 2026-08-06 — Complete Cycle 2 coordinator shared-boundary grooming
 
 - Finding/checklist: completed the approved coordinator-only grooming cycle; made `COORD-0005` non-recommendable, completed the shared/child placeholder re-grooming gate, and clarified the modular-armour selected-input sequence.

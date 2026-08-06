@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-06T07:26:05.9565900Z
+modifiedAt: 2026-08-06T07:52:08.8262190Z
 ---
 
 ## Decision
@@ -92,7 +92,7 @@ Only Starfall.Client's composition root may receive this audience permission. SD
 
 ChronoFall owns the exact source boundary, reusable backend/native integration, caller-lifecycle compatibility, macOS ARM64 evidence, and headless architecture enforcement. Starfall owns debug windows, menu organization, F12 and `--debug-ui-hidden`, input capture, feature diagnostics, the console, development commands, persistence choices, and permanent game UI.
 
-A separately approved Starfall cycle must attach the completed canonical `SHARED-0026` dependency to the child adoption task before Starfall implementation begins. This allocation does not activate the Starfall editor or confer a general child ImGui entitlement.
+A separately approved Starfall Cycle 3 attaches the canonical `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` dependency to the child adoption task now. The adoption task then remains blocked until `SHARED-0026` completes, and source consumption cannot begin before each owning task receives its own approved implementation plan. This allocation does not activate the Starfall editor or confer a general child ImGui entitlement.
 
 ## Generated client content
 
@@ -145,7 +145,7 @@ Generated outputs remain ignored and client-only. Package/feed distribution rema
 
 `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0019` completes the provisional deterministic static-mesh cooking capability and exact hashed source/resource/licence evidence boundary. It deliberately adds no child allowlist, recipe, generated output or runtime manifest entry.
 
-`ASSET-0006` and `ASSET-0007` remain the owners of the first real bow/monster and zone exact-selection recipes and staged outputs after their canonical Starfall selection dependencies complete. The existing character staging workflow and selected UAL1 cook remain unchanged.
+`ASSET-0006`, `ASSET-0007`, and `ASSET-0008` remain the respective owners of the first real bow-and-arrow, zone, and monster exact-selection recipes and staged outputs after their canonical Starfall selection dependencies complete. The existing character staging workflow and selected UAL1 cook remain unchanged.
 
 ## Ownership and next consumers
 

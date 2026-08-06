@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-06T07:25:36.5068140Z
+modifiedAt: 2026-08-06T07:51:58.0320420Z
 ---
 
 ## Purpose and ownership
@@ -96,7 +96,7 @@ Prospective Quaternius sources remain evidence-gated:
 - Fantasy Props MegaKit for optional landmark-only dressing;
 - Ultimate RPG Pack as a deferred, unselected pickup-art candidate.
 
-The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. Physical availability alone never establishes compatibility, selection, or dependency readiness: the private UAL2 Source package remains outside the repository, its inventory is complete under `ASSET-0010`, and its technical proof remains todo under `EXPERIMENT-0014`; the other prospective packs remain unverified until physically supplied and reviewed.
+The existing UAL1 cook and its technical evidence remain unchanged. `Sword_Attack` is not an acceptable bow placeholder. Physical availability alone never establishes compatibility, selection, or dependency readiness. The private UAL2 Source package remains outside the repository; `ASSET-0010` and `EXPERIMENT-0014` are complete. The experiment supplies technical body-animation and release-marker evidence, not an equipped-bow proof. The other prospective packs remain unverified until physically supplied and reviewed.
 
 ## Bow-animation evidence lane
 
@@ -109,7 +109,7 @@ EXPERIMENT-0014 completed proof
   -> ASSET-0004 exact production acquisition and client staging
 ```
 
-`EXPERIMENT-0014` is todo and must not be activated without its own approved plan. Its output is body-animation evidence on the technical mannequin, not an equipped bow proof. A later Starfall-owned selection cycle may add the completed experiment's canonical URI to `CONTENT-0011`; this coordinator task does not mutate Starfall.
+`ASSET-0010` and `EXPERIMENT-0014` are complete. The experiment supplies technical body-animation and release-marker evidence on the technical mannequin; it is not an equipped-bow proof and does not validate grip, string contact, nocking, sockets, or projectile presentation. Starfall `CONTENT-0011` cites that completed evidence. It adds no canonical experiment dependency unless its own approved implementation plan identifies a concrete artifact that it actually consumes. This coordinator documentation does not mutate Starfall.
 
 ## Staging and audience
 
