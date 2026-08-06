@@ -15,6 +15,18 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Complete Cycle 2 coordinator shared-boundary grooming
+
+- Finding/checklist: completed the approved coordinator-only grooming cycle; made `COORD-0005` non-recommendable, completed the shared/child placeholder re-grooming gate, and clarified the modular-armour selected-input sequence.
+- Milestones and allocation: created M4 `Starfall.Client Development Instrumentation Boundary`, M5 `Connected Basic Arrow Shared Enablers`, and exactly one new coordinator task, `SHARED-0026`. `CF-VIEWPORT-TEXT` and all later symbolic work remain unallocated.
+- Basic Arrow boundary: moved only `ASSET-0004`, `ASSET-0006`, and `SHARED-0020` into M5. `SHARED-0020` now uses a harness-local technical socket; Starfall `CLIENT-0011` retains semantic hand-socket, local-transform, rendering-integration, and native-placement ownership.
+- Dependency correction: removed the obsolete canonical Starfall `CONTENT-0011` edges from `SHARED-0003` and `ASSET-0005`. No replacement Ranger task or fabricated canonical dependency was created; the real selection remains an activation-time prerequisite.
+- Scheduling correction: removed every unfinished task from legacy M2 and M3. Deferred modular armour, equipment, material variants, broad attachments, debugging, preview, zone, monster, and typed-authoring work is milestone-free and `priority: none`; focused `SHARED-0015` remains explicit low-priority debt. Pressure Cooker tasks remain milestone-free and `priority: none` without mutation.
+- Durable documentation: updated the initial roadmap, Draft 0 shared-enabler graph, shared-engine boundary, family-source-consumption contract, and editor roadmap. M2 and M3 are preserved as completed historical buckets; M4 and M5 are concrete deliverables; Cycle 3 remains a separate Starfall canonical-wiring cycle.
+- Repository/commit: coordinator commit `59970a601926cbc74376238161927e30b98db3c3`. No source, assets, Starfall, Royale, feature state, generated content, or gitlink changed.
+- Validation: coordinator `pm doctor` and MCP project validation passed; all 407 family tasks have no missing, invalid, unavailable, or cyclic dependencies; no task is active; M4 contains only ready `SHARED-0026`; M5 contains exactly the three blocked Basic Arrow enablers; M2 and M3 have no unfinished members; linked-family warnings are empty; and `git diff --check` passed.
+- Remaining work: Cycle 3 must attach the canonical `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` dependency to the Starfall adoption task and update matching Starfall roadmap prose. No implementation is authorized by this cycle.
+
 ### 2026-08-06 — Correct Cycle 1 dependency and durable-roadmap review findings
 
 - Finding/checklist: completed the focused review continuation without allocating work, activating a feature, or changing implementation source.

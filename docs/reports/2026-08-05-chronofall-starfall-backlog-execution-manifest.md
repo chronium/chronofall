@@ -241,11 +241,11 @@ These rows preserve known ownership and acceptance boundaries. They are not allo
 
 ## New coordinator task specifications
 
-`CF-DEBUG-CLIENT-ADOPTION` is allocated in Cycle 2 because it enables the near-term Development Instrumentation milestone. `CF-VIEWPORT-TEXT` remains a symbolic future task until the Resource HUD activates.
+Cycle 2 allocated `CF-DEBUG-CLIENT-ADOPTION` as coordinator task `SHARED-0026` because it enables the near-term Development Instrumentation milestone. `CF-VIEWPORT-TEXT` remains a symbolic future task until the Resource HUD activates.
 
 | Handle | Track / proposed deliverable | Dependencies | Focused acceptance boundary |
 | --- | --- | --- | --- |
-| `CF-DEBUG-CLIENT-ADOPTION` | SHARED / Starfall development debug UI enablement | `SHARED-0016`, `SHARED-0024` | Extend the approved consumer boundary from native Editor-only to Starfall.Client development instrumentation; document/validate the exact family-source allowlist, reusable backend/native boundary, caller-owned SDL/GPU lifecycle compatibility, macOS ARM64 native use, and headless exclusion. Do not own `--debug-ui-hidden`, `F12`, visibility behavior, Starfall windows, or permanent UI; those product behaviors belong exclusively to `SF-DEV-SHELL`. |
+| `SHARED-0026` (`CF-DEBUG-CLIENT-ADOPTION`) | SHARED / coordinator M4 Starfall.Client Development Instrumentation Boundary | `SHARED-0016`, `SHARED-0024` | Extend the approved consumer boundary from native Editor-only to Starfall.Client development instrumentation; document/validate the exact family-source allowlist, reusable backend/native boundary, caller-owned SDL/GPU lifecycle compatibility, macOS ARM64 native use, and headless exclusion. Do not own `--debug-ui-hidden`, `F12`, visibility behavior, Starfall windows, or permanent UI; those product behaviors belong exclusively to `SF-DEV-SHELL`. |
 | `CF-VIEWPORT-TEXT` | SHARED / Viewport text rendering v1 | `SHARED-0016` and the exact shared SDL GPU source boundary confirmed during its Plan-mode inspection | One narrow caller-owned viewport-space text renderer with deterministic layout metrics, DPI scaling, bounded glyph/font input, tests, and macOS native proof. It does not migrate Royale text, create controls/layout containers, or define Starfall HUD styling. |
 
 The coordinator grooming cycle must also correct dormant shared dependencies without manufacturing a Ranger task:
@@ -272,7 +272,7 @@ Starfall Basic behavior:
 PROTOCOL-0006 -> PROTOCOL-0007 -> SERVER-0008 -> CLIENT-0012
 
 Development instrumentation:
-parent CF-DEBUG-CLIENT-ADOPTION
+parent SHARED-0026
   -> SF-DEV-ADOPTION
   -> SF-DEV-SHELL
 SF-DEV-PROTOCOL -> SF-DEV-SERVER
@@ -366,7 +366,7 @@ From the verified Starfall project context, using supported PM tooling:
 
 Cycle 1 does not allocate HUD, Fire-presentation, Rain replacement, Player Life, Progression replacement, Inventory, Equipment, Physical Drop, Ranger, proper-scene, selected-monster, or Balance Lab tasks. Their manifest handles remain planning notes. This is a direct backlog-grooming cycle, not a PM task whose purpose is task creation.
 
-Completion record: Cycle 1 completed on 2026-08-06. Starfall baseline commit `a2e4f138bcce206dde4f01d87ce045705a8616e9` and pointer commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` established the approved grooming. Focused review continuation `8c3afb2bfdfb34352cb79555db9ef20e704b0f6a`, pinned by coordinator commit `077748af19d4f8b8b4cb37c41b98aee101570c1b`, corrected the Inventory Client edge, progression contract and stale durable roadmap text. Starfall validation passed with 112 tasks, no missing/invalid/unavailable dependencies, no active task, zero unfinished M2 members, and zero linked-family warnings. Cycle 2 and Cycle 3 remain unstarted.
+Completion record: Cycle 1 completed on 2026-08-06. Starfall baseline commit `a2e4f138bcce206dde4f01d87ce045705a8616e9` and pointer commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` established the approved grooming. Focused review continuation `8c3afb2bfdfb34352cb79555db9ef20e704b0f6a`, pinned by coordinator commit `077748af19d4f8b8b4cb37c41b98aee101570c1b`, corrected the Inventory Client edge, progression contract and stale durable roadmap text. Starfall validation passed with 112 tasks, no missing/invalid/unavailable dependencies, no active task, zero unfinished M2 members, and zero linked-family warnings. Cycle 2 is now complete; Cycle 3 remains unstarted.
 
 ### Cycle 2 — Coordinator shared-boundary grooming
 
@@ -379,6 +379,8 @@ After Cycle 1 is pinned:
 5. update shared-engine and Starfall-enabler wiki pages;
 6. validate the coordinator and complete family dependency graph;
 7. commit only coordinator PM/wiki changes and stop.
+
+Completion record: Cycle 2 completed on 2026-08-06 in coordinator commit `59970a601926cbc74376238161927e30b98db3c3`. It created M4 `Starfall.Client Development Instrumentation Boundary`, M5 `Connected Basic Arrow Shared Enablers`, and exactly one new task, `SHARED-0026`. M5 contains exactly `ASSET-0004`, `ASSET-0006`, and `SHARED-0020`; the shared bow proof now uses only a harness-local technical socket. The obsolete Starfall `CONTENT-0011` dependencies were removed from `SHARED-0003` and `ASSET-0005` without allocating a replacement Ranger task. Deferred armour, attachment, preview, zone, monster and authoring work is milestone-free and non-recommendable, while `SHARED-0015` remains explicit low-priority debt. M2 and M3 now contain completed historical members only. Coordinator PM validation and doctor passed; all 407 family tasks have no missing, invalid, unavailable, or cyclic dependencies; no task is active; family warnings are empty; and neither child nor either gitlink changed.
 
 ### Cycle 3 — Starfall canonical wiring continuation
 
@@ -439,8 +441,8 @@ Every feature implementation retains its task-specific automated, headless, nati
 - [x] Remaining decisions isolated to owning Plan-mode passes.
 - [x] Owner approves Cycle 1 Starfall structural grooming.
 - [x] Cycle 1 completes, validates, commits, logs, checks corresponding audit items, and stops.
-- [ ] Owner approves Cycle 2 coordinator grooming.
-- [ ] Cycle 2 completes, validates, commits, logs, checks corresponding audit items, and stops.
+- [x] Owner approves Cycle 2 coordinator grooming.
+- [x] Cycle 2 completes, validates, commits, logs, checks corresponding audit items, and stops.
 - [ ] Owner approves Cycle 3 Starfall canonical wiring.
 - [ ] Cycle 3 completes, validates, commits, logs, checks corresponding audit items, and stops.
 - [ ] Owner enters Plan mode and selects `PROTOCOL-0006` after grooming.

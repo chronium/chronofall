@@ -583,10 +583,10 @@ In the same cycle, change every checklist item that was genuinely completed from
 ### Scope and dependency hygiene
 
 - [x] Set `EDITOR-0004` to an honest deferred scheduling gate until its first scenario is ready.
-- [ ] Make `COORD-0005` non-recommendable and rewrite it only when a concrete authoring need exists.
-- [ ] Mark `SHARED-0007`, `SHARED-0013`, `SHARED-0014`, `EDITOR-0007`, `EDITOR-0010`, and `CLIENT-0008` for re-grooming before activation.
+- [x] Make `COORD-0005` non-recommendable and rewrite it only when a concrete authoring need exists.
+- [x] Mark `SHARED-0007`, `SHARED-0013`, `SHARED-0014`, `EDITOR-0007`, `EDITOR-0010`, and `CLIENT-0008` for re-grooming before activation.
 - [ ] Review high-fan-in tasks and remove dependency edges used only as bibliography.
-- [ ] Clarify the `SHARED-0003` / `SHARED-0004` / `ASSET-0005` selected-input sequence.
+- [x] Clarify the `SHARED-0003` / `SHARED-0004` / `ASSET-0005` selected-input sequence.
 - [ ] Keep Pressure Cooker tasks dormant until a documented activation trigger exists.
 
 ### Execution checkpoints
