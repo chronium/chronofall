@@ -1,7 +1,7 @@
 ---
 title: Shared Engine and Authority Boundaries
 createdAt: 2026-08-01T05:44:07.0060700Z
-modifiedAt: 2026-08-05T10:14:22.9370340Z
+modifiedAt: 2026-08-06T07:25:48.7054220Z
 ---
 
 ## Focus
@@ -60,12 +60,14 @@ Typed authoring objects may eventually register serialization, inspector control
 
 ## Shared editor UI backend
 
-Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` is the completed prerequisite for Starfall's editor UI foundation. It owns one narrow project, `ChronoFall.EditorUi.SdlGpu`, plus an independent ImGui.Net/cimgui and ImGuizmo pin, reproducible native build, licence evidence and macOS ARM64 artifact packaging.
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0024` is the completed caller-controlled SDL GPU ImGui backend. It owns `ChronoFall.EditorUi.SdlGpu`, the independent ImGui.Net/cimgui and ImGuizmo pins, reproducible native build, licence evidence, and macOS ARM64 artifact packaging.
 
-The backend owns ImGui context lifetime, SDL event forwarding, framebuffer-scale propagation, caller-injected font-atlas configuration, draw-data preparation and recording into a caller-supplied SDL GPU render pass. The caller continues to own the SDL window/device, command buffer, swapchain/target, pass begin/end, submission, application loop and every product UI or authoring concept.
+The backend owns ImGui context lifetime, SDL event forwarding, framebuffer-scale propagation, caller-injected font-atlas configuration, draw-data preparation, and recording into a caller-supplied SDL GPU render pass. Every consumer continues to own its SDL window/device, command buffer, swapchain/target, pass begin/end, submission, application loop, layout, state, and product semantics.
 
-Docking is optional inside one caller-owned window. Platform multi-viewport is rejected because it would transfer secondary-window and rendering control into the backend. The complete call-order, native, platform and family-source contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-imgui-backend`.
+The completed contract originally established the future native `Starfall.Editor` audience. Editor work remains deferred and is not activated by later consumers.
 
-Only a separately planned native `Starfall.Editor` host may consume this project. Starfall's headless editor document/compiler and all World, Simulation, Protocol, Content and Balance Lab projects remain presentation-free. Royale remains unchanged until a Royale-owned adoption plan exists.
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` is the allocated M4 extension for Starfall.Client development instrumentation. It is todo and dependency-ready, not implemented. When completed under its own approved plan, it may extend the exact family-source allowlist to Starfall.Client while reusing the same backend and preserving caller lifecycle ownership.
 
-This task does not own a shell, theme, font choice, design tokens, UI primitives, dock layout, selection, commands, documents, inspectors, assets, validation, logs or product workflows.
+`SHARED-0026` does not own Starfall debug windows, menu organization, F12, `--debug-ui-hidden`, input-capture policy, feature diagnostics, the console, development-command semantics, permanent UI, or gameplay. Those remain Starfall-owned. World, Simulation, Protocol, Content, Balance Lab, and the headless editor document/compiler remain presentation-free.
+
+Docking remains optional inside one caller-owned window. Platform multi-viewport is rejected because it would transfer secondary-window and rendering control into the backend. Neither task creates a shared application shell, theme, font choice, design-token system, UI primitives, editor framework, or Royale migration.

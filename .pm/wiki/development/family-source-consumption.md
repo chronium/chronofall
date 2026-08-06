@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-05T10:14:23.0701240Z
+modifiedAt: 2026-08-06T07:26:05.9565900Z
 ---
 
 ## Decision
@@ -78,6 +78,22 @@ Starfall's World, Simulation, Protocol, Content, Balance Lab and headless editor
 
 The source boundary uses only `ChronoFallFamilyRoot`. It adds no package/feed distribution, imported coordinator build policy, product theme, docking layout or editor framework. Royale remains unchanged unless a later Royale-owned task adopts the backend. The complete contract is `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/architecture/shared-sdl-gpu-imgui-backend`.
 
+## Planned Starfall.Client development-instrumentation source boundary
+
+Coordinator task `SHARED-0026` is allocated in M4 to extend the existing caller-controlled SDL GPU ImGui boundary to Starfall.Client development instrumentation. It depends on completed `SHARED-0016` and `SHARED-0024`, is currently todo, and does not authorize source consumption until it completes under its own approved implementation plan.
+
+The planned direct reference is:
+
+~~~text
+$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj
+~~~
+
+Only Starfall.Client's composition root may receive this audience permission. SDL3-CS, ImGui.Net, Evergine.Mathematics, native pins, and coordinator checkout paths remain transitive implementation details. World, Simulation, Protocol, Content, Balance Lab, and the headless editor document/compiler remain outside the allowlist.
+
+ChronoFall owns the exact source boundary, reusable backend/native integration, caller-lifecycle compatibility, macOS ARM64 evidence, and headless architecture enforcement. Starfall owns debug windows, menu organization, F12 and `--debug-ui-hidden`, input capture, feature diagnostics, the console, development commands, persistence choices, and permanent game UI.
+
+A separately approved Starfall cycle must attach the completed canonical `SHARED-0026` dependency to the child adoption task before Starfall implementation begins. This allocation does not activate the Starfall editor or confer a general child ImGui entitlement.
+
 ## Generated client content
 
 From the coordinator root, stage the selected Quaternius character cook for a declared child by stable project ID:
@@ -133,8 +149,15 @@ Generated outputs remain ignored and client-only. Package/feed distribution rema
 
 ## Ownership and next consumers
 
-Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` owns this source-consumption and staging boundary.
+Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` owns the original source-consumption and staging boundary. Completed audience-specific extensions own only their exact additional consumers:
 
-Starfall integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. It owns only Starfall client references, content consumption, and runtime mapping. Royale integration remains child-owned. Neither child integration may redesign coordinator source, add a feed, copy raw source assets, or edit the parent repository. After the child task is complete and committed, the coordinator automatically records only the reviewed gitlink in a pointer-only commit owned by the canonical child task.
+- `SHARED-0021`: headless Starfall simulation access to `ChronoFall.Box3D`;
+- `SHARED-0023`: process-host access to the LiteNetLib transport adapter;
+- `SHARED-0024`: native Starfall.Editor access to the caller-controlled SDL GPU ImGui backend;
+- `SHARED-0026`: planned Starfall.Client development-instrumentation access to that same backend.
 
-Completing `SHARED-0016` satisfies only the coordinator dependency of Starfall `CLIENT-0006`; Starfall `BUILD-0003` remains independently required.
+Each audience remains deny-by-default and requires its own child-owned adoption task and architecture tests. Completion permits planning and canonical dependency wiring; it never activates child work.
+
+Starfall character integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. Starfall development instrumentation uses its separately allocated child tasks and will receive the canonical `SHARED-0026` edge only in Cycle 3. Royale integrations remain Royale-owned.
+
+No child adoption may redesign coordinator source, add a feed, copy raw source assets, edit the parent repository, grant unrelated projects access, or leak presentation dependencies into headless outputs. Child commits receive the normal pointer-only coordinator handoff after review.

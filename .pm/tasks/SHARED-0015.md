@@ -2,7 +2,6 @@
 id: SHARED-0015
 title: Harden character-presentation edge contracts
 track: SHARED
-milestone: M2
 priority: low
 dependsOn:
 - SHARED-0008

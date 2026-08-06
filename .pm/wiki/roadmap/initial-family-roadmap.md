@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-02T16:21:34.6895740Z
+modifiedAt: 2026-08-06T07:25:05.3153250Z
 ---
 
 ## M0 — Coordinator foundation
@@ -25,31 +25,40 @@ M1 completed on 2026-08-01. The supplied Quaternius mannequin and compatible ani
 
 ## M2 — Shared character presentation
 
-`SHARED-0001` promotes only validated contracts. Follow-ups cover skeletal cooking, canonical-rig armour, slots/body hiding, variants, sockets/attachments, weapons/shields/backpacks/wings, blending/layers, grip/effect/aim points, two-bone IK, debugging, and preview tooling.
+M2 is preserved as a completed historical planning bucket. It records the first shared character-presentation promotion and the focused shared work completed under the earlier roadmap, including skeletal cooking, sockets, blending, static rendering/cooking, capture, and the family source-consumption boundary.
 
-Royale owns linked tasks `RENDER-012`, `GAME-018`, `RENDER-013`, and `EDITOR-030`; each uses canonical dependencies on the parent shared tasks. After a child task commit, the coordinator records the Royale gitlink in an automatic pointer-only commit owned by that child task; no separate parent PM task is created.
+Every unfinished task has moved out of M2. Later armour, equipment, broad attachment, IK/debugging, preview, and hardening work now belongs either to a concrete deliverable milestone or to a milestone-free scheduling state. Completed membership is not rewritten merely to make the earlier bucket resemble the newer deliverable-milestone model.
+
+Royale retains ownership of its linked integrations. Future child commits continue to use automatic pointer-only coordinator handoffs; no ceremonial coordinator submodule task is created.
 
 ## Draft 0 coordinator enablers
 
-Starfall's approved M2 Draft 0 requires a small coordinator-owned dependency spine without transferring game ownership to ChronoFall:
+Starfall's Draft 0 roadmap remains game-owned. Coordinator work exists only for genuinely shared presentation, cooking, native, physics, transport, and source-consumption boundaries.
 
-- `SHARED-0018` adds the narrow reusable static-mesh renderer;
-- `SHARED-0019` adds deterministic exact-selection static cooking;
-- `SHARED-0020` proves one rendered socketed static bow and becomes a prerequisite of broader deferred `SHARED-0007`;
-- `ASSET-0004` through `ASSET-0008` acquire only completed Starfall selections for the archer, Ranger pieces, bow/arrows, zone, and monsters.
+The immediate Basic Arrow shared lane is now the coordinator's M5 deliverable:
 
-Every acquisition uses a canonical dependency on its owning Starfall selection and remains blocked while that selection is todo. Monster acquisition begins without static or skeletal rendering/cooking dependencies; later selection evidence chooses the smallest correct path. Exact graph and source policy: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
+- `ASSET-0004` acquires the exact selected technical humanoid/base and minimum bow-animation inputs after Starfall selection.
+- `ASSET-0006` acquires the exact selected static bow and arrow inputs.
+- `SHARED-0020` proves one rendered socketed bow with a harness-local technical socket and local transform.
+
+Starfall `CLIENT-0011` owns its provisional semantic hand socket, local bow transform, rendering integration, and native placement validation. Equipment, Ranger armour, aiming, off-hand IK, and generalized grip systems do not block this shared proof.
+
+Zone, monster, Ranger-equipment, broad attachment, preview, and typed-authoring work remain milestone-free roadmap placeholders until their concrete deliverables activate. Exact graph and source policy: `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/roadmap/starfall-draft-0-shared-enablers`.
 
 ## M3 — MMO bootstrap
 
-Starfall owns its independent roadmap:
+M3 is preserved as a completed historical coordinator planning bucket. It records the coordinator work that enabled Starfall bootstrap, including source-built Box3D, shared transport, the caller-controlled SDL GPU ImGui backend, UAL2 inventory/proof evidence, and the reviewed cross-project architecture decisions.
 
-- M0 foundation: `ARCH-0004` defines authority/project boundaries; `BUILD-0002` creates the repository/solution; `PROTOCOL-0002` establishes command/snapshot ownership; `EDITOR-0003` establishes editor and Balance Lab boundaries.
-- M1 shared presentation: `CLIENT-0006` integrates the parent foundation; `CONTENT-0004` maps truthful armour/weapons; `CLIENT-0007` presents class actions/skills; `CLIENT-0008` later presents wings, mounts, and companions.
-- M2 first playable zone: `CONTENT-0003`, `SERVER-0002`, `CLIENT-0005`, `SIM-0003`, `SIM-0004`, `GAME-0002`, and `EDITOR-0004` cover one class/zone, one world/channel, owner-approved controls, shaped monster spots, basic attack/AoE, experience/drops/visible equipment, and authoritative headless balance simulation.
+Every unfinished task has moved out of M3. Starfall's game-specific roadmap remains entirely child-owned, and completed M3 membership remains historical evidence rather than being renamed or redistributed.
 
-The Starfall tasks use local dependencies plus canonical parent dependencies. Completed `SUBMODULE` tasks remain historical evidence of the earlier workflow, while future child commits receive automatic pointer-only coordinator commits without separate PM tasks. Broader persistence, accounts, economy, trade stands, full wings progression, territory, and complete release scope remain in the design document.
+## M4 — Starfall.Client Development Instrumentation Boundary
 
-During bootstrap, the initialized Starfall project initially lacked empty task/state directories. Linked creation failed and the owning CLI consumed next-ID allocations before reporting the missing path. Running `pm doctor` supplied the supported scaffolding; linked MCP then created every task with receipts targeting `prj_pkIpzx0fzFD4URjvqBuYrGZF`. The resulting non-contiguous first IDs are service-issued and intentionally preserved.
+M4 is a medium-priority coordinator deliverable containing `SHARED-0026`. It will extend the approved family-source allowlist so Starfall.Client can consume the completed caller-controlled SDL GPU ImGui backend for development instrumentation while preserving caller lifecycle ownership and complete headless exclusion.
 
-`COORD-0005` records the later typed-authoring/compiled-runtime exploration without starting a generic component framework.
+The coordinator does not own Starfall's debug shell, windows, F12 behavior, `--debug-ui-hidden`, feature diagnostics, console, command semantics, or permanent UI. A separately approved Starfall cycle will attach the canonical `SHARED-0026` dependency to the child adoption task before implementation.
+
+## M5 — Connected Basic Arrow Shared Enablers
+
+M5 is a medium-priority coordinator deliverable containing exactly `ASSET-0004`, `ASSET-0006`, and `SHARED-0020`. Its observable result is an exact selected archer/bow cook and one rendered socketed static-bow proof through the shared caller-owned SDL GPU path.
+
+M5 does not implement Starfall combat, equipment, item ownership, semantic socket content, projectile behavior, or client integration.

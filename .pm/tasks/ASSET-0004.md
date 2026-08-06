@@ -2,14 +2,14 @@
 id: ASSET-0004
 title: Acquire exact Draft 0 archer and bow-animation inputs
 track: ASSET
-milestone: M3
+milestone: M5
 dependsOn:
 - SHARED-0002
 - SHARED-0017
 - pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011
 - EXPERIMENT-0014
 createdAt: 2026-08-02T16:19:38.2551810Z
-modifiedAt: 2026-08-03T12:31:29.1127390Z
+modifiedAt: 2026-08-06T07:22:55.6086790Z
 ---
 
 After Starfall completes its archer selection and the bounded technical bow-body proof completes, acquire and stage only the exact approved base/underlayer and minimum compatible bow-animation inputs with coordinator-owned provenance.

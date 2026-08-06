@@ -1,7 +1,7 @@
 ---
 title: Starfall editor UI foundation
 createdAt: 2026-08-05T07:29:05.1859490Z
-modifiedAt: 2026-08-05T10:14:23.2029740Z
+modifiedAt: 2026-08-06T07:26:13.6656510Z
 ---
 
 ## Decision
@@ -25,6 +25,8 @@ It depends only on completed `SHARED-0016`, which owns the coordinator SDL3-CS p
 Completed Royale EDITOR-001, EDITOR-002, EDITOR-003 and EDITOR-005 and Starfall CLIENT-0020 remain architectural evidence, not PM dependencies.
 
 The backend does not acquire windows, GPU devices, command buffers, targets or swapchains; begin/end render passes; submit work; or own application layout, theme, fonts, panels, selection, documents or authoring. Multi-viewport, ImPlot, imnodes, graph editors, sequencers and Royale migration are excluded.
+
+Coordinator M4 task `SHARED-0026` is a separate planned audience extension for Starfall.Client development instrumentation. It does not replace, broaden, or reopen `SHARED-0024`; it is not an editor implementation prerequisite; and it does not activate the deferred Starfall editor sequence. Any code reuse remains at the neutral backend boundary, while product shells and workflows stay independently owned.
 
 ## Planned Starfall sequence
 

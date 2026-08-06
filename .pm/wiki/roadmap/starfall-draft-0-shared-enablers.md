@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-04T15:56:01.9824430Z
+modifiedAt: 2026-08-06T07:25:36.5068140Z
 ---
 
 ## Purpose and ownership
@@ -14,56 +14,70 @@ Starfall's design brief is `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/wiki/produ
 
 ## Shared capability graph
 
-```text
-SHARED-0001 completed character-presentation host boundary
-  -> SHARED-0018 narrow reusable static-mesh rendering
+The near coordinator deliverables are intentionally narrow:
 
-SHARED-0017 completed fresh-checkout-safe stable-ID staging
-SHARED-0018 static rendering
-  -> SHARED-0019 deterministic static-asset cooking and staging extension
+~~~text
+M4 Starfall.Client Development Instrumentation Boundary
+
+SHARED-0016 completed family-source policy
+SHARED-0024 completed caller-controlled SDL GPU ImGui backend
+  -> SHARED-0026 approved Starfall.Client development-instrumentation boundary
+  -> later separately approved Starfall canonical wiring
+~~~
+
+`SHARED-0026` owns only the exact family-source allowlist, reusable backend/native boundary, caller-lifecycle compatibility, macOS ARM64 evidence, and headless exclusion. Starfall owns debug-window organization, menu/F12/hidden-at-launch behavior, input capture, diagnostics, command frontends, and permanent UI.
+
+~~~text
+M5 Connected Basic Arrow Shared Enablers
+
+Starfall CONTENT-0011 exact Basic archer/bow/animation selection
+SHARED-0002 completed skeletal cooking
+SHARED-0017 completed stable-ID staging
+EXPERIMENT-0014 completed technical bow-body evidence
+  -> ASSET-0004 exact selected humanoid/base and minimum bow-animation inputs
+
+Starfall CONTENT-0011 exact Basic bow/arrow selection
+SHARED-0019 completed static cooking
+SHARED-0017 completed stable-ID staging
+  -> ASSET-0006 exact selected bow and arrow inputs
 
 SHARED-0006 completed socket transform contract
-SHARED-0018 static rendering
-ASSET-0006 exact selected bow/arrows
-  -> SHARED-0020 one rendered socketed static bow proof
+SHARED-0018 completed static rendering
+ASSET-0006
+  -> SHARED-0020 one rendered socketed static-bow proof
+~~~
 
-SHARED-0004 equipment slots/body hiding
-SHARED-0006 sockets
-SHARED-0020 narrow proof
-  -> SHARED-0007 broader weapons/shields/backpacks/wings
-```
+`SHARED-0020` uses a harness-local technical socket and local transform. Starfall `CLIENT-0011` owns the provisional semantic hand socket, local bow transform, rendering integration, and native placement validation. Equipment, aiming, off-hand IK, projectile behavior, and generalized grip systems are excluded.
 
-`SHARED-0018` and `SHARED-0019` remain narrow client presentation contracts. They do not authorize a scene graph, render graph, terrain, vegetation, streaming, general material system, asset catalogue, importer framework, or child integration.
+The later broad `SHARED-0007` attachment task remains milestone-free and must review and reuse `SHARED-0020` rather than recreating it.
 
-`SHARED-0020` proves exactly one selected bow through the existing caller-owned SDL GPU lifecycle. It excludes armour, IK, projectile behavior, combat, shields, backpacks, and wings. The later broad `SHARED-0007` task must review and reuse this proof instead of recreating it independently. Existing `SHARED-0007` consumers remain unchanged.
+Modular armour is separately deferred:
 
-Modular-armour work is deliberately evidence-gated:
-
-```text
-SHARED-0002 completed shared skeletal cooking
-Starfall CONTENT-0011 exact archer/underlayer/Ranger selection
-  -> SHARED-0003 one canonical-rig modular-armour presentation proof
+~~~text
+future completed Starfall Ranger/leather selection
+SHARED-0002 completed skeletal cooking
+  -> re-groomed SHARED-0003 canonical-rig modular-armour proof
   -> SHARED-0004 equipment slots and body-region hiding
   -> ASSET-0005 exact Ranger acquisition and stable-ID staging
-```
+~~~
 
-The canonical `CONTENT-0011` dependency makes `SHARED-0003` wait until Starfall identifies the exact concrete need and compatibility evidence. It does not transfer Starfall asset, item, equipment or composition ownership into the parent, and it does not make parent source depend on Starfall. Once the selection completes, `SHARED-0003` retains its inherited M2 priority and can be planned from evidence rather than speculation.
-
-Coordinator `COORD-0011` subsequently reviewed and ratified the already-pushed `00c9224` dependency change under an active grooming/review lifecycle. The review preserved history, confirmed the canonical edge is valid and cycle-free, and left `SHARED-0003` todo and waiting; it did not activate or implement modular armour.
+No Ranger-selection task identity is currently allocated. `SHARED-0003` and `ASSET-0005` deliberately carry no fabricated canonical dependency; the real edge is attached only in an owner-approved activation cycle after Starfall allocates and completes that selection. These and the later material, attachment, debugging, preview, zone, monster, and authoring tasks remain milestone-free scheduling placeholders until concrete deliverables activate them.
 
 ## Exact acquisition graph
 
-| Coordinator task | Owning selection | Known coordinator prerequisites | Result |
+| Coordinator task | Owning selection | Coordinator prerequisites | Scheduling/result |
 | --- | --- | --- | --- |
-| `ASSET-0004` archer and bow animations | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0002`, `SHARED-0017`, `EXPERIMENT-0014` | Exact base/underlayer and minimum compatible bow clips |
-| `ASSET-0005` Ranger equipment | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0004`, `SHARED-0017` | Exact selected Ranger/leather pieces after modular-armour and body-hiding contracts |
-| `ASSET-0006` bow and arrows | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0019`, `SHARED-0017` | Exact selected static weapon inputs |
-| `ASSET-0007` zone presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0012` | `SHARED-0019`, `SHARED-0017` | Exact village/nature/prop/graybox inputs |
-| `ASSET-0008` monster presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0013` | `SHARED-0017` initially | Exact selected temporary-monster inputs, if any |
+| `ASSET-0004` archer and bow animations | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0002`, `SHARED-0017`, `EXPERIMENT-0014` | M5; exact selected technical humanoid/base and minimum compatible bow clips |
+| `ASSET-0006` bow and arrows | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0011` | `SHARED-0019`, `SHARED-0017` | M5; exact selected static weapon inputs |
+| `ASSET-0005` Ranger equipment | Future task-owned Starfall Ranger/leather selection; not allocated | `SHARED-0004`, `SHARED-0017` plus the later canonical selection edge | Milestone-free and priority none until post-Inventory equipment work activates |
+| `ASSET-0007` zone presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0012` | `SHARED-0019`, `SHARED-0017` | Milestone-free and priority none until proper-scene work activates |
+| `ASSET-0008` monster presentation | `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CONTENT-0013` | `SHARED-0017` initially | Milestone-free and priority none until selected-monster presentation activates |
 
-All five acquisitions depend on still-todo canonical Starfall selection tasks, so every acquisition remains blocked. Acquisition tasks consume completed selections and may stage only exact selected inputs with pack-relative paths, hashes, licence evidence, format/scale/material/rig evidence, intended consumer, and any deliberate conversion.
+`ASSET-0004` and `ASSET-0006` remain blocked on the still-todo Basic selection in `CONTENT-0011`; M5 assignment does not make selection complete. Acquisitions consume exact selections and may stage only approved inputs with pack-relative paths, hashes, licence evidence, format/scale/material/rig evidence, intended consumer, and deliberate conversions.
 
-`ASSET-0008` deliberately has no static-render, static-cook, or skeletal-cook prerequisite yet. Starfall selection must first determine whether the candidate is static, rigidly animated, skeletal, or unsuitable. Only a later reviewed task-planning or grooming continuation may attach the smallest demonstrated prerequisite. It must never add both paths defensively or create a generic monster pipeline.
+`ASSET-0005` no longer depends on `CONTENT-0011` because that task does not own Ranger/equipment selection. The future real selection is an explicit activation-time prerequisite rather than an alias, prose-only identity presented as a dependency, or prematurely allocated task.
+
+`ASSET-0008` deliberately has no static-render, static-cook, or skeletal-cook prerequisite yet. Starfall selection must first determine whether the candidate is static, rigidly animated, skeletal, or unsuitable. Only a later reviewed planning or grooming cycle may attach the smallest demonstrated prerequisite; it must never add both paths defensively or create a generic monster pipeline.
 
 ## Source direction
 

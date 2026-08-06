@@ -19,8 +19,12 @@ milestones:
   M1: Skinned mesh and animation proof
   M2: Shared character presentation
   M3: MMO bootstrap
+  M4: Starfall.Client Development Instrumentation Boundary
+  M5: Connected Basic Arrow Shared Enablers
 milestonePriorities:
   M0: urgent
   M1: high
   M2: medium
   M3: low
+  M4: medium
+  M5: medium
