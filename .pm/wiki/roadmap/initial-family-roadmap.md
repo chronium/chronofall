@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-06T07:25:05.3153250Z
+modifiedAt: 2026-08-06T08:12:05.1912330Z
 ---
 
 ## M0 — Coordinator foundation
@@ -55,7 +55,7 @@ Every unfinished task has moved out of M3. Starfall's game-specific roadmap rema
 
 M4 is a medium-priority coordinator deliverable containing `SHARED-0026`. It will extend the approved family-source allowlist so Starfall.Client can consume the completed caller-controlled SDL GPU ImGui backend for development instrumentation while preserving caller lifecycle ownership and complete headless exclusion.
 
-The coordinator does not own Starfall's debug shell, windows, F12 behavior, `--debug-ui-hidden`, feature diagnostics, console, command semantics, or permanent UI. A separately approved Starfall cycle will attach the canonical `SHARED-0026` dependency to the child adoption task before implementation.
+The coordinator does not own Starfall's debug shell, windows, F12 behavior, `--debug-ui-hidden`, feature diagnostics, console, command semantics, or permanent UI. Starfall Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. The child adoption task is valid but waiting and must not activate or consume shared source until `SHARED-0026` completes and `CLIENT-0029` receives its own approved implementation plan.
 
 ## M5 — Connected Basic Arrow Shared Enablers
 

@@ -15,6 +15,13 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Correct remaining Cycle 3 roadmap wording
+
+- Finding/checklist: corrected two coordinator roadmap passages that still described completed Cycle 3 canonical wiring as future work. No checklist state changed.
+- Durable documentation: `roadmap/initial-family-roadmap` and `roadmap/starfall-draft-0-shared-enablers` now record that Cycle 3 attached `SHARED-0026` to Starfall `CLIENT-0029`.
+- Readiness boundary: both pages preserve that `CLIENT-0029` remains valid but waiting and cannot activate or consume shared source until todo `SHARED-0026` completes and the child task receives its own approved implementation plan.
+- Scope: coordinator wiki and this audit log only. No task, dependency, priority, milestone, feature state, source, asset, child repository, or gitlink changed.
+
 ### 2026-08-06 — Complete Cycle 3 Starfall canonical wiring
 
 - Finding/checklist: completed the approved Starfall canonical-wiring cycle and closed the shared development-command, ImGui console and later inventory-owned `give` validation grooming item. No implementation item was marked complete.
