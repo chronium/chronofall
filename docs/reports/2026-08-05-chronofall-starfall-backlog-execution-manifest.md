@@ -366,7 +366,7 @@ From the verified Starfall project context, using supported PM tooling:
 
 Cycle 1 does not allocate HUD, Fire-presentation, Rain replacement, Player Life, Progression replacement, Inventory, Equipment, Physical Drop, Ranger, proper-scene, selected-monster, or Balance Lab tasks. Their manifest handles remain planning notes. This is a direct backlog-grooming cycle, not a PM task whose purpose is task creation.
 
-Completion record: Cycle 1 completed on 2026-08-06. Starfall commit `a2e4f138bcce206dde4f01d87ce045705a8616e9` contains only the approved PM/wiki grooming. Pointer-only coordinator commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` pins that revision. Starfall validation passed with 112 tasks, no missing/invalid/unavailable dependencies, no active task, zero unfinished M2 members, and zero linked-family warnings. Cycle 2 and Cycle 3 remain unstarted.
+Completion record: Cycle 1 completed on 2026-08-06. Starfall baseline commit `a2e4f138bcce206dde4f01d87ce045705a8616e9` and pointer commit `7aaeef57ed6ceb8720ae5018e3e5348dfdb431be` established the approved grooming. Focused review continuation `8c3afb2bfdfb34352cb79555db9ef20e704b0f6a`, pinned by coordinator commit `077748af19d4f8b8b4cb37c41b98aee101570c1b`, corrected the Inventory Client edge, progression contract and stale durable roadmap text. Starfall validation passed with 112 tasks, no missing/invalid/unavailable dependencies, no active task, zero unfinished M2 members, and zero linked-family warnings. Cycle 2 and Cycle 3 remain unstarted.
 
 ### Cycle 2 — Coordinator shared-boundary grooming
 

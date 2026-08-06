@@ -15,6 +15,15 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Correct Cycle 1 dependency and durable-roadmap review findings
+
+- Finding/checklist: completed the focused review continuation without allocating work, activating a feature, or changing implementation source.
+- Dependency correction: added `CLIENT-0014` to `CLIENT-0013`, so physical-drop presentation and its terminal collected-item proof cannot become ready before the Inventory Client surface.
+- Progression correction: `GAME-0002` now consumes the exact owner-approved level sequence frozen by `CONTENT-0008` and no longer independently mandates half-up arithmetic or its historical sequence.
+- Durable roadmap correction: replaced stale Mana, Fire/Rain, Basic projectile/diagnostic, socketed-bow and Editor milestone claims in the Starfall bootstrap; corrected Mana ownership in the Draft 0, World lifecycle and starter-flyer/camp pages; and reframed Draft 0 as the umbrella roadmap outcome with M2 as its completed legacy bucket.
+- Repositories/commits: Starfall commit `8c3afb2bfdfb34352cb79555db9ef20e704b0f6a`; pointer-only coordinator commit `077748af19d4f8b8b4cb37c41b98aee101570c1b`.
+- Validation: Starfall `pm doctor` passed; 112 tasks have no missing, invalid or unavailable dependencies; no task is active; linked-family warnings are empty; superseded wiki phrases no longer appear; and `git diff --check` passed.
+
 ### 2026-08-06 — Complete Cycle 1 Starfall structural grooming
 
 - Finding/checklist: completed the approved direct Starfall grooming cycle for deliverable milestones, Basic Arrow, Mana, Development Instrumentation, Movement Quality v1, deferred placeholders, and the related dependency/scope repairs.
