@@ -15,6 +15,16 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-06 — Complete Cycle 3 Starfall canonical wiring
+
+- Finding/checklist: completed the approved Starfall canonical-wiring cycle and closed the shared development-command, ImGui console and later inventory-owned `give` validation grooming item. No implementation item was marked complete.
+- Canonical dependency: added `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to Starfall `CLIENT-0029`, preserved completed local prerequisite `CLIENT-0020`, and cleared the temporary `priority: none` override.
+- Readiness: `CLIENT-0029` now inherits M4 medium priority and is valid but waiting on todo `SHARED-0026`. `CLIENT-0030` remains transitively blocked, no task is active, and `PROTOCOL-0006` remains Starfall's high-priority dependency-ready feature recommendation.
+- Durable documentation: updated the Starfall Development Instrumentation roadmap and coordinator family-source-consumption contract from pending Cycle 3 language to the completed canonical wiring and retained implementation gates.
+- Repositories/commits: Starfall commit `d765ccb6bdaed01da4c4e0bd511b720ced8458b9`; pointer-only coordinator commit `da595e72b06a374ed28a12ce2091c4684bcbdb8c`.
+- Validation: both PM projects passed doctor; all 407 family tasks have no missing, invalid or unavailable dependencies; family warnings are empty; `git diff --check` passed; Royale remained unchanged; and no source, assets, generated content or feature state changed.
+- Remaining work: `SHARED-0026` requires its own owner-directed Plan-mode implementation cycle before `CLIENT-0029` can activate. Cycle 3 does not select or implement either task.
+
 ### 2026-08-06 — Correct Cycle 2 durable-documentation review findings
 
 - Finding/checklist: corrected three documentation inconsistencies found after Cycle 2 approval. No checklist state changed because the PM graph, milestone structure, and implementation readiness were already correct.

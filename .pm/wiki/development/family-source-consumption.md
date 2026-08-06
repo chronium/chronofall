@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-06T07:52:08.8262190Z
+modifiedAt: 2026-08-06T08:00:30.8846100Z
 ---
 
 ## Decision
@@ -92,7 +92,7 @@ Only Starfall.Client's composition root may receive this audience permission. SD
 
 ChronoFall owns the exact source boundary, reusable backend/native integration, caller-lifecycle compatibility, macOS ARM64 evidence, and headless architecture enforcement. Starfall owns debug windows, menu organization, F12 and `--debug-ui-hidden`, input capture, feature diagnostics, the console, development commands, persistence choices, and permanent game UI.
 
-A separately approved Starfall Cycle 3 attaches the canonical `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` dependency to the child adoption task now. The adoption task then remains blocked until `SHARED-0026` completes, and source consumption cannot begin before each owning task receives its own approved implementation plan. This allocation does not activate the Starfall editor or confer a general child ImGui entitlement.
+Starfall Cycle 3 attached the canonical `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` dependency to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. The child adoption task is valid but waiting while `SHARED-0026` remains todo. Source consumption cannot begin until `SHARED-0026` completes and `CLIENT-0029` receives its own approved implementation plan. This wiring does not activate the Starfall editor or confer a general child ImGui entitlement.
 
 ## Generated client content
 
@@ -158,6 +158,6 @@ Coordinator task `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0016` ow
 
 Each audience remains deny-by-default and requires its own child-owned adoption task and architecture tests. Completion permits planning and canonical dependency wiring; it never activates child work.
 
-Starfall character integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. Starfall development instrumentation uses its separately allocated child tasks and will receive the canonical `SHARED-0026` edge only in Cycle 3. Royale integrations remain Royale-owned.
+Starfall character integration remains `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0006`. Starfall development instrumentation uses its separately allocated child tasks; `CLIENT-0029` now carries the canonical `SHARED-0026` edge and remains blocked until the coordinator task completes. Royale integrations remain Royale-owned.
 
 No child adoption may redesign coordinator source, add a feed, copy raw source assets, edit the parent repository, grant unrelated projects access, or leak presentation dependencies into headless outputs. Child commits receive the normal pointer-only coordinator handoff after review.

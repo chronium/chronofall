@@ -569,7 +569,7 @@ In the same cycle, change every checklist item that was genuinely completed from
 - [ ] Groom the equipment milestone on inventory using provisional slots and development-spawned test items, with stat/effect application excluded.
 - [x] Decide the development-console direction. Owner decision: an ImGui console uses a simple development-only server command protocol; see A-08.
 - [x] Decide development-command reuse. Owner decision: typed ImGui actions and console text share one envelope, dispatcher, result path, and feature-owned handlers; see refined A-08.
-- [ ] Groom the shared development-command boundary, ImGui console frontend, and later inventory-owned `give` validation integration without making inventory depend architecturally on the console.
+- [x] Groom the shared development-command boundary, ImGui console frontend, and later inventory-owned `give` validation integration without making inventory depend architecturally on the console.
 - [x] Decide Basic damage-number treatment. Owner decision: numeric resolution appears in ImGui Combat diagnostics; no permanent floating damage or target HUD commitment; see refined A-01.
 - [x] Decide smoothing/interpolation/prediction/reconciliation ownership. Owner decision: completable Connected Movement Quality v1 plus a broader milestone-free initiative; see revised A-09.
 - [x] Groom Connected Movement Quality v1 around buffering, interpolation, correction diagnostics, representative fixtures, deterministic tests, and macOS comparison.
