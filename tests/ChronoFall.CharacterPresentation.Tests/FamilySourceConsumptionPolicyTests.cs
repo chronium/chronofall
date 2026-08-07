@@ -115,6 +115,30 @@ public sealed class FamilySourceConsumptionPolicyTests
     }
 
     [Fact]
+    public void ClientStagingScriptOwnsOnlyTheOptionalSelectedUal2BowShotOutput()
+    {
+        string script = File.ReadAllText(Path.Combine(
+            RepositoryRoot,
+            "scripts",
+            "cook-character-presentation-for-client.sh"));
+
+        Assert.Contains("--ual2-source-root", script, StringComparison.Ordinal);
+        Assert.Contains("--source-root \"$ual2_source_root\"", script, StringComparison.Ordinal);
+        Assert.Contains("--recipe-root \"$coordinator_root\"", script, StringComparison.Ordinal);
+        Assert.Contains("assets/recipes/quaternius-ual2-source-bow-shot-body.json", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-ual2-source-bow-shot-body.cfskel", script, StringComparison.Ordinal);
+        Assert.Contains("quaternius-ual2-source-bow-shot-body.provenance.json", script, StringComparison.Ordinal);
+        Assert.Contains("licenses/quaternius-ual2-source/License.txt", script, StringComparison.Ordinal);
+        Assert.Contains("licenses/quaternius-ual2-source/README.txt", script, StringComparison.Ordinal);
+        Assert.Contains("ual2_status=staged", script, StringComparison.Ordinal);
+        Assert.Contains("ual2_status=absent", script, StringComparison.Ordinal);
+        Assert.Contains("ual2=$ual2_status", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("cp \"$ual2_source_root", script, StringComparison.Ordinal);
+        Assert.DoesNotContain(".glb\" \"$output_root", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("rm -rf", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ClientStagingScriptRestoresBeforeItsNoRestoreBuildAndNoBuildRun()
     {
         string script = File.ReadAllText(Path.Combine(

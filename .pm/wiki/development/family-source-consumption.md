@@ -1,7 +1,7 @@
 ---
 title: Family Source Consumption
 createdAt: 2026-08-02T10:26:40.3003240Z
-modifiedAt: 2026-08-06T17:44:20.0578130Z
+modifiedAt: 2026-08-07T05:57:47.3329960Z
 ---
 
 ## Decision
@@ -96,74 +96,61 @@ Starfall `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029` now has a 
 
 ## Generated client content
 
-From the coordinator root, stage the selected Quaternius character, bow and arrow cooks for a declared child by stable project ID:
+From the coordinator root, stage the public selected Quaternius character, bow, and arrow cooks for a declared child by stable project ID:
 
 ```sh
 scripts/cook-character-presentation-for-client.sh \
   --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
 ```
 
-The command does not accept an alias, filesystem destination or server audience. It resolves the committed child `pathHint`, canonicalizes the checkout and verifies:
+For the owner-local Universal Animation Library 2 Source package, declare its root outside the family worktree and opt into the exact private-source cook:
 
-- the child stable ID in `.pm/project_id.txt`;
-- the reciprocal parent stable ID;
-- the coordinator `.gitmodules` entry and tracked gitlink;
-- the exact canonical checkout path;
-- that no output path component or existing output is a symlink;
-- that `artifacts/chronofall/character-presentation/client/` is ignored;
-- that no file under that tree is tracked;
-- that an existing tree contains only the known workflow-owned files.
-
-The fixed generated layout is:
-
-```text
-artifacts/chronofall/character-presentation/client/
-├── quaternius-ual1-standard.cfskel
-├── quaternius-ual1-standard.provenance.json
-├── quaternius-medieval-weapons-bow-wooden.cfmesh
-├── quaternius-medieval-weapons-bow-wooden.provenance.json
-├── quaternius-medieval-weapons-arrow.cfmesh
-├── quaternius-medieval-weapons-arrow.provenance.json
-└── licenses/
-    ├── quaternius-ual1-standard/
-    │   ├── License.txt
-    │   └── README.txt
-    └── quaternius-medieval-weapons/
-        └── License.txt
+```sh
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF \
+  --ual2-source-root "$CHRONOFALL_UAL2_SOURCE_ROOT"
 ```
 
-The command restores and builds only the focused skeletal and static cookers, cooks into a temporary directory, then replaces only these known files. It copies no raw GLB, OBJ, MTL, Blend or FBX, changes no child source or PM data and creates no runtime manifest.
+The workflow does not load `.env` files or persist the variable value. It rejects aliases, arbitrary destinations, server audiences, private roots inside the family worktree, and symlink escapes. It verifies the child stable ID, reciprocal parent, committed path hint, tracked gitlink, canonical checkout, ignored/untracked output ownership, and exact known existing files.
+
+The generated tree always owns the UAL1 character and Medieval Weapons bow/arrow cooks. Private mode additionally owns:
+
+```text
+quaternius-ual2-source-bow-shot-body.cfskel
+quaternius-ual2-source-bow-shot-body.provenance.json
+licenses/quaternius-ual2-source/
+├── License.txt
+└── README.txt
+```
+
+Only `Bow_Notch`, `Bow_Aim_Neutral`, and `Bow_Shoot` are retained from the private non-root-motion UAL2 source. The command cooks in a temporary directory and replaces only known outputs. It copies no raw GLB, OBJ, MTL, Blend, or FBX; changes no child source or PM data; and creates no runtime manifest. Omitting the optional root removes only the known generated UAL2 files while preserving public outputs, so clean clones and public-only development remain supported.
 
 ## Provenance and determinism
 
-The selected UAL1 character cook remains the client-only recipe at `assets/recipes/quaternius-ual1-standard.json`. It selects `Mannequin`, the `Armature` skeleton and `Idle_Loop`, `Walk_Loop` and `Sword_Attack` from Quaternius `Universal Animation Library[Standard]`.
+The established UAL1 character recipe remains `assets/recipes/quaternius-ual1-standard.json`; it selects `Mannequin`, `Armature`, and `Idle_Loop`, `Walk_Loop`, and historical `Sword_Attack` from Quaternius `Universal Animation Library[Standard]`. That cook and recipe remain unchanged, and `Sword_Attack` is not a bow placeholder.
 
-ASSET-0006 adds two exact static client recipes:
+ASSET-0006 owns the exact Medieval Weapons `Bow_Wooden` and `Arrow` static recipes. ASSET-0004 adds the separate `assets/recipes/quaternius-ual2-source-bow-shot-body.json` recipe, selecting only `Bow_Notch`, `Bow_Aim_Neutral`, and `Bow_Shoot` from the owner-local non-root-motion source. The broader completed six-clip experiment recipe remains unchanged historical evidence.
 
-- `assets/recipes/quaternius-medieval-weapons-bow-wooden.json`;
-- `assets/recipes/quaternius-medieval-weapons-arrow.json`.
-
-They select only the Quaternius Medieval Weapons Pack OBJ/MTL pairs approved by Starfall CONTENT-0011, record every source/resource/licence SHA-256 and cook at `0.25` metres per source unit through the provisional `section-names-only` material contract.
-
-Every deterministic JSON sidecar records schema and audience, portable recipe/source paths and hashes, CC0 identifier and evidence paths, cooked filename, byte count and SHA-256. It contains no timestamp or absolute checkout path.
+Every deterministic sidecar records schema/audience, portable recipe and pack-relative source paths and hashes, CC0 evidence, exact clip selection, cooked filename, byte count, and SHA-256. No sidecar records a timestamp, absolute checkout path, or private-root value.
 
 Established output hashes are:
 
 - `quaternius-ual1-standard.cfskel`: `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`;
+- `quaternius-ual2-source-bow-shot-body.cfskel`: `5460a602d0ee3a8f4530c47f08ee5d88adda2b4224b20f2328b1d6f90d7b1966`;
 - `quaternius-medieval-weapons-bow-wooden.cfmesh`: `4c0ab766e7c622c0f52ff0ade3cb1992c6d96664233a4695fc049a3a9b1d642e`;
 - `quaternius-medieval-weapons-arrow.cfmesh`: `4eeb80dc06e1f729b67606eb6c12110b954068cfb7ea39590706771e4c02d9c3`.
 
-The formats remain provisional. Generated output stays ignored and must not be committed or placed in headless artifacts. Exact bow/arrow provenance, bounds and scale evidence are recorded at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-medieval-weapons-bow-arrow-cook`.
+The formats remain provisional. Generated output stays ignored and client-only and must never enter headless artifacts. Exact UAL2 evaluation evidence is at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-ual2-source-bow-evaluation`; bow/arrow evidence is at `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/wiki/assets/quaternius-medieval-weapons-bow-arrow-cook`.
 
 ## Future exact-selection staging
 
-The Draft 0 coordinator roadmap extends this boundary only through focused acquisition tasks. Each acquisition consumes a completed canonical Starfall selection, verifies exact pack-relative paths, hashes and licence evidence, and stages only an approved client output set. It may not accept an alias or arbitrary destination, modify a child, import a whole pack or add a runtime manifest.
+The Draft 0 coordinator roadmap extends this boundary only through focused acquisition tasks. Each acquisition consumes a completed canonical Starfall selection, verifies exact pack-relative paths, hashes, and licence evidence, and stages only an approved client output set. It may not accept an alias or arbitrary destination, modify a child, import a whole pack, or add a runtime manifest.
 
-ASSET-0006 realizes the first static extension with the exact selected `Bow_Wooden` and `Arrow` recipes and ignored outputs. It does not authorize sockets, equipment, combat or automatic child integration.
+Completed ASSET-0006 realizes the selected `Bow_Wooden` and `Arrow` static extension. Completed ASSET-0004 realizes the separate three-clip UAL2 Basic Arrow body cook while preserving both the historical UAL1 cook and the broader six-clip experiment as unchanged evidence. Neither task authorizes sockets, equipment, combat, or automatic child integration.
 
-ASSET-0004 and ASSET-0005 retain their known skeletal prerequisites. ASSET-0007 remains the owner of exact selected zone inputs. ASSET-0008 monster acquisition deliberately begins with only its canonical selection and the established stable-ID staging boundary. Static, rigid or skeletal prerequisites are attached only after selection evidence identifies the actual representation.
+ASSET-0005 retains its modular-equipment prerequisites. ASSET-0007 remains the owner of exact selected zone inputs. ASSET-0008 monster acquisition deliberately begins with only its canonical selection and the established stable-ID staging boundary; static, rigid, or skeletal prerequisites attach only after representation evidence exists.
 
-Generated outputs remain ignored and client-only. Package/feed distribution remains deferred.
+Generated outputs remain ignored and client-only. Package/feed distribution remains deferred. Starfall consumes the Basic Arrow body cook only through a separately planned child task.
 
 ## Ownership and next consumers
 

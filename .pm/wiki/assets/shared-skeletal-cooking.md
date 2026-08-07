@@ -1,7 +1,7 @@
 ---
 title: Shared Skeletal Asset Cooking
 createdAt: 2026-08-02T07:06:03.6421350Z
-modifiedAt: 2026-08-02T10:28:01.0250820Z
+modifiedAt: 2026-08-07T05:57:11.8960280Z
 ---
 
 ## Status and ownership
@@ -34,7 +34,7 @@ The cooker accepts only portable repository-relative source and licence paths, v
 
 ## Reproduction
 
-A coordinator-local cook remains available:
+The established UAL1 coordinator-local cook remains available:
 
 ```sh
 dotnet run --project tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj -c Release -- \
@@ -45,20 +45,29 @@ dotnet run --project tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker
   --audience client
 ```
 
-To stage the selected cook for a linked child in the canonical family checkout, use its stable project ID:
+To stage public selected cooks for a linked child, use its stable project ID:
 
 ```sh
 scripts/cook-character-presentation-for-client.sh \
   --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
 ```
 
-The generated output remains ignored under `artifacts/`. It is not committed or added to a runtime manifest. The staging workflow also copies the supplied Quaternius `License.txt` and `README.txt` into its fixed generated evidence directory. It copies no raw GLB.
+When the owner-local private UAL2 Source package is available, declare its external root and opt into the exact Basic Arrow body cook:
 
-The Release cook is 1,278,301 bytes with SHA-256:
+```sh
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF \
+  --ual2-source-root "$CHRONOFALL_UAL2_SOURCE_ROOT"
+```
 
-`37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`
+The optional recipe `assets/recipes/quaternius-ual2-source-bow-shot-body.json` selects only `Bow_Notch`, `Bow_Aim_Neutral`, and `Bow_Shoot` from the non-root-motion source. The script uses separate committed recipe and private source roots, copies no raw source, persists no owner-local path, and stages only ignored client output with portable provenance and normalized CC0 evidence. Public-only staging removes the known optional UAL2 output so stale private content cannot masquerade as current.
 
-Repeated cooks and provenance sidecars compare byte-for-byte identical. The sidecar contains portable source/recipe paths and hashes, licence identity/evidence, clip selection, and cooked size/hash; it contains no timestamp or absolute checkout path.
+Established deterministic skeletal outputs are:
+
+- `quaternius-ual1-standard.cfskel`: 1,278,301 bytes, SHA-256 `37d2ecd2c614a4cc74fe359906c84408432100f0338b86d7ce4f4dddb6b585d3`;
+- `quaternius-ual2-source-bow-shot-body.cfskel`: 1,308,691 bytes, SHA-256 `5460a602d0ee3a8f4530c47f08ee5d88adda2b4224b20f2328b1d6f90d7b1966`.
+
+Repeated cooks and provenance sidecars compare byte-for-byte identical. Sidecars contain portable source/recipe paths and hashes, licence identity/evidence, clip selection, and cooked size/hash; they contain no timestamp or absolute checkout path.
 
 ## Provisional binary contract
 

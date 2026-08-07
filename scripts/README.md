@@ -4,7 +4,7 @@ This directory contains small coordinator-owned documentation and workflow helpe
 
 ## Character Presentation Client Cook
 
-`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, restores and builds the focused skeletal and static cooker projects, and stages the selected Quaternius UAL1 character plus the exact Medieval Weapons wooden bow and arrow cooks with portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree. No separate restore step is required.
+`cook-character-presentation-for-client.sh` resolves one declared child from its stable PM project ID, verifies the reciprocal linked-project and Git-submodule identity, restores and builds the focused skeletal and static cooker projects, and stages the selected Quaternius UAL1 character plus the exact Medieval Weapons wooden bow and arrow cooks with portable provenance and CC0 evidence into the child's ignored `artifacts/chronofall/character-presentation/client/` tree. No separate restore step is required. When the private Universal Animation Library 2 Source package is available, the optional `--ual2-source-root` input additionally cooks only `Bow_Notch`, `Bow_Aim_Neutral`, and `Bow_Shoot` into the bounded `quaternius-ual2-source-bow-shot-body` artifact.
 
 From the coordinator root:
 
@@ -13,7 +13,17 @@ scripts/cook-character-presentation-for-client.sh \
   --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF
 ```
 
-Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink escapes, and unexpected existing files are rejected. Only the fixed selected `.cfskel`, `.cfmesh`, provenance, and licence/readme set is staged; raw model sources are never copied. The output is client-only generated content; it is not a runtime manifest or a committed package.
+For an owner-supplied private source checkout, declare its path outside the family worktree and pass the declared variable explicitly:
+
+```sh
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF \
+  --ual2-source-root "$CHRONOFALL_UAL2_SOURCE_ROOT"
+```
+
+The script does not load `.env` files or persist the private path. Omitting the flag is the supported public-only workflow and removes only the known generated optional UAL2 outputs, preventing stale local content from masquerading as a current stage.
+
+Aliases, arbitrary destinations, non-ignored trees, tracked content, symlink escapes, private roots inside the family checkout, and unexpected existing files are rejected. Only the fixed selected `.cfskel`, `.cfmesh`, provenance, and licence/readme set is staged; raw model sources are never copied. The output is client-only generated content; it is not a runtime manifest or a committed package.
 
 ## Contact-Sheet Compositor
 

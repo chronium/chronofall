@@ -7,11 +7,33 @@ fail()
     exit 1
 }
 
-if [ "$#" -ne 2 ] || [ "$1" != "--project-id" ]; then
-    fail "usage: $0 --project-id <stable-project-id>"
-fi
+project_id=
+ual2_source_root=
+while [ "$#" -gt 0 ]; do
+    option=$1
+    shift
+    [ "$#" -gt 0 ] || fail "$option requires a value"
+    value=$1
+    shift
+    case "$value" in
+        --*) fail "$option requires a value" ;;
+    esac
+    case "$option" in
+        --project-id)
+            [ -z "$project_id" ] || fail "--project-id may be supplied only once"
+            project_id=$value
+            ;;
+        --ual2-source-root)
+            [ -z "$ual2_source_root" ] || fail "--ual2-source-root may be supplied only once"
+            ual2_source_root=$value
+            ;;
+        *)
+            fail "unknown option $option; usage: $0 --project-id <stable-project-id> [--ual2-source-root <private-package-root>]"
+            ;;
+    esac
+done
 
-project_id=$2
+[ -n "$project_id" ] || fail "usage: $0 --project-id <stable-project-id> [--ual2-source-root <private-package-root>]"
 case "$project_id" in
     prj_*) ;;
     *) fail "the project selector must be a stable project ID, not an alias or path" ;;
@@ -21,6 +43,18 @@ script_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 coordinator_root=$(CDPATH= cd -- "$script_directory/.." && pwd -P)
 coordinator_id=$(tr -d '\r\n' < "$coordinator_root/.pm/project_id.txt")
 manifest="$coordinator_root/.pm/linked_projects.yaml"
+
+if [ -n "$ual2_source_root" ]; then
+    [ ! -L "$ual2_source_root" ] || fail "the UAL2 source root must not be a symlink"
+    [ -d "$ual2_source_root" ] || fail "the UAL2 source root is not an available directory"
+    ual2_source_root=$(CDPATH= cd -- "$ual2_source_root" && pwd -P)
+    case "$ual2_source_root/" in
+        "$coordinator_root/"*) fail "the private UAL2 source root must remain outside the coordinator family worktree" ;;
+    esac
+    [ ! -L "$ual2_source_root/Unreal-Godot" ] || fail "the UAL2 Unreal-Godot source directory must not be a symlink"
+    [ ! -L "$ual2_source_root/Unreal-Godot/UAL2.glb" ] || fail "the UAL2 source GLB must not be a symlink"
+    [ -f "$ual2_source_root/Unreal-Godot/UAL2.glb" ] || fail "the UAL2 source GLB was not found"
+fi
 
 path_hint=$(awk -v wanted="$project_id" '
     /^- projectId: / {
@@ -98,12 +132,17 @@ if [ -d "$output_root" ]; then
         ! -path "$output_root/quaternius-medieval-weapons-bow-wooden.provenance.json" \
         ! -path "$output_root/quaternius-medieval-weapons-arrow.cfmesh" \
         ! -path "$output_root/quaternius-medieval-weapons-arrow.provenance.json" \
+        ! -path "$output_root/quaternius-ual2-source-bow-shot-body.cfskel" \
+        ! -path "$output_root/quaternius-ual2-source-bow-shot-body.provenance.json" \
         ! -path "$output_root/licenses" \
         ! -path "$output_root/licenses/quaternius-ual1-standard" \
         ! -path "$output_root/licenses/quaternius-ual1-standard/License.txt" \
         ! -path "$output_root/licenses/quaternius-ual1-standard/README.txt" \
         ! -path "$output_root/licenses/quaternius-medieval-weapons" \
         ! -path "$output_root/licenses/quaternius-medieval-weapons/License.txt" \
+        ! -path "$output_root/licenses/quaternius-ual2-source" \
+        ! -path "$output_root/licenses/quaternius-ual2-source/License.txt" \
+        ! -path "$output_root/licenses/quaternius-ual2-source/README.txt" \
         -print -quit)
     [ -z "$unexpected" ] || fail "the owned output tree contains unexpected content: $unexpected"
 fi
@@ -112,6 +151,9 @@ staging_root=$(mktemp -d "${TMPDIR:-/tmp}/chronofall-character-client.XXXXXX")
 trap 'rm -r "$staging_root"' EXIT HUP INT TERM
 mkdir -p "$staging_root/licenses/quaternius-ual1-standard"
 mkdir -p "$staging_root/licenses/quaternius-medieval-weapons"
+if [ -n "$ual2_source_root" ]; then
+    mkdir -p "$staging_root/licenses/quaternius-ual2-source"
+fi
 
 dotnet restore "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
     --disable-build-servers
@@ -128,6 +170,16 @@ dotnet run --project "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoF
     --output "$staging_root/quaternius-ual1-standard.cfskel" \
     --provenance-output "$staging_root/quaternius-ual1-standard.provenance.json" \
     --audience client
+if [ -n "$ual2_source_root" ]; then
+    dotnet run --project "$coordinator_root/tools/ChronoFall.CharacterCooker/ChronoFall.CharacterCooker.csproj" \
+        -c Release --no-restore --no-build -- \
+        --source-root "$ual2_source_root" \
+        --recipe-root "$coordinator_root" \
+        --recipe "$coordinator_root/assets/recipes/quaternius-ual2-source-bow-shot-body.json" \
+        --output "$staging_root/quaternius-ual2-source-bow-shot-body.cfskel" \
+        --provenance-output "$staging_root/quaternius-ual2-source-bow-shot-body.provenance.json" \
+        --audience client
+fi
 dotnet run --project "$coordinator_root/tools/ChronoFall.StaticMeshCooker/ChronoFall.StaticMeshCooker.csproj" \
     -c Release --no-restore --no-build -- \
     --source-root "$coordinator_root" \
@@ -149,6 +201,12 @@ cp "$coordinator_root/assets/Quaternius/Universal Animation Library[Standard]/RE
     "$staging_root/licenses/quaternius-ual1-standard/README.txt"
 cp "$coordinator_root/assets/Quaternius/Medieval Weapons Pack by @Quaternius/License.txt" \
     "$staging_root/licenses/quaternius-medieval-weapons/License.txt"
+if [ -n "$ual2_source_root" ]; then
+    cp "$coordinator_root/assets/provenance/Quaternius/Universal Animation Library 2 Source/License.txt" \
+        "$staging_root/licenses/quaternius-ual2-source/License.txt"
+    cp "$coordinator_root/assets/provenance/Quaternius/Universal Animation Library 2 Source/README.txt" \
+        "$staging_root/licenses/quaternius-ual2-source/README.txt"
+fi
 
 mkdir -p "$output_root/licenses/quaternius-ual1-standard"
 mkdir -p "$output_root/licenses/quaternius-medieval-weapons"
@@ -167,4 +225,24 @@ cp "$staging_root/licenses/quaternius-ual1-standard/README.txt" "$output_root/li
 cp "$staging_root/licenses/quaternius-medieval-weapons/License.txt" \
     "$output_root/licenses/quaternius-medieval-weapons/License.txt"
 
-printf '%s\n' "CHARACTER_CLIENT_STAGE_SUCCESS project=$project_id output=$output_root"
+if [ -n "$ual2_source_root" ]; then
+    mkdir -p "$output_root/licenses/quaternius-ual2-source"
+    cp "$staging_root/quaternius-ual2-source-bow-shot-body.cfskel" \
+        "$output_root/quaternius-ual2-source-bow-shot-body.cfskel"
+    cp "$staging_root/quaternius-ual2-source-bow-shot-body.provenance.json" \
+        "$output_root/quaternius-ual2-source-bow-shot-body.provenance.json"
+    cp "$staging_root/licenses/quaternius-ual2-source/License.txt" \
+        "$output_root/licenses/quaternius-ual2-source/License.txt"
+    cp "$staging_root/licenses/quaternius-ual2-source/README.txt" \
+        "$output_root/licenses/quaternius-ual2-source/README.txt"
+    ual2_status=staged
+else
+    rm -f "$output_root/quaternius-ual2-source-bow-shot-body.cfskel"
+    rm -f "$output_root/quaternius-ual2-source-bow-shot-body.provenance.json"
+    rm -f "$output_root/licenses/quaternius-ual2-source/License.txt"
+    rm -f "$output_root/licenses/quaternius-ual2-source/README.txt"
+    rmdir "$output_root/licenses/quaternius-ual2-source" 2>/dev/null || true
+    ual2_status=absent
+fi
+
+printf '%s\n' "CHARACTER_CLIENT_STAGE_SUCCESS project=$project_id output=$output_root ual2=$ual2_status"

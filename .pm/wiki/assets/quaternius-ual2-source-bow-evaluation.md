@@ -1,7 +1,7 @@
 ---
 title: Quaternius UAL2 Source Bow-Body Evaluation
 createdAt: 2026-08-03T12:30:37.9130990Z
-modifiedAt: 2026-08-03T13:11:18.4110380Z
+modifiedAt: 2026-08-07T05:57:11.8880160Z
 ---
 
 ## Status and ownership
@@ -157,12 +157,16 @@ The owner approved the curated sequence sheet for coordinator history at `docs/p
 
 ## Reproduction without private-path persistence
 
-Supply the private package root at invocation time only:
+Declare the owner-local private package root outside the family worktree, then pass it explicitly:
 
 ```sh
-private_source_root='<owner-local UAL2 Source package>'
-shasum -a 256 "$private_source_root/Unreal-Godot/UAL2.glb"
-assimp info "$private_source_root/Unreal-Godot/UAL2.glb"
+scripts/cook-character-presentation-for-client.sh \
+  --project-id prj_pkIpzx0fzFD4URjvqBuYrGZF \
+  --ual2-source-root "$CHRONOFALL_UAL2_SOURCE_ROOT"
 ```
 
-Do not commit the invocation value, introduce a sibling-directory assumption, or use the local path as PM/wiki identity. The follow-up cooker task must use a committed recipe root plus an explicit runtime private source root.
+The workflow does not load `.env` files and does not persist the variable value. It verifies the private root and exact `Unreal-Godot/UAL2.glb` input, uses the committed recipe at `assets/recipes/quaternius-ual2-source-bow-shot-body.json`, and stages only `Bow_Notch`, `Bow_Aim_Neutral`, and `Bow_Shoot` plus portable provenance and normalized CC0 evidence.
+
+The resulting ignored client cook is 1,308,691 bytes with SHA-256 `5460a602d0ee3a8f4530c47f08ee5d88adda2b4224b20f2328b1d6f90d7b1966`. Two private-mode runs produced byte-identical cook and provenance files. Omitting `--ual2-source-root` is the supported public-only workflow: it preserves the established UAL1, bow, and arrow cooks while removing only the known generated optional UAL2 cook, sidecar, and licence subtree.
+
+Do not commit the invocation value, introduce a sibling-directory assumption, or use the local path as PM/wiki identity. No raw UAL2 source enters a repository, runtime manifest, or headless output.

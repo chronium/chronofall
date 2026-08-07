@@ -8,6 +8,39 @@ public sealed class CharacterCookerTests
 {
     private const string SelectedSource = "assets/Quaternius/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb";
     private const string ExpectedSourceHash = "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997";
+    private const string ExpectedUal2SourceHash = "866c2ee822d30f0ceed521f50a5e84316d58ee4487d0b02158370bb988452416";
+
+    [Fact]
+    public void BasicArrowRecipeSelectsOnlyTheApprovedPrivateUal2Clips()
+    {
+        string root = FindRepositoryRoot();
+        string recipePath = Path.Combine(
+            root,
+            "assets",
+            "recipes",
+            "quaternius-ual2-source-bow-shot-body.json");
+
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(recipePath));
+        JsonElement recipe = document.RootElement;
+        Assert.Equal(1, recipe.GetProperty("version").GetInt32());
+        Assert.Equal("quaternius-ual2-source-bow-shot-body", recipe.GetProperty("assetId").GetString());
+        Assert.Equal("Unreal-Godot/UAL2.glb", recipe.GetProperty("source").GetString());
+        Assert.Equal(ExpectedUal2SourceHash, recipe.GetProperty("sourceSha256").GetString());
+        Assert.Equal("CC0-1.0", recipe.GetProperty("licenseIdentifier").GetString());
+        Assert.Equal(
+            [
+                "assets/provenance/Quaternius/Universal Animation Library 2 Source/License.txt",
+                "assets/provenance/Quaternius/Universal Animation Library 2 Source/README.txt",
+            ],
+            recipe.GetProperty("licenseEvidence").EnumerateArray().Select(static item => item.GetString()));
+        Assert.Equal("Mannequin", recipe.GetProperty("meshNodeName").GetString());
+        Assert.Equal("Mannequin", recipe.GetProperty("meshName").GetString());
+        Assert.Equal("Armature", recipe.GetProperty("skinName").GetString());
+        Assert.Equal(
+            ["Bow_Notch", "Bow_Aim_Neutral", "Bow_Shoot"],
+            recipe.GetProperty("animationClips").EnumerateArray().Select(static item => item.GetString()));
+        Assert.DoesNotContain(root, File.ReadAllText(recipePath), StringComparison.Ordinal);
+    }
 
     [Fact]
     public void SelectedRecipeCooksByteIdenticalExactSelectionWithoutModifyingSource()
