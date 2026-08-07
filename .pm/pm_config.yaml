@@ -17,38 +17,95 @@ tracks:
 milestones:
   M0:
     title: Coordinator foundation
-    description: ''
+    description: >-
+      - **Outcome:** The shallow family checkout resolves the coordinator, Royale, and Starfall by stable reciprocal PM identity and supports safe owner-planned child work with mechanical gitlink handoff.
+
+      - **Scope:** linked topology, PM/agent workflow, recursive checkout and submodule policy, experiment/shared-source conventions, and asset ownership/provenance rules.
+
+      - **Exclusions:** child feature implementation, shared-engine extraction, gameplay, and release work.
+
+      - **Evidence:** passing coordinator doctor, zero linked-family warnings, verified reciprocal IDs/path hints/gitlinks, clean recursive checkout, and durable workflow documentation.
     priority: urgent
     requiredActivationTriggers: []
-    delivery: null
+    delivery:
+      at: 2026-08-07T19:26:48.3474120+00:00
+      mode: ordinary
+      acceptedTaskIds: []
   M1:
     title: Skinned mesh and animation proof
-    description: ''
+    description: >-
+      - **Outcome:** One supplied Quaternius humanoid renders a correct bind pose and looping animation through GPU skinning with deterministic sampling and inspectable skeleton evidence.
+
+      - **Scope:** source inventory/selection, narrow loader decision, BCL skeletal contracts, deterministic tests, GPU bind/animation proof, debug skeleton, captures, and native validation.
+
+      - **Exclusions:** modular armour, retargeting, IK, animation graphs, final character content, and child integration.
+
+      - **Evidence:** deterministic tests/captures, native macOS ARM64 proof, skeleton diagnostics, documented findings, and owner visual acceptance.
     priority: high
     requiredActivationTriggers: []
-    delivery: null
+    delivery:
+      at: 2026-08-07T19:26:48.3888760+00:00
+      mode: ordinary
+      acceptedTaskIds: []
   M2:
     title: Shared character presentation
-    description: ''
+    description: >-
+      - **Outcome:** Children can consume focused shared character-presentation, skeletal/static cooking, rendering, socket, blending, layering, and IK contracts without leaking presentation into headless code.
+
+      - **Scope:** promoted BCL presentation contracts, SDL GPU rendering, family source consumption/staging, skeletal/static cooking, sockets, action blending/layers, grips, reference points, and bounded IK/aim support.
+
+      - **Exclusions:** game-specific action mapping, equipment rules, generic animation graphs, arbitrary engine abstractions, final distribution, and headless presentation dependencies.
+
+      - **Evidence:** shared test suites, fresh-checkout-safe staging, native character/static rendering proofs, architecture dependency tests, and successful Starfall source consumption.
     priority: medium
     requiredActivationTriggers: []
-    delivery: null
+    delivery:
+      at: 2026-08-07T19:26:48.4208150+00:00
+      mode: ordinary
+      acceptedTaskIds: []
   M3:
     title: MMO bootstrap
-    description: ''
+    description: >-
+      - **Outcome:** This milestone records completed historical coordinator work gathered during early Starfall bootstrap; it establishes no single activation contract.
+
+      - **Scope:** only the task history already assigned to M3.
+
+      - **Exclusions:** interpreting the bucket as one accepted deliverable or using it as a prerequisite for future work.
+
+      - **Evidence:** the individual completed tasks, commits, and wiki pages remain their own evidence.
     priority: low
     requiredActivationTriggers: []
     delivery: null
   M4:
     title: Starfall.Client Development Instrumentation Boundary
-    description: ''
+    description: >-
+      - **Outcome:** Starfall.Client is an approved consumer of the shared caller-controlled ImGui backend while all headless products remain presentation-free.
+
+      - **Scope:** family-source allowlist, native/backend lifecycle compatibility, macOS ARM64 validation, and dependency-isolation evidence.
+
+      - **Exclusions:** Starfall debug-window behavior, F12/launch policy, feature commands, permanent HUD/UI, and Royale migration.
+
+      - **Evidence:** shared/backend tests, source-reference architecture checks, native Starfall use, and clean headless outputs.
     priority: medium
     requiredActivationTriggers: []
-    delivery: null
+    delivery:
+      at: 2026-08-07T19:26:48.4522080+00:00
+      mode: ordinary
+      acceptedTaskIds: []
   M5:
     title: Connected Basic Arrow Shared Enablers
-    description: ''
+    description: >-
+      - **Outcome:** The exact selected bow/arrow/body-animation inputs can be staged and one socketed static bow is proven through the shared presentation boundary.
+
+      - **Scope:** exact curated acquisition, reproducible staging/cooking evidence, Blender evaluation guidance, and the reusable technical socketed-bow proof.
+
+      - **Exclusions:** Starfall semantic grip placement, authoritative combat, projectile simulation, equipment systems, aiming/IK integration, and final character art.
+
+      - **Evidence:** exact provenance/manifests, deterministic cook/stage validation, native socketed-bow proof, and owner visual acceptance.
     priority: medium
     requiredActivationTriggers: []
-    delivery: null
+    delivery:
+      at: 2026-08-07T19:26:48.4833750+00:00
+      mode: ordinary
+      acceptedTaskIds: []
 activationTriggers: {}

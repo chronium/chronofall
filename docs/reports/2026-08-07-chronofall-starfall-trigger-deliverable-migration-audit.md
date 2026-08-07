@@ -622,28 +622,28 @@ Most of the 368 edges are completed history or exact internal order. Rewriting c
 
 ### Owner decisions
 
-- [ ] Approve/revise milestone descriptions and delivery treatment.
-- [ ] Approve/revise first-pass trigger definitions and consumers.
-- [ ] Approve/revise the six exact dependency replacements and one retained overlap edge.
-- [ ] Approve/revise empty Starfall M3 removal.
-- [ ] Approve preserving legacy buckets and completed dependency history.
-- [ ] Approve preserving canonical cross-project task dependencies.
-- [ ] Approve the anti-fan-out rule for every future milestone grooming pass.
+- [x] Approve/revise milestone descriptions and delivery treatment.
+- [x] Approve/revise first-pass trigger definitions and consumers.
+- [x] Approve/revise the six exact dependency replacements and one retained overlap edge.
+- [x] Approve/revise empty Starfall M3 removal.
+- [x] Approve preserving legacy buckets and completed dependency history.
+- [x] Approve preserving canonical cross-project task dependencies.
+- [x] Approve the anti-fan-out rule for every future milestone grooming pass.
 - [x] Approve producing the trigger/deliverable execution manifest.
 
 ### Execution
 
 - [x] Produce an execution manifest from fresh PM readback.
-- [ ] Complete the coordinator descriptions/deliveries commit boundary; log and validate it.
-- [ ] Complete the Starfall descriptions/deliveries/trigger/edge commit boundary; log and validate it.
-- [ ] Complete the pointer-only coordinator handoff and stop.
-- [ ] Re-read switchboards and prove every current milestone has the intended lifecycle.
-- [ ] Verify M5/M6/M7 eligibility is unchanged except where explicitly approved.
-- [ ] Verify the resulting task and trigger graph is acyclic.
-- [ ] Record before/after edge counts and confirm the retained overlap edge is documented.
-- [ ] Verify no task became active during grooming.
-- [ ] Check off every completed item in this audit during the owning cycle.
+- [x] Complete the coordinator descriptions/deliveries commit boundary; log and validate it.
+- [x] Complete the Starfall descriptions/deliveries/trigger/edge commit boundary; log and validate it.
+- [x] Complete the pointer-only coordinator handoff and stop.
+- [x] Re-read switchboards and prove every current milestone has the intended lifecycle.
+- [x] Verify M5/M6/M7 eligibility is unchanged except where explicitly approved.
+- [x] Verify the resulting task and trigger graph is acyclic.
+- [x] Record before/after edge counts and confirm the retained overlap edge is documented.
+- [x] Verify no task became active during grooming.
+- [x] Check off every completed item in this audit during the owning cycle.
 
 ## Recommended next action
 
-Review and approve the execution manifest as one launched migration. Do not mutate milestones, deliveries, triggers, dependencies, or wiki text directly from this audit.
+Publish Starfall commit `96d210e363985eecaf183e78a7342fc2814112dd` before its pointer-only coordinator commit when the owner next requests a push. No further migration work is authorized by this audit.

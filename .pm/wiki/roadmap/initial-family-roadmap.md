@@ -1,7 +1,7 @@
 ---
 title: Initial Family Roadmap
 createdAt: 2026-08-01T05:44:07.0156650Z
-modifiedAt: 2026-08-06T11:52:37.9723440Z
+modifiedAt: 2026-08-07T19:27:26.1347630Z
 ---
 
 ## M0 — Coordinator foundation
@@ -25,11 +25,11 @@ M1 completed on 2026-08-01. The supplied Quaternius mannequin and compatible ani
 
 ## M2 — Shared character presentation
 
-M2 is preserved as a completed historical planning bucket. It records the first shared character-presentation promotion and the focused shared work completed under the earlier roadmap, including skeletal cooking, sockets, blending, static rendering/cooking, capture, and the family source-consumption boundary.
+M2 is formally delivered as the first focused shared character-presentation capability. Children can consume the promoted BCL presentation contracts, SDL GPU rendering, family source staging, skeletal and static cooking, sockets, action blending/layers, grip and reference-point support, and bounded IK/aim presentation without leaking presentation into headless code.
 
-Every unfinished task has moved out of M2. Later armour, equipment, broad attachment, IK/debugging, preview, and hardening work now belongs either to a concrete deliverable milestone or to a milestone-free scheduling state. Completed membership is not rewritten merely to make the earlier bucket resemble the newer deliverable-milestone model.
+The delivery preserves its completed membership and evidence: shared test suites, fresh-checkout-safe staging, native character/static rendering proofs, architecture dependency tests, and successful Starfall source consumption. It does not establish game-specific action mapping, equipment rules, generic animation graphs, arbitrary engine abstractions, final distribution, or headless presentation dependencies.
 
-Royale retains ownership of its linked integrations. Future child commits continue to use automatic pointer-only coordinator handoffs; no ceremonial coordinator submodule task is created.
+Unfinished armour, equipment, broad attachment, debugging, preview, and hardening work remains milestone-free or belongs to a separately approved deliverable. Royale retains ownership of its linked integrations, and future child work continues through automatic pointer-only coordinator handoffs.
 
 ## Draft 0 coordinator enablers
 
@@ -47,18 +47,18 @@ Zone, monster, Ranger-equipment, broad attachment, preview, and typed-authoring 
 
 ## M3 — MMO bootstrap
 
-M3 is preserved as a completed historical coordinator planning bucket. It records the coordinator work that enabled Starfall bootstrap, including source-built Box3D, shared transport, the caller-controlled SDL GPU ImGui backend, UAL2 inventory/proof evidence, and the reviewed cross-project architecture decisions.
+M3 remains an undelivered historical coordinator bucket. Its completed tasks record early Starfall bootstrap work, including source-built Box3D, shared transport, the caller-controlled SDL GPU ImGui backend, UAL2 inventory/proof evidence, and reviewed cross-project architecture decisions, but they do not form one accepted capability contract.
 
-Every unfinished task has moved out of M3. Starfall's game-specific roadmap remains entirely child-owned, and completed M3 membership remains historical evidence rather than being renamed or redistributed.
+M3 must not be used as an activation prerequisite. Starfall's game-specific roadmap remains child-owned, and the individual completed tasks, commits, and wiki pages remain the evidence for their own capabilities.
 
 ## M4 — Starfall.Client Development Instrumentation Boundary
 
-M4 is complete. Its sole coordinator task, `SHARED-0026`, approves `Starfall.Client` as a direct family-source consumer of the completed caller-controlled SDL GPU ImGui backend through `$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj`. The coordinator retains the backend, pinned native/source boundary, caller-owned lifecycle contract, and complete headless exclusion.
+M4 is formally delivered. Its sole coordinator task, `SHARED-0026`, approves `Starfall.Client` as a direct family-source consumer of the completed caller-controlled SDL GPU ImGui backend through `$(ChronoFallFamilyRoot)src/ChronoFall.EditorUi.SdlGpu/ChronoFall.EditorUi.SdlGpu.csproj`. The coordinator retains the backend, pinned native/source boundary, caller-owned lifecycle contract, and complete headless exclusion.
 
 Starfall retains ownership of its debug shell, windows, menu and F12 behavior, `--debug-ui-hidden`, input capture, feature diagnostics, console, development-command semantics, and permanent product UI. Starfall Cycle 3 attached `pm://project/prj_E7QP3LUocfY7k3PYM-EQOlqc/task/SHARED-0026` to `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/CLIENT-0029`. The canonical prerequisite is complete, so `CLIENT-0029` is dependency-ready but remains todo until its own owner-approved implementation plan. No Starfall source, task state, or gitlink changed while completing M4.
 
 ## M5 — Connected Basic Arrow Shared Enablers
 
-M5 is a medium-priority coordinator deliverable containing exactly `ASSET-0004`, `ASSET-0006`, and `SHARED-0020`. Its observable result is an exact selected archer/bow cook and one rendered socketed static-bow proof through the shared caller-owned SDL GPU path.
+M5 is formally delivered. Its completed membership is `ASSET-0004`, `ASSET-0006`, `ASSET-0011`, and `SHARED-0020`; together they provide exact selected bow, arrow, and body-animation inputs, reproducible staging/cooking evidence, durable Blender evaluation guidance, and one rendered socketed static-bow proof through the shared caller-owned SDL GPU path.
 
-M5 does not implement Starfall combat, equipment, item ownership, semantic socket content, projectile behavior, or client integration.
+M5 does not implement Starfall combat, equipment, item ownership, semantic socket content, projectile behavior, aiming/IK integration, final character art, or client integration.

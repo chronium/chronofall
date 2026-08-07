@@ -1,7 +1,7 @@
 ---
 title: Starfall Draft 0 Coordinator Enablers
 createdAt: 2026-08-02T16:21:34.5039080Z
-modifiedAt: 2026-08-06T18:38:19.9607130Z
+modifiedAt: 2026-08-07T19:27:26.2564840Z
 ---
 
 ## Purpose and ownership
@@ -11,6 +11,12 @@ This page records the coordinator-owned enablers for Starfall's provisional Draf
 Availability is not selection. A prospective pack is not a dependency until its files are physically supplied, inventoried, licensed, and selected by the owning Starfall task. No entire pack enters a cook or runtime manifest. Generated client output remains ignored.
 
 Starfall's design brief is `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/wiki/product/first-playable-zone-draft-0`. Coordinator grooming task `COORD-0009` canonically depends on completed Starfall grooming task `pm://project/prj_pkIpzx0fzFD4URjvqBuYrGZF/task/SF-0008`, which is the authoritative source of this decomposition.
+
+## Milestone lifecycle
+
+The coordinator has formally delivered M0 Coordinator Foundation, M1 Skinned Mesh and Animation Proof, M2 Shared Character Presentation, M4 Starfall.Client Development Instrumentation Boundary, and M5 Connected Basic Arrow Shared Enablers. Each delivery records one accepted reusable capability and its implementation seams.
+
+M3 MMO Bootstrap remains an undelivered historical bucket and supplies no activation contract. These coordinator delivery records do not replace or remove any canonical child dependency: Starfall continues to consume exact coordinator tasks through stable `pm://project/...` task identities wherever cross-project ownership requires them.
 
 ## Shared capability graph
 

@@ -15,6 +15,28 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-07 — Migrate Starfall milestone activation
+
+- Findings/checklist: completed the Starfall descriptions, ordinary deliveries, M3 removal, trigger activation/attachment, six-edge anti-fan-out cleanup, durable seam documentation, lifecycle/readiness readback, graph validation, task-state checks, and pointer-only coordinator handoff.
+- Milestone lifecycle: set reviewed Outcome/Scope/Exclusions/Evidence descriptions for M0, M1, M2, M4, M5, M6, and M7; ordinarily delivered M0 (11/11), M1 (1/1), and M4 (5/5); preserved M2 as an undelivered legacy bucket; removed empty initiative-shaped M3; left M5, M6, and M7 active.
+- Activation: created and automatically latched `development_instrumentation_available`, `gameplay_protocol_v1_available`, `connected_world_available`, and `connected_snapshot_presentation_available`; attached the first three to M6 and the fourth to M7. Every requirement is satisfied and the switchboard reports zero issues.
+- Dependency migration: removed six redundant cross-milestone edges only after their replacement triggers were active. Starfall changed from 283 to 277 total edges, 256 to 250 local edges, and 94 to 88 local cross-milestone edges; all 27 canonical dependencies and internal order remain intact. The deliberate overlap `CLIENT-0019 -> CLIENT-0031` remains.
+- Task and wiki contracts: named the delivered protocol, World/session, debug-dispatch, console/result, and snapshot-presentation seams consumed by M6/M7 tasks without using dependency edges as citations. Updated Bootstrap, Product Design Direction, Authoritative Mana, Development Instrumentation, and Connected Movement Quality v1.
+- Receipts: every linked mutation identified Starfall project `prj_pkIpzx0fzFD4URjvqBuYrGZF` and only the intended config, task, or wiki path. Family resolution remained warning-free and write-trusted.
+- Validation: 118 tasks (59 done, 59 todo, zero active), 277 edges (250 local, 27 canonical), zero missing/invalid/unavailable dependencies, valid acyclic PM graph, valid switchboard, `pm doctor`, and `git diff --check`. No source, asset, generated output, Royale file, task state, or product implementation changed.
+- Repository: Starfall commit `96d210e363985eecaf183e78a7342fc2814112dd` (`[PM] Migrate Starfall milestone activation`) is pinned by the immediately following pointer-only coordinator commit (`[PM] Pin Starfall activation migration`). The handoff verified stable identity, reciprocal declarations, `pathHint: starfall`, tracked gitlink ownership, clean children, and ancestry from `36d6f8fd0d08869486cc017e614f20ecefc9e77b`.
+- Remaining work: none in the approved migration. Publishing remains owner-directed and must push Starfall before the coordinator.
+
+### 2026-08-07 — Record coordinator deliverable lifecycle
+
+- Findings/checklist: completed the coordinator descriptions/deliveries boundary and checked its execution item. Starfall activation migration and pointer-handoff items remain open.
+- Milestone descriptions: set the exact reviewed Outcome/Scope/Exclusions/Evidence contracts for coordinator M0 through M5.
+- Ordinary deliveries: previewed and delivered M0 (8/8), M1 (15/15), M2 (12/12), M4 (1/1), and M5 (4/4) without exceptional confirmation. M3 remains described, complete by task count, intentionally undelivered, and unusable as an activation contract.
+- Wiki: updated the initial family roadmap and Starfall shared-enabler roadmap to distinguish formally delivered capabilities from the undelivered M3 historical bucket while preserving every canonical child dependency.
+- Receipts: every mutation identified coordinator project `prj_E7QP3LUocfY7k3PYM-EQOlqc` and changed only `.pm/pm_config.yaml` or the intended coordinator wiki page.
+- Lifecycle result: the coordinator switchboard is valid with five ordinary deliveries, one undelivered M3 bucket, zero triggers, and zero issues.
+- Remaining work: execute the approved Starfall M3 removal, trigger/attachment migration, six dependency removals and matching wiki update; then perform the pointer-only handoff.
+
 ### 2026-08-07 — Confirm linked milestone and trigger selectors
 
 - PM capability: the live MCP schemas now expose an explicit `project` selector for linked switchboard reads, milestone-description mutation, delivery preview and delivery, milestone removal, trigger creation and reconciliation, and trigger attachment.
