@@ -4,7 +4,7 @@ Date: 2026-08-07
 
 Status: read-only planning audit; no milestone delivery, trigger, dependency, task, or wiki mutation is authorized by this file
 
-This audit and its [companion log](2026-08-07-chronofall-starfall-trigger-deliverable-migration-log.md) form one work entity. Later owner decisions may add an addendum. A separately reviewed execution manifest should translate the accepted findings into exact PM mutations; understanding a future outcome does not authorize allocating or activating it.
+This audit, its [companion log](2026-08-07-chronofall-starfall-trigger-deliverable-migration-log.md), and the [execution manifest](2026-08-07-chronofall-starfall-trigger-deliverable-migration-execution-manifest.md) form one work entity. Later owner decisions may add an addendum. The separately reviewed execution manifest translates the accepted findings into exact PM mutations; understanding a future outcome does not authorize allocating or activating it.
 
 The earlier [backlog audit](2026-08-05-chronofall-starfall-backlog-audit.md), [owner-decision addendum](2026-08-05-chronofall-starfall-backlog-audit-addendum.md), [execution manifest](2026-08-05-chronofall-starfall-backlog-execution-manifest.md), and [audit log](2026-08-05-chronofall-starfall-backlog-audit-log.md) remain authoritative for product ordering and task scope. This audit addresses only how PM milestone deliverables and activation triggers should represent those decisions.
 
@@ -493,42 +493,39 @@ The safe mutation order is:
 
 Attaching an inactive trigger before its requirements are understood could make eligible work disappear. Redefining an active trigger may also revoke eligibility and therefore requires preview/revision confirmation. The execution manifest must preserve these gates.
 
-## Proposed execution-cycle boundaries
+## Proposed execution boundary
 
-No cycle is authorized by this audit alone.
+No mutation is authorized by this audit alone. The reviewed manifest uses one Plan-mode approval and one launched migration. Safe ordering is enforced through internal checkpoints rather than separate stop-and-replan cycles.
 
-### Cycle A — Coordinator descriptions and historical deliveries
+The launched migration has three sequential commit boundaries:
 
-- set descriptions for M0-M5;
-- deliver M0, M1, M2, M4, and M5 normally after preview;
-- leave M3 undelivered as a legacy bucket;
-- create no coordinator trigger yet;
-- update only matching coordinator roadmap/wiki prose;
-- validate and commit `[PM]`; stop.
+1. **Coordinator descriptions and historical deliveries**
+   - set descriptions for M0-M5;
+   - deliver M0, M1, M2, M4, and M5 normally after preview;
+   - leave M3 undelivered as a legacy bucket;
+   - create no coordinator trigger;
+   - update matching coordinator roadmap/wiki prose;
+   - validate and commit `[PM]`, then continue under the same approval.
+2. **Starfall descriptions, deliveries, activation migration, and edge cleanup**
+   - set descriptions for M0-M2 and M4-M7; preserve the reviewed M3 rationale in the audit/wiki rather than writing a description immediately before removal;
+   - deliver M0, M1, and M4 normally after preview;
+   - leave M2 undelivered and remove empty M3 after checking durable references;
+   - create and reconcile the four first-pass triggers;
+   - attach them only to M6 and M7 exactly as specified;
+   - verify eligibility before removing dependencies;
+   - remove only the six enumerated redundant task edges;
+   - retain `CLIENT-0019 -> CLIENT-0031` and record why M5 intentionally overlaps M4;
+   - update task/wiki contracts to name the concrete seams now guaranteed by activation;
+   - validate counts, readiness, cycles, PM doctor, receipts, and family warnings;
+   - commit `[PM]`, then continue directly to the mechanical handoff.
+3. **Pointer-only coordinator handoff**
+   - verify identity, ancestry, cleanliness, and the exact Starfall commit;
+   - stage only the Starfall gitlink;
+   - commit the taskless `[PM]` pointer handoff and stop.
 
-### Cycle B — Starfall descriptions and coherent completed deliveries
+The Starfall safety checkpoint is explicit: deliver M4, create and dry-run the trigger definitions, reconcile them, attach only active triggers, prove M5/M6/M7 eligibility, and only then remove the six task edges. It does not require a second Starfall Plan-mode cycle.
 
-- set descriptions for M0-M7;
-- deliver M0, M1, and M4 normally after preview;
-- leave M2 undelivered as a legacy bucket;
-- remove empty M3 only after checking durable references;
-- do not deliver M5-M7;
-- update matching Starfall roadmap/wiki prose;
-- validate, commit `[PM]`, perform pointer handoff, stop.
-
-### Cycle C — Starfall current trigger migration
-
-- create and reconcile the four first-pass triggers;
-- attach them only to M6 and M7 exactly as specified;
-- verify eligibility before removing dependencies;
-- remove only the six enumerated redundant task edges;
-- retain `CLIENT-0019 -> CLIENT-0031` and record why M5 intentionally overlaps M4;
-- update task wording only where it still names the removed edge rather than the consumed capability;
-- update durable task/wiki contracts to name the concrete seams now guaranteed by activation;
-- validate counts, readiness, cycles, PM doctor, receipts, and family warnings;
-- commit `[PM]`, perform pointer handoff, stop.
-
-Later producer/consumer triggers are created in the owner-approved grooming cycle that allocates or activates their real consumer milestone. Do not batch future Fire, HUD, Player Life, Progression, Inventory, Equipment, Drop, Editor, or Pressure Cooker graphs into Cycle C.
+Later producer/consumer triggers are created in the owner-approved grooming cycle that allocates or activates their real consumer milestone. Do not batch future Fire, HUD, Player Life, Progression, Inventory, Equipment, Drop, Editor, or Pressure Cooker graphs into this migration.
 
 ## Findings
 
@@ -632,14 +629,14 @@ Most of the 368 edges are completed history or exact internal order. Rewriting c
 - [ ] Approve preserving legacy buckets and completed dependency history.
 - [ ] Approve preserving canonical cross-project task dependencies.
 - [ ] Approve the anti-fan-out rule for every future milestone grooming pass.
-- [ ] Approve producing the trigger/deliverable execution manifest.
+- [x] Approve producing the trigger/deliverable execution manifest.
 
 ### Execution
 
-- [ ] Produce a reviewed execution manifest from fresh PM readback.
-- [ ] Complete Cycle A coordinator descriptions/deliveries; log and validate it.
-- [ ] Complete Cycle B Starfall descriptions/deliveries; log and validate it.
-- [ ] Complete Cycle C Starfall trigger/edge migration; log and validate it.
+- [x] Produce an execution manifest from fresh PM readback.
+- [ ] Complete the coordinator descriptions/deliveries commit boundary; log and validate it.
+- [ ] Complete the Starfall descriptions/deliveries/trigger/edge commit boundary; log and validate it.
+- [ ] Complete the pointer-only coordinator handoff and stop.
 - [ ] Re-read switchboards and prove every current milestone has the intended lifecycle.
 - [ ] Verify M5/M6/M7 eligibility is unchanged except where explicitly approved.
 - [ ] Verify the resulting task and trigger graph is acyclic.
@@ -649,4 +646,4 @@ Most of the 368 edges are completed history or exact internal order. Rewriting c
 
 ## Recommended next action
 
-Review the eleven decisions above. Once settled, produce the execution manifest with the anti-fan-out test as a mandatory dependency-review rule; do not mutate milestones, deliveries, triggers, dependencies, or wiki text directly from this audit.
+Review and approve the execution manifest as one launched migration. Do not mutate milestones, deliveries, triggers, dependencies, or wiki text directly from this audit.
