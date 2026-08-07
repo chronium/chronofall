@@ -15,6 +15,16 @@ Update the audit checklist from `[ ]` to `[x]` in the same cycle for every item 
 
 ## Entries
 
+### 2026-08-07 — Make anti-fan-out the primary migration rule
+
+- Findings/checklist: re-evaluated every proposed edge using the cross-milestone eligibility test; checked the new audit-preparation items for the seven-edge review and prospective manifest rules. No owner-decision or execution item was marked complete.
+- Representation decision: milestone activation guarantees delivered capabilities and their documented implementation seams. Cross-milestone task edges are not retained merely because a task calls a concrete API, adapter, dispatcher, codec, or presentation seam from the prerequisite milestone.
+- Revised first pass: retain deliberate overlap edge `CLIENT-0019 -> CLIENT-0031`; do not gate all of M5 on Development Instrumentation. Remove the other six audited edges only after their M6/M7 triggers are active.
+- Measured outcome: proposed immediate Starfall edge count is now `283 -> 277`, with four triggers and four milestone/trigger requirements. The larger benefit is prospective prevention of per-layer fans for Fire, HUD, Player Life, Progression, Inventory, Equipment, Physical Drops, and later combat work.
+- Manifest rule: the eventual execution manifest must record capability gates once, preserve internal order and completed history, retain narrow overlap edges deliberately, update task/wiki seam documentation, and publish before/after graph counts.
+- PM effect: none. No task, wiki, milestone description, delivery, trigger, dependency, priority, state, source, asset, child repository, or gitlink changed.
+- Remaining work: owner review of the revised eleven decisions, followed by a separately reviewed execution manifest.
+
 ### 2026-08-07 — Migrate PM schema and produce the read-only audit
 
 - Findings/checklist: completed every Audit preparation item; no owner-decision or execution item was marked complete.

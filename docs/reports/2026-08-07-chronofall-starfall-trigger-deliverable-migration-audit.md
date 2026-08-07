@@ -42,19 +42,22 @@ The current graph is valid, but it asks task dependencies to perform three diffe
 2. assert that a broader capability already exists;
 3. cite historical evidence.
 
-Only the first is inherently a task dependency. A delivered milestone plus a latched activation trigger is the correct representation for the second. Notes and wiki prose are the correct representation for the third.
+Only the first is inherently a task dependency. A delivered milestone plus a latched activation trigger is the correct representation for the second. Notes, task contracts, and wiki prose are the correct representation for the third and for naming the precise seams supplied by a delivered capability.
+
+Preventing combinatorial cross-task fan-out is the primary purpose of this migration. The Draft 0 graph was reasonable before activation triggers existed: explicit task dependencies were the only available way to ensure prerequisite capabilities. Under the new PM model, a consumer milestone should name each prerequisite capability once. Once that trigger is active, every task in the milestone may rely on the delivered capability and its documented implementation seams without adding parallel Simulation-to-Simulation, Protocol-to-Protocol, World-to-World, and Client-to-Client edges.
 
 The migration should not attempt to erase the history that produced the current graph. Completed task edges remain historical evidence. The first execution pass should instead:
 
 - describe every milestone as a deliverable or explicitly identify it as a legacy bucket;
 - formally deliver only coherent, accepted completed milestones;
 - create four narrowly named Starfall capability triggers;
-- attach those triggers to the three current unfinished deliverables;
-- remove seven now-redundant dependencies from todo tasks;
+- attach those triggers only where the whole consumer milestone must wait;
+- remove six now-redundant dependencies from todo tasks;
+- deliberately retain one narrow cross-milestone overlap dependency for the Basic Arrow terminal diagnostic proof;
 - leave all cross-project canonical dependencies intact;
 - leave dormant, milestone-free initiatives unchanged until their deliverables activate.
 
-This is a small migration with a large prospective benefit. It reduces only seven current edges because completed history is preserved, but it prevents Fire Arrow, the permanent HUD, Player Life, Progression, Inventory, Equipment, Physical Drops, and later movement-quality work from rebuilding large prerequisite fans when their milestones are allocated.
+This is a small migration with a large prospective benefit. It reduces only six current edges because completed history is preserved and one real overlap remains, but it establishes the rule that prevents Fire Arrow, the permanent HUD, Player Life, Progression, Inventory, Equipment, Physical Drops, and later combat work from rebuilding large prerequisite fans when their milestones are allocated.
 
 ## Current graph
 
@@ -119,9 +122,22 @@ An activation trigger answers: “What must already be accepted before this mile
 - Trigger keys name durable capabilities, not task IDs, calendar phases, or implementation details.
 - A task-backed trigger is appropriate when a useful capability seam is proven before a larger milestone completes.
 
-### A task dependency remains exact
+### A task dependency orders work, not delivered capabilities
 
-Keep a task dependency when the dependent task needs a specific artifact, contract, implementation seam, or ordered predecessor from that task.
+Within a milestone, keep task dependencies that express real implementation order: facts before codecs, simulation and protocol before World exchange, and World exchange before the terminal Client consumer.
+
+Across milestones, the fact that a task consumes a concrete API, adapter, dispatcher, codec, or presentation seam is not by itself sufficient reason to retain a task dependency. Milestone delivery guarantees that the capability and its required seams are available. The consumer task description and durable wiki contract identify the exact seam it uses.
+
+For every cross-milestone edge, ask:
+
+> Could this downstream task become eligible before the prerequisite capability is guaranteed to exist?
+
+- If the downstream milestone is inactive until the prerequisite milestone is delivered, remove the task dependency.
+- If the milestones intentionally overlap and this particular task must wait while other tasks may proceed, retain the narrow dependency.
+- If the trigger does not guarantee the required capability, correct the trigger or retain the dependency explicitly.
+- Never retain an edge merely as architectural documentation.
+
+Keep task dependencies when they deliberately coordinate overlapping milestones, order work inside one milestone, or preserve canonical cross-project ownership that local triggers cannot express.
 
 Examples:
 
@@ -129,10 +145,10 @@ Examples:
 - facts before their deterministic codec;
 - simulation and protocol before World exchange;
 - World exchange before the terminal Client consumer;
-- a selected asset before its acquisition/cook task;
+- a selected asset before its acquisition/cook task within the same deliverable or an intentionally overlapping acquisition lane;
 - a shared source task referenced canonically by a child integration task.
 
-Do not keep a task edge merely to say “the platform already supports connected worlds,” “debug instrumentation exists,” or “Mana was completed.” Those are trigger promises.
+Do not keep a cross-milestone task edge merely to say “the platform already supports connected worlds,” “debug instrumentation exists,” “Mana was completed,” or “this task calls an API produced by that milestone.” Those are trigger promises plus task/wiki contract documentation.
 
 ### Documentation is not a dependency
 
@@ -238,7 +254,7 @@ The current PM surface does not establish linked-project trigger consumption as 
 - **Scope:** the already-completed connected intent/action/presentation evidence plus straight-projectile inputs, deterministic authority/collision, replacement protocol facts/codecs, World lifecycle/exchange, authoritative event-driven Client presentation, and terminal native validation.
 - **Exclusions:** Fire Arrow, Arrow Rain, Mana, permanent damage numbers/target HUD, equipment/inventory, generalized projectile frameworks, and Arrow Rain spatial projectiles.
 - **Evidence:** focused Content/Simulation/Protocol/World/Client tests, deterministic collision/order fixtures, clean headless outputs, and one owner-validated native connected run.
-- **Recommendation:** attach the active Development Instrumentation trigger, preserve exact internal task order, and deliver only after all five remaining tasks and owner validation complete.
+- **Recommendation:** do not gate all of M5 on Development Instrumentation. Preserve exact internal task order and the narrow `CLIENT-0019 -> CLIENT-0031` overlap edge; deliver only after all five remaining tasks and owner validation complete.
 
 ### Starfall M6 — Authoritative Mana
 
@@ -262,7 +278,7 @@ The current PM surface does not establish linked-project trigger consumption as 
 
 | Trigger key | Title | Requirements | Consuming milestones | Promise |
 | --- | --- | --- | --- | --- |
-| `development_instrumentation_available` | Development instrumentation available | milestone `M4` delivered | `M5`, `M6` | Concern-specific ImGui shell, admitted development-command dispatch, console, and correlated result path are accepted. |
+| `development_instrumentation_available` | Development instrumentation available | milestone `M4` delivered | `M6` | Concern-specific ImGui shell, admitted development-command dispatch, console, and correlated result path are accepted. |
 | `gameplay_protocol_v1_available` | Gameplay protocol v1 negotiation available | task `PROTOCOL-0015` done | `M6` | Admission negotiates the single gameplay protocol version and gameplay codecs may use the accepted v1 layout contract. |
 | `connected_world_available` | Connected World exchange available | tasks `SERVER-0005` and `CLIENT-0009` done | `M6` | An admitted session exchanges authoritative World state with the connected Client through the established host path. |
 | `connected_snapshot_presentation_available` | Connected snapshot presentation available | tasks `CLIENT-0009` and `CLIENT-0023` done | `M7` | The local player and remote monster snapshot adapters are proven consumers of authoritative connected state. |
@@ -288,11 +304,10 @@ Pressure Cooker remains deferred. When a concrete need justifies allocating its 
 
 ## Exact first-pass dependency migration
 
-The following seven todo-task dependencies become redundant only after the stated trigger is active and attached to the owning milestone:
+The original seven audited edges have been re-evaluated using the cross-milestone eligibility test. Six become redundant after the stated trigger is active and attached to the owning milestone. One remains as a deliberate overlap dependency.
 
 | Todo task | Remove dependency | Replacement milestone trigger | Reason |
 | --- | --- | --- | --- |
-| `CLIENT-0019` | `CLIENT-0031` | M5 requires `development_instrumentation_available` | The milestone consumes the accepted instrumentation outcome; the terminal task still owns Basic-specific Combat diagnostics. |
 | `PROTOCOL-0014` | `PROTOCOL-0015` | M6 requires `gameplay_protocol_v1_available` | Mana codec work consumes the negotiated gameplay-version capability, not the historical task as an ordering step. |
 | `SERVER-0016` | `SERVER-0005` | M6 requires `connected_world_available` | The connected World host path is a pre-existing capability. |
 | `SERVER-0016` | `SERVER-0015` | M6 requires `development_instrumentation_available` | Mana registers feature-owned handlers against the delivered development dispatcher. |
@@ -300,16 +315,22 @@ The following seven todo-task dependencies become redundant only after the state
 | `CLIENT-0033` | `CLIENT-0023` | M7 requires `connected_snapshot_presentation_available` | Remote interpolation consumes the proven remote snapshot adapter capability. |
 | `CLIENT-0034` | `CLIENT-0009` | M7 requires `connected_snapshot_presentation_available` | Local correction diagnostics consume the proven local snapshot adapter capability. |
 
+Retain this narrow cross-milestone dependency:
+
+| Todo task | Retain dependency | Why milestone activation does not replace it |
+| --- | --- | --- |
+| `CLIENT-0019` | `CLIENT-0031` | M5 and M4 intentionally overlapped. Most Basic Arrow work was valid before Development Instrumentation completed, while only the terminal connected Combat diagnostic proof requires the debug shell/console seam. Gating all M5 on M4 would make the milestone model less accurate. |
+
 Expected immediate graph change:
 
-- Starfall edges: `283 -> 276`
-- Starfall local edges: `256 -> 249`
-- Starfall local cross-milestone edges: `94 -> 87`
-- Combined audited edges: `368 -> 361`
+- Starfall edges: `283 -> 277`
+- Starfall local edges: `256 -> 250`
+- Starfall local cross-milestone edges: `94 -> 88`
+- Combined audited edges: `368 -> 362`
 - New Starfall triggers: `0 -> 4`
-- New milestone/trigger requirements: five (`M5` one, `M6` three, `M7` one)
+- New milestone/trigger requirements: four (`M6` three, `M7` one)
 
-Do not remove these exact dependencies until switchboard readback proves the replacement trigger active and the consumer milestone eligible.
+Do not remove the six exact dependencies until switchboard readback proves the replacement trigger active and the consumer milestone eligible. Do not attach `development_instrumentation_available` to M5 merely to remove the retained overlap edge.
 
 ## Dependencies that remain tasks
 
@@ -353,6 +374,55 @@ These edges describe the v1 evidence sequence, not a broad capability gate.
 ### Cross-project source and asset contracts
 
 Keep canonical dependencies such as Starfall Client consumption of `SHARED-0026`, character/static rendering, selected-input acquisition, Box3D, transport, and screenshot capture. They resolve exact owning-project artifacts and remain necessary until PM supports a reviewed linked-trigger contract with equivalent identity and readiness semantics.
+
+## Future graph discipline
+
+Every future milestone grooming pass must start with capability triggers before adding cross-milestone task dependencies.
+
+### Fire Arrow and Mana
+
+The intended representation is:
+
+```text
+delivered M6 -> authoritative_mana_available -> Fire Arrow milestone
+
+Fire content -> Fire simulation -> Fire protocol/World -> Fire client proof
+```
+
+Do not recreate:
+
+```text
+Fire simulation -> Mana simulation
+Fire protocol   -> Mana protocol
+Fire World      -> Mana World
+Fire client     -> Mana client
+```
+
+Fire task contracts should identify the exact Mana state/service, facts/codecs, World integration, and diagnostics they consume. Because the entire Fire milestone remains inactive until Mana is delivered, those per-layer cross-milestone edges add no readiness guarantee.
+
+The same rule applies to:
+
+- Arrow Rain consuming delivered Mana and the established combat-action capability;
+- the permanent HUD consuming delivered Mana;
+- Player Life consuming delivered Mana's lifecycle seam;
+- Progression consuming delivered Basic Arrow/monster-death capability;
+- Equipment and Physical Drops consuming delivered Inventory;
+- later combat actions consuming delivered targeting, action, projectile, or resource capabilities.
+
+A narrow cross-milestone dependency remains appropriate when producer and consumer milestones deliberately overlap and only one downstream task must wait. `CLIENT-0019 -> CLIENT-0031` is the current reference case.
+
+### Migration success criteria
+
+The eventual execution manifest must measure all of the following:
+
+- capability prerequisites represented once at milestone level;
+- redundant cross-milestone task dependencies removed;
+- narrow overlap dependencies retained with an explicit reason;
+- internal task ordering preserved;
+- completed history preserved;
+- task and wiki contracts updated to name the precise consumed seams;
+- future grooming instructed not to recreate per-layer fans already guaranteed by activation;
+- before/after task-edge and milestone-trigger counts recorded from authoritative readback.
 
 ## Historical dependency treatment
 
@@ -399,13 +469,13 @@ Fire Arrow is the first second consumer of Basic's action lifecycle. If Fire pla
 The proposed first pass is acyclic:
 
 ```text
-delivered M4 -> development_instrumentation_available -> M5, M6
+delivered M4 -> development_instrumentation_available -> M6
 done PROTOCOL-0015 -> gameplay_protocol_v1_available -> M6
 done SERVER-0005 + CLIENT-0009 -> connected_world_available -> M6
 done CLIENT-0009 + CLIENT-0023 -> connected_snapshot_presentation_available -> M7
 ```
 
-M5 does not source any trigger it consumes. M6 and M7 do not source their prerequisites. Future outcome triggers point from delivered producer milestones to later consumer milestones.
+M5 remains independently eligible and overlaps with M4 through the narrow `CLIENT-0019 -> CLIENT-0031` edge. M6 and M7 do not source their prerequisites. Future outcome triggers point from delivered producer milestones to later consumer milestones.
 
 The safe mutation order is:
 
@@ -416,7 +486,7 @@ The safe mutation order is:
 5. reconcile satisfied triggers;
 6. attach only active triggers to current consumer milestones;
 7. re-read switchboard eligibility;
-8. remove the seven replaced task edges;
+8. remove the six replaced task edges and verify the one deliberate overlap edge remains;
 9. validate tasks, switchboard, warnings, and cycles again;
 10. update matching wiki roadmap text and audit log;
 11. commit one owning repository at a time with the usual Starfall pointer handoff.
@@ -449,10 +519,12 @@ No cycle is authorized by this audit alone.
 ### Cycle C — Starfall current trigger migration
 
 - create and reconcile the four first-pass triggers;
-- attach them to M5-M7 exactly as specified;
+- attach them only to M6 and M7 exactly as specified;
 - verify eligibility before removing dependencies;
-- remove only the seven enumerated task edges;
+- remove only the six enumerated redundant task edges;
+- retain `CLIENT-0019 -> CLIENT-0031` and record why M5 intentionally overlaps M4;
 - update task wording only where it still names the removed edge rather than the consumed capability;
+- update durable task/wiki contracts to name the concrete seams now guaranteed by activation;
 - validate counts, readiness, cycles, PM doctor, receipts, and family warnings;
 - commit `[PM]`, perform pointer handoff, stop.
 
@@ -478,11 +550,11 @@ Severity: medium
 
 M3 has no tasks and produces an `empty_milestone` warning. Wings, transformations, mounts, and companions remain broad future outcomes. Remove the empty milestone rather than inventing scope or tasks to populate it.
 
-### TD-04 — Development Instrumentation is still repeated as task prerequisites
+### TD-04 — Development Instrumentation demonstrates both trigger and overlap cases
 
 Severity: high
 
-M4 is complete, but M5/M6 tasks still depend on `CLIENT-0031` and `SERVER-0015`. Deliver M4 and gate consuming milestones through `development_instrumentation_available`; keep feature-specific diagnostics/handlers in their owning tasks.
+M4 is complete. M6 requires Development Instrumentation as a whole and should consume it through `development_instrumentation_available`, removing its per-layer `SERVER-0015`/`CLIENT-0031` edges. M5 intentionally overlapped M4: only terminal task `CLIENT-0019` needs `CLIENT-0031`. Retain that narrow edge instead of globally gating M5.
 
 ### TD-05 — Mana is accidentally coupled to Basic through a completed task
 
@@ -518,7 +590,7 @@ The deferred architecture is durable, but neither `SHARED-0025` nor its title de
 
 Severity: medium
 
-Most of the 368 edges are completed history or exact internal order. Rewriting them would obscure evidence and generate risk for little scheduling value. Apply trigger migration prospectively and to todo tasks with clear replacement semantics.
+Most of the 368 edges are completed history or exact internal order. Rewriting completed edges would obscure evidence and generate risk for little scheduling value. For todo and future work, however, the old graph is not presumptively correct: apply the cross-milestone eligibility test and remove per-layer fans whenever milestone activation already guarantees the capability.
 
 ## Decisions required before an execution manifest
 
@@ -526,12 +598,13 @@ Most of the 368 edges are completed history or exact internal order. Rewriting t
 2. Approve normal delivery of coordinator M0/M1/M2/M4/M5 and Starfall M0/M1/M4.
 3. Confirm coordinator M3 and Starfall M2 remain undelivered legacy buckets.
 4. Confirm empty Starfall M3 should be removed rather than retained as an initiative placeholder.
-5. Approve the four first-pass trigger keys, requirements, promises, and consuming milestones.
-6. Approve the seven exact task-edge removals.
+5. Approve the four first-pass trigger keys, requirements, promises, and consuming milestones, with no M5-wide Development Instrumentation gate.
+6. Approve the six exact task-edge removals and deliberate retention of `CLIENT-0019 -> CLIENT-0031`.
 7. Confirm completed task dependencies remain historical and are not mass-rewritten.
 8. Confirm canonical cross-project task dependencies remain unchanged.
-9. Confirm future outcome triggers are allocated only with a real producer/consumer cycle.
-10. Confirm Pressure Cooker remains dormant and receives no trigger until an owner activation decision.
+9. Confirm future milestone activation replaces per-layer dependency fans unless a documented overlap requires a narrow edge.
+10. Confirm future outcome triggers are allocated only with a real producer/consumer cycle.
+11. Confirm Pressure Cooker remains dormant and receives no trigger until an owner activation decision.
 
 ## Audit checklist
 
@@ -547,15 +620,18 @@ Most of the 368 edges are completed history or exact internal order. Rewriting t
 - [x] Classify current dependencies as exact order, capability gate, historical evidence, or canonical linked ownership.
 - [x] Propose task-backed partial-capability triggers without introducing cycles.
 - [x] Define the first-pass graph delta and safe mutation order.
+- [x] Re-evaluate all seven candidate edges using the cross-milestone eligibility test.
+- [x] Add prospective anti-fan-out rules and measurable manifest success criteria.
 
 ### Owner decisions
 
 - [ ] Approve/revise milestone descriptions and delivery treatment.
 - [ ] Approve/revise first-pass trigger definitions and consumers.
-- [ ] Approve/revise the seven exact dependency replacements.
+- [ ] Approve/revise the six exact dependency replacements and one retained overlap edge.
 - [ ] Approve/revise empty Starfall M3 removal.
 - [ ] Approve preserving legacy buckets and completed dependency history.
 - [ ] Approve preserving canonical cross-project task dependencies.
+- [ ] Approve the anti-fan-out rule for every future milestone grooming pass.
 - [ ] Approve producing the trigger/deliverable execution manifest.
 
 ### Execution
@@ -567,9 +643,10 @@ Most of the 368 edges are completed history or exact internal order. Rewriting t
 - [ ] Re-read switchboards and prove every current milestone has the intended lifecycle.
 - [ ] Verify M5/M6/M7 eligibility is unchanged except where explicitly approved.
 - [ ] Verify the resulting task and trigger graph is acyclic.
+- [ ] Record before/after edge counts and confirm the retained overlap edge is documented.
 - [ ] Verify no task became active during grooming.
 - [ ] Check off every completed item in this audit during the owning cycle.
 
 ## Recommended next action
 
-Review the ten decisions above. Once settled, produce the execution manifest; do not mutate milestones, deliveries, triggers, dependencies, or wiki text directly from this audit.
+Review the eleven decisions above. Once settled, produce the execution manifest with the anti-fan-out test as a mandatory dependency-review rule; do not mutate milestones, deliveries, triggers, dependencies, or wiki text directly from this audit.
